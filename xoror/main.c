@@ -7,7 +7,13 @@
 
 
 /*
- 
+   Author: Nicolas GUILLAUME
+
+  Xoror is a simple xor cryptor.
+
+  Warning: This may NOT resist anybody.
+           Do NOT use it for critical data.
+
      Compile with:  gcc -Wall xoror.c main.c -o xoror
 
 */
@@ -87,6 +93,8 @@ int main(int argc, char ** argv)
 	    usage(pname, EXIT_SUCCESS);
 	    break;
 	default:
+		fprintf(stderr, "%s: invalid option `%c'\n", pname, optch);
+	    usage(pname, EXIT_FAILURE);
 	    break;
 	}
     }

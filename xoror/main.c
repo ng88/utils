@@ -14,8 +14,27 @@
 
 
 /* -h -p blabla -k 456 -s salut|-i file1 -o file2*/
-void usage(const char * pname)
+void usage(const char * pname, int ev)
 {
+    fprintf(stderr, "usage: %s [-h] -p passphrase [-k key] [-s string] [-i file_in] [-o file_out]\n\n"
+	            "       -h                show this help\n"
+	            "       -p passphrase     passphrase used to crypt data\n"
+		    "       -k key            key used with passphrase to crypt data\n"
+		    "       -s string         crypt string, stdout is used as output\n"
+		    "       -i file           input file, cannot be used with -s\n"
+		    "                         if not specified, stdin is used\n"
+		    "       -o file           output file, cannot be used with -s\n"
+		    "                         if not specified, stdout is used\n"
+		    "\n"
+	            "       Examples :\n\n"
+	            "          Encrypt 1.tgz to 1.tgz.crypt\n"
+		    "          %s -p \"this is a test\" -i 1.tgz -o 1.tgz.crypt\n\n"
+	            "          Decrypt 1.tgz.crypt back to 1.tgz\n"
+		    "          %s -p \"this is a test\" -o 1.tgz -i 1.tgz.crypt\n\n"
+	            "          Encrypt 'salut'\n"
+		    "          %s -p \"this is a test\" -s salut\n"
+		    , pname, pname, pname, pname);
+    exit(ev);
 }
 
 int main(int argc, char ** argv)
@@ -49,13 +68,13 @@ int main(int argc, char ** argv)
 	    break;
 	case 'o':
 	    out = fopen(optarg, "wb");
-	    if(!in)
+	    if(!out)
 	    {
 		fprintf(stderr, "%s: unable to open file `%s'\n", pname, optarg);
 		return EXIT_FAILURE;
 	    }
 	    break;
-	case 'i':
+	case 'p':
 	    pass = optarg;
 	    break;
 	case 'k':
@@ -65,39 +84,52 @@ int main(int argc, char ** argv)
 	    string = optarg;
 	    break;
 	case 'h':
-	    usage(pname);
+	    usage(pname, EXIT_SUCCESS);
 	    break;
 	default:
 	    break;
 	}
     }
 
+    if(argc - optind)
+	usage(pname, EXIT_FAILURE);
+
     if( (in || out) && string)
-	usage(pname);
+	usage(pname, EXIT_FAILURE);
 
     if( !pass || strlen(pass) <= 2)
-	usage(pname);
+	usage(pname, EXIT_FAILURE);
 
     if(!key)
 	key = pass[0] * pass[1];
 
-    printf("%d\n", argc - optind);
+    cryptor * c = cryptor_new(argv[1], atoi(argv[2]));
 
-    return EXIT_SUCCESS;
+    if(string) /* working with string */
+    {
+	char * out = (char*)malloc(strlen(string) + 1);
 
-    /*cryptor * c = cryptor_new(argv[1], atoi(argv[2]));
+	encrypt_string(string, out, c);
+	puts(out);
 
-    FILE * in = fopen(argv[3], "rb");
-    FILE * out = fopen(argv[4], "wb");
+	free(out);
+    }
+    else /* working with files */
+    {
+	if(!in) in = stdin;
+	if(!out) out = stdout;
 
+ 
+	encrypt_file(in, out, c);
 
-    encrypt_file(in, out, c);
+	fclose(in);
+	fclose(out);
 
-    fclose(in);
-    fclose(out);
+    }
 
     cryptor_free(c);
 
-    return EXIT_SUCCESS;*/
+    return EXIT_SUCCESS;
+
 }
 

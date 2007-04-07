@@ -30,7 +30,7 @@ cryptor* cryptor_new(char * passphrase, int key)
     ret->passphrase = strdup(passphrase);
     ret->size = strlen(passphrase);
 
-    ret->cseed = key;
+    ret->cseed = key *  ret->size;
     int i;
     for(i = 0; i < ret->size; ++i)
 	ret->cseed += passphrase[i] ^ key;

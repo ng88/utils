@@ -109,7 +109,6 @@ int main(int argc, char ** argv)
 	    usage(pname, EXIT_SUCCESS);
 	    break;
 	default:
-		fprintf(stderr, "%s: invalid option `%c'\n", pname, optch);
 	    usage(pname, EXIT_FAILURE);
 	    break;
 	}
@@ -127,7 +126,7 @@ int main(int argc, char ** argv)
     if(!key)
 	key = pass[0] * pass[1];
 
-    cryptor * c = cryptor_new(argv[1], atoi(argv[2]));
+    cryptor * c = cryptor_new(pass, key);
 
     if(string) /* working with string */
     {

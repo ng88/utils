@@ -84,7 +84,7 @@ int main(int argc, char ** argv)
 	    in = fopen(optarg, "rb");
 	    if(!in)
 	    {
-		fprintf(stderr, "%s: unable to open file `%s'\n", pname, optarg);
+		fprintf(stderr, "%s: unable to open input file `%s'\n", pname, optarg);
 		return EXIT_FAILURE;
 	    }
 	    break;
@@ -92,7 +92,7 @@ int main(int argc, char ** argv)
 	    out = fopen(optarg, "wb");
 	    if(!out)
 	    {
-		fprintf(stderr, "%s: unable to open file `%s'\n", pname, optarg);
+		fprintf(stderr, "%s: unable to open output file `%s'\n", pname, optarg);
 		return EXIT_FAILURE;
 	    }
 	    break;

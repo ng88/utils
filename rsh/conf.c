@@ -16,6 +16,8 @@
 
 
 #define _GNU_SOURCE
+#include <unistd.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -74,7 +76,7 @@ void syntax_error()
 void read_conf(char ** prompt, char ** message, command_list_t * cmds)
 {
 
-    char * username = getenv("USER");
+    char * username = getpwuid(getuid())->pw_name;
 
     *cmds = new_command_list();
     *message = NULL;

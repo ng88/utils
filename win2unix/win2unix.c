@@ -16,6 +16,8 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define CR 13
 #define LF 10
@@ -59,7 +61,7 @@ int main(int argc, char ** argv)
     fclose(in);
     fclose(out);
         
-    
+    return EXIT_SUCCESS;
 
 }
 

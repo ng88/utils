@@ -15,7 +15,7 @@
  ***************************************************************************/                                                                
 
 
-
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,7 +27,7 @@
 void usage(char * str)
 {
     fprintf(stderr, "usage: %s N ... M\n"
-                    "       %s N\n", str, str, str);
+                    "       %s N\n", str, str);
     exit(1);
 }
 

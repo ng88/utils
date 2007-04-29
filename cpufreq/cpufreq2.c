@@ -95,7 +95,7 @@ inline uint compute_cpu_freq()
 int main(int argc, char ** argv)
 {
     uint ms = 0;
-    
+
     if(argc > 1)
         ms = atoi(argv[1]);
        

@@ -174,9 +174,12 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 
 			test = read_to_quote(test, &logpath);
 
+			if(*log)
+			    fclose(*log);
+
 			*log = fopen(logpath, "a");
 
-			if(!log)
+			if(!*log)
 			    fprintf(stderr, "warning: unable to open log file `%s' for writing!\n", logpath);
 		    }
 

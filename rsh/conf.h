@@ -21,7 +21,7 @@
 
 #define CONF_FILE "/etc/rsh.conf"
 
-#define VERSION "1.2 rev 7"
+#define VERSION "1.2 rev 14"
 
 #define MESSAGE "rhs v" VERSION " (C) by Nicolas GUILLAUME 2007"
 

@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
 #include "conf.h"
 #include "rsh.h"
 
@@ -122,6 +124,9 @@ int exec_command(char * str, command_list_t cmds, FILE * log)
 
     if(!strcmp(str, "?"))
     {
+	if(log)
+	    log_write_rescmd(log, "rsh.builtin.help");
+
 	puts("Available commands:");
 	node_t it = cmds->head;
 
@@ -180,6 +185,19 @@ void log_write_str(FILE * log, char * str)
 void log_write_linehead(FILE * log)
 {
     uid_t uid = getuid();
-    fprintf(log, "[date TODO] user %d (%s) ", uid, getpwuid(uid)->pw_name);
+
+    time_t t = time(NULL);
+    struct tm * date =  localtime(&t);
+
+    fprintf(log, "[%02d:%02d:%02d %02d/%02d/%4d] user %d (%s) ",
+	    date->tm_hour,
+	    date->tm_min,
+	    date->tm_sec,
+	    date->tm_mday,
+	    date->tm_mon + 1,
+	    date->tm_year + 1900,
+	    uid,
+	    getpwuid(uid)->pw_name);
 }
+
 

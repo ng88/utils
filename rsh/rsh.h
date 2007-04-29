@@ -68,3 +68,4 @@ void log_write_str(FILE * log, char * str);
 void log_write_linehead(FILE * log);
 
 #endif
+//tester avec ~ mettre a jour le conf exemple

@@ -55,7 +55,16 @@ node_t new_node(node_t next, command_t cmd);
 void free_node(node_t n);
 
 
-int exec_command(char * str, command_list_t cmds);
+int exec_command(char * str, command_list_t cmds, FILE * log);
 
+
+
+#define log_write_login(log) log_write_str((log), "logged in\n")
+#define log_write_logout(log) log_write_str((log), "logged out\n")
+
+void log_write_execcmd(FILE * log, char * cmd);
+void log_write_rescmd(FILE * log, char * cmd);
+void log_write_str(FILE * log, char * str);
+void log_write_linehead(FILE * log);
 
 #endif

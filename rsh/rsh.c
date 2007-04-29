@@ -22,7 +22,9 @@
    It is typically used on a ssh server for user with restricted privilege.
 
 */
-
+#define _GNU_SOURCE
+#include <unistd.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -96,14 +98,24 @@ void free_node(node_t n)
 }
 
 
-int exec_command(char * str, command_list_t cmds)
+int exec_command(char * str, command_list_t cmds, FILE * log)
 {
+    if(log)
+	log_write_execcmd(log, str);
 
     if(!strcmp(str, "exit"))
+    {
+	if(log)
+	    log_write_rescmd(log, "rsh.builtin.exit");
+
 	return 0;
+    }
 
     if(!strcmp(str, "version"))
     {
+	if(log)
+	    log_write_rescmd(log, MESSAGE);
+
 	puts(MESSAGE);
 	return 1;
     }
@@ -128,6 +140,9 @@ int exec_command(char * str, command_list_t cmds)
     {
 	if(!strcmp(str, it->cmd->command))
 	{
+	    if(log)
+		log_write_rescmd(log, it->cmd->aliasfor);
+
 	    system(it->cmd->aliasfor);
 	    return 1;
 	}
@@ -135,8 +150,36 @@ int exec_command(char * str, command_list_t cmds)
 	it = it->next;
     }
 
+    if(log)
+	log_write_rescmd(log, "rsh.builtin.command_not_found");
+
     fprintf(stderr, "rsh: %s: command not found, hit ? for a list of command\n", str);
 
     return 1;
 
 }
+
+void log_write_rescmd(FILE * log, char * cmd)
+{
+    log_write_linehead(log);
+    fprintf(log, "command resulted in `%s'\n", cmd);
+}
+
+void log_write_execcmd(FILE * log, char * cmd)
+{
+    log_write_linehead(log);
+    fprintf(log, "executed command `%s'\n", cmd);
+}
+
+void log_write_str(FILE * log, char * str)
+{
+    log_write_linehead(log);
+    fputs(str, log);
+}
+
+void log_write_linehead(FILE * log)
+{
+    uid_t uid = getuid();
+    fprintf(log, "[date TODO] user %d (%s) ", uid, getpwuid(uid)->pw_name);
+}
+

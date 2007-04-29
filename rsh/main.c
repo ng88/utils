@@ -21,6 +21,8 @@
    rsh is a restricted shell that can execute only few commands.
    It is typically used on a ssh server for user with restricted privilege.
 
+   compile with: gcc -Wall conf.c  main.c  rsh.c -o rsh
+
 */
 
 #define _GNU_SOURCE
@@ -38,12 +40,16 @@ int main(int argc, char ** argv)
     command_list_t commands;
     char * message;
     char * prompt;
+    FILE * log;
 
-    read_conf(&prompt, &message, &commands);
+    read_conf(&prompt, &message, &commands, &log);
+
+    if(log)
+	log_write_login(log);
 
     if(argc == 3 && !strcmp(argv[1], "-c"))
     {
-	exec_command(argv[2], commands);
+	exec_command(argv[2], commands, log);
     }
     else
     {
@@ -61,7 +67,7 @@ int main(int argc, char ** argv)
 	    *(strchr(line, '\n')) = '\0';
 	
 
-	    if(read > 1 && !exec_command(line, commands))
+	    if(read > 1 && !exec_command(line, commands, log))
 		break;
 
 	    fputs(prompt, stdout);
@@ -78,6 +84,12 @@ int main(int argc, char ** argv)
 	if (line)
 	    free(line);
 
+    }
+
+    if(log)
+    {
+	log_write_logout(log);
+	fclose(log);
     }
 
     free_command_list(commands);

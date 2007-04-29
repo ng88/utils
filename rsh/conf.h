@@ -21,7 +21,7 @@
 
 #define CONF_FILE "/etc/rsh.conf"
 
-#define VERSION "1.0"
+#define VERSION "1.2 rev 7"
 
 #define MESSAGE "rhs v" VERSION " (C) by Nicolas GUILLAUME 2007"
 
@@ -29,7 +29,7 @@
 char * read_token(char * str, char * token);
 char * read_to_quote(char * str, char ** ret);
 
-void read_conf(char ** prompt, char ** message, command_list_t * cmds);
+void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** log);
 
 void syntax_error();
 

@@ -73,7 +73,7 @@ void syntax_error()
     exit(EXIT_FAILURE);
 }
 
-void read_conf(char ** prompt, char ** message, command_list_t * cmds)
+void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** log)
 {
 
     char * username = getpwuid(getuid())->pw_name;
@@ -81,6 +81,7 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds)
     *cmds = new_command_list();
     *message = NULL;
     *prompt = NULL;
+    *log  = NULL;
 
     /* read configuration */
     FILE * f = fopen(CONF_FILE, "r");
@@ -164,6 +165,19 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds)
 			test = read_to_quote(test, &cmd);
 
 			add_head_command_list(*cmds, cmd, alias, 0);
+		    }
+
+		    test = read_token(pos, " log into '");
+		    if(test) /* allow command */
+		    {
+			char * logpath;
+
+			test = read_to_quote(test, &logpath);
+
+			*log = fopen(logpath, "a");
+
+			if(!log)
+			    fprintf(stderr, "warning: unable to open log file `%s' for writing!\n", logpath);
 		    }
 
 		}

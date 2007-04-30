@@ -28,7 +28,8 @@ xoror:
 	$(MAKE) -C $@
 
 install: min
-	install -sm 755 daemon/daemon max_uptime/max_uptime range/range rsh/rsh xoror/xoror /usr/bin/
+	install -sm 755 daemon/daemon max_uptime/max_uptime range/range xoror/xoror /usr/bin/
+	install -sm 755 rsh/rsh /bin/
 	install -m 644 rsh/rsh.conf /etc/
 
 

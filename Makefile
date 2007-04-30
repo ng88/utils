@@ -27,6 +27,10 @@ win2unix:
 xoror:
 	$(MAKE) -C $@
 
+install: min
+	install -sm 755 daemon/daemon max_uptime/max_uptime range/range rsh/rsh xoror/xoror /usr/bin/
+	install -m 644 rsh/rsh.conf /etc/
+
 
 clean:
 	$(MAKE) -C cpufreq clean
@@ -41,4 +45,4 @@ clean:
 mrproper: clean
 	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror
 
-.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror
+.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror install

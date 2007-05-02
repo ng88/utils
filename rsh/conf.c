@@ -178,6 +178,7 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 			    fclose(*log);
 
 			*log = fopen(logpath, "a");
+			free(logpath);
 
 			if(!*log)
 			    fprintf(stderr, "warning: unable to open log file `%s' for writing!\n", logpath);

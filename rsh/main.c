@@ -25,14 +25,13 @@
 
 */
 
-#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "rsh.h"
 #include "conf.h"
-
+#include "io.h"
 
 
 int main(int argc, char ** argv)
@@ -56,33 +55,18 @@ int main(int argc, char ** argv)
 
 	puts(message);
 
-	char * line = NULL;
-	size_t len = 0;
-	size_t read;
+	char * line;
 
-	fputs(prompt, stdout);
-	while ((read = getline(&line, &len, stdin)) != -1)
+	int cont = 1;
+	while(cont &&  (line = line_input(prompt)) )
 	{
        
-	    *(strchr(line, '\n')) = '\0';
-	
-
-	    if(read > 1 && !exec_command(line, commands, log))
-		break;
-
-	    fputs(prompt, stdout);
-
-            if (line)
-            {
-                free(line);
-                line = NULL;
-            }
-
+	    if(!exec_command(line, commands, log))
+		cont = 0;
+	    
+	    free(line);
 
 	}
-
-	if (line)
-	    free(line);
 
     }
 

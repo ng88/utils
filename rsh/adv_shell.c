@@ -25,7 +25,7 @@
 # include <stdio.h>
 # include <string.h>
 
-char * line_input(char * prompt)
+char * shell_line_input(char * prompt)
 {
     char * line = NULL;
     size_t len = 0;
@@ -39,6 +39,13 @@ char * line_input(char * prompt)
     return line;
 }
 
+void shell_using_history() {}
+
+void shell_add_history(const char *string) {}
+
+void shell_read_history(const char *filename) {}
+void shell_write_history(const char *filename, int max) {}
+
 #else
 
 # include <stdio.h>
@@ -46,9 +53,32 @@ char * line_input(char * prompt)
 # include <readline/history.h>
 
 
-char * line_input(char * prompt)
-{using_history();
+char * shell_line_input(char * prompt)
+{
     return readline(prompt);
+}
+
+void shell_using_history()
+{
+    using_history();
+}
+
+void shell_add_history(const char *string)
+{
+    add_history(string);
+}
+
+void shell_read_history(const char *filename)
+{
+    read_history(filename);
+}
+
+void shell_write_history(const char *filename, int max)
+{
+    write_history(filename);
+
+    if(max > 0)
+	history_truncate_file(filename, max);
 }
 
 #endif

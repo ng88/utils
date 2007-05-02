@@ -208,3 +208,20 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
     }
 
 }
+
+char * conf_get_history_file()
+{
+
+    if(HIST_FILE[0] == '~')
+    {
+	static char hist[1024];
+	char * userdir = getpwuid(getuid())->pw_dir;
+
+	strcpy(hist, userdir);
+	strcat(hist, HIST_FILE+1);
+
+	return hist;
+    }
+    else
+	return HIST_FILE;
+}

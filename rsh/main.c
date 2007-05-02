@@ -15,13 +15,13 @@
  ***************************************************************************/                                                                
 
 /**
-
+ 
    Author: Nicolas GUILLAUME <ng@ngsoft-fr.com>
 
    rsh is a restricted shell that can execute only few commands.
    It is typically used on a ssh server for user with restricted privilege.
 
-   compile with: gcc -Wall conf.c  main.c  rsh.c -o rsh
+   compile with: make or make ENABLE_READLINE=1 if you want history support
 
 */
 
@@ -41,6 +41,8 @@ int main(int argc, char ** argv)
     char * prompt;
     FILE * log;
 
+    char * hist_file = conf_get_history_file();
+
     read_conf(&prompt, &message, &commands, &log);
 
     if(log)
@@ -53,20 +55,30 @@ int main(int argc, char ** argv)
     else
     {
 
+	shell_using_history();
+	shell_read_history(hist_file);
+
 	puts(message);
 
 	char * line;
 
 	int cont = 1;
-	while(cont &&  (line = line_input(prompt)) )
+	while(cont &&  (line = shell_line_input(prompt)) )
 	{
        
-	    if(!exec_command(line, commands, log))
-		cont = 0;
+	    if(strlen(line) > 0)
+	    {
+		if(!exec_command(line, commands, log))
+		    cont = 0;
+
+		shell_add_history(line);
+	    }
 	    
 	    free(line);
 
 	}
+
+	shell_write_history(hist_file, MAX_HIST_SIZE);
 
     }
 

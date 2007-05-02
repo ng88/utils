@@ -20,6 +20,9 @@
 #include "rsh.h"
 
 #define CONF_FILE "/etc/rsh.conf"
+#define HIST_FILE "~/.rsh_history"
+
+#define MAX_HIST_SIZE 30
 
 #define VERSION "1.2 rev 14"
 
@@ -32,6 +35,8 @@ char * read_to_quote(char * str, char ** ret);
 void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** log);
 
 void syntax_error();
+
+char * conf_get_history_file();
 
 
 #endif

@@ -18,7 +18,24 @@
 #ifndef ADV_SHELL_H
 #define ADV_SHELL_H
 
-char * line_input(char * prompt);
+/* get a line from user */
+char * shell_line_input(char * prompt);
 
+
+
+/* start using history */
+void shell_using_history();
+
+
+/* add 'string' to history */
+void shell_add_history(const char *string);
+
+
+/* load history from file 'filename' */
+void shell_read_history(const char *filename);
+
+/* save history to file 'filename'.
+ * If max is > 0 then only the last 'max' lines are left */
+void shell_write_history(const char *filename, int max);
 
 #endif

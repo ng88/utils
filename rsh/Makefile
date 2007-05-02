@@ -10,12 +10,12 @@ CC=gcc
 CFLAGS=-Wall $(RD_CF)
 LDFLAGS=$(RD_LDF)
 
-rsh: main.o conf.o rsh.o io.o
+rsh: main.o conf.o rsh.o adv_shell.o
 
-main.o: conf.h rsh.h io.h
+main.o: conf.h rsh.h adv_shell.h
 conf.o: conf.h
 rsh.o: conf.h rsh.h
-io.o: io.h
+adv_shell.o: adv_shell.h
 
 .PHONY: clean
 

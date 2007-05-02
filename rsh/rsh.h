@@ -20,9 +20,18 @@
 
 typedef struct
 {
+    /* real command */
     char * command;
+
+    /* alias */
     char * aliasfor;
+
+     /* shown in '?' list ? */
     int hidden;
+
+    /* arguments allowed ? */
+    int allow_arg;
+
 }* command_t;
 
 
@@ -40,14 +49,14 @@ typedef struct
 }* command_list_t;
 
 
-command_t new_command(char * cmd, char * aliasfor, int hidden);
+command_t new_command(char * cmd, char * aliasfor, int hidden, int allow_arg);
 void free_command(command_t c);
 
 
 
 command_list_t new_command_list();
 void free_command_list(command_list_t c);
-command_list_t add_head_command_list(command_list_t c, char * cmd, char * aliasfor, int hidden);
+command_list_t add_head_command_list(command_list_t c, char * cmd, char * aliasfor, int hidden, int allow_arg);
 
 
 
@@ -58,6 +67,7 @@ void free_node(node_t n);
 int exec_command(char * str, command_list_t cmds, FILE * log);
 
 
+int strcmp_arg(char * user, char * cmd, int allow_arg);
 
 #define log_write_login(log) log_write_str((log), "logged in\n")
 #define log_write_logout(log) log_write_str((log), "logged out\n")

@@ -35,14 +35,14 @@
 
 
 
-command_t new_command(char * cmd, char * aliasfor, int hidden)
+command_t new_command(char * cmd, char * aliasfor, int hidden, int allow_arg)
 {
     command_t c = (command_t)malloc(sizeof(*c));
 
     c->command = cmd;
     c->aliasfor = aliasfor;
     c->hidden = hidden;
-
+    c->allow_arg = allow_arg;
     return c;
 }
 
@@ -72,9 +72,9 @@ void free_command_list(command_list_t c)
     free(c);
 }
 
-command_list_t add_head_command_list(command_list_t c, char * cmd, char * aliasfor, int hidden)
+command_list_t add_head_command_list(command_list_t c, char * cmd, char * aliasfor, int hidden, int allow_arg)
 {
-    node_t n = new_node(c->head, new_command(cmd, aliasfor, hidden));
+    node_t n = new_node(c->head, new_command(cmd, aliasfor, hidden, allow_arg));
 
     c->head = n;
     c->size++;
@@ -102,6 +102,8 @@ void free_node(node_t n)
 
 int exec_command(char * str, command_list_t cmds, FILE * log)
 {
+    int n = strlen(str);
+
     if(log)
 	log_write_execcmd(log, str);
 
@@ -116,7 +118,7 @@ int exec_command(char * str, command_list_t cmds, FILE * log)
     if(!strcmp(str, "version"))
     {
 	if(log)
-	    log_write_rescmd(log, MESSAGE);
+	    log_write_rescmd(log, "rsh.builtin.version");
 
 	puts(MESSAGE);
 	return 1;
@@ -143,13 +145,35 @@ int exec_command(char * str, command_list_t cmds, FILE * log)
 
     while(it)
     {
-	if(!strcmp(str, it->cmd->command))
-	{
-	    if(log)
-		log_write_rescmd(log, it->cmd->aliasfor);
 
-	    system(it->cmd->aliasfor);
+	if(!strcmp_arg(str, it->cmd->command, it->cmd->allow_arg))
+	{
+
+	    char * exec;
+
+	    if(it->cmd->allow_arg)
+	    {
+		exec = (char*)malloc(strlen(it->cmd->aliasfor) + n);
+		strcpy(exec, it->cmd->aliasfor);
+
+		char * pos = strchr(str, ' ');
+
+		if(pos)
+		    strcat(exec, pos);
+	    }
+	    else
+		exec = it->cmd->aliasfor;
+
+	    if(log)
+		log_write_rescmd(log, exec);
+
+	    system(exec);
+
+	    if(it->cmd->allow_arg)
+		free(exec);
+
 	    return 1;
+
 	}
 
 	it = it->next;
@@ -162,6 +186,25 @@ int exec_command(char * str, command_list_t cmds, FILE * log)
 
     return 1;
 
+}
+
+int strcmp_arg(char * user, char * cmd, int allow_arg)
+{
+    while( *user && cmd )
+    {
+	if(*user < *cmd)
+	    return -1;
+	else if(*user > *cmd)
+	    return 1;
+	
+	user++;
+	cmd++;
+
+	if(allow_arg && *user == ' ')
+	    break;
+    }
+
+    return 0;
 }
 
 void log_write_rescmd(FILE * log, char * cmd)

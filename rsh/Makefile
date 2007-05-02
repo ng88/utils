@@ -13,7 +13,7 @@ LDFLAGS=$(RD_LDF)
 rsh: main.o conf.o rsh.o adv_shell.o
 
 main.o: conf.h rsh.h adv_shell.h
-conf.o: conf.h
+conf.o: conf.h rsh.h
 rsh.o: conf.h rsh.h
 adv_shell.o: adv_shell.h
 

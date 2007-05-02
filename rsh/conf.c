@@ -134,7 +134,22 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 
 		    }
 
+		    /* to be factorized & improved...*/
 
+		    test = read_token(pos, " allow hidden with args '");
+		    if(test) /* allow hidden command */
+		    {
+			char * cmd, *alias;
+
+			test = read_to_quote(test, &alias);
+			test = read_token(test, " as '");
+
+			if(!test) syntax_error();
+
+			test = read_to_quote(test, &cmd);
+
+			add_head_command_list(*cmds, cmd, alias, 1, 1);
+		    }
 
 		    test = read_token(pos, " allow hidden '");
 		    if(test) /* allow hidden command */
@@ -148,9 +163,23 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 
 			test = read_to_quote(test, &cmd);
 
-			add_head_command_list(*cmds, cmd, alias, 1);
+			add_head_command_list(*cmds, cmd, alias, 1, 0);
 		    }
 
+		    test = read_token(pos, " allow with args '");
+		    if(test) /* allow command */
+		    {
+			char * cmd, *alias;
+
+			test = read_to_quote(test, &alias);
+			test = read_token(test, " as '");
+
+			if(!test) syntax_error();
+
+			test = read_to_quote(test, &cmd);
+
+			add_head_command_list(*cmds, cmd, alias, 0, 1);
+		    }
 
 		    test = read_token(pos, " allow '");
 		    if(test) /* allow command */
@@ -164,7 +193,7 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 
 			test = read_to_quote(test, &cmd);
 
-			add_head_command_list(*cmds, cmd, alias, 0);
+			add_head_command_list(*cmds, cmd, alias, 0, 0);
 		    }
 
 		    test = read_token(pos, " log into '");

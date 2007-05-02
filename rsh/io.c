@@ -31,7 +31,7 @@ char * line_input(char * prompt)
 
 
 char * line_input(char * prompt)
-{
+{using_history();
     return readline(prompt);
 }
 

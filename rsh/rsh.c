@@ -202,7 +202,7 @@ int strcmp_arg(char * user, char * cmd, int allow_arg)
 	    break;
     }
 
-    return *cmd == '\0';
+    return *cmd == '\0' && (*user == ' ' || *user == '\0');
 }
 
 void log_write_rescmd(FILE * log, char * cmd)

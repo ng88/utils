@@ -66,7 +66,7 @@ void free_node(node_t n);
 
 int exec_command(char * str, command_list_t cmds, FILE * log);
 
-
+/* return non zero is user is the command cmd */
 int strcmp_arg(char * user, char * cmd, int allow_arg);
 
 #define log_write_login(log) log_write_str((log), "logged in\n")

@@ -146,7 +146,7 @@ int exec_command(char * str, command_list_t cmds, FILE * log)
     while(it)
     {
 
-	if(!strcmp_arg(str, it->cmd->command, it->cmd->allow_arg))
+	if(strcmp_arg(str, it->cmd->command, it->cmd->allow_arg))
 	{
 
 	    char * exec;
@@ -190,12 +190,10 @@ int exec_command(char * str, command_list_t cmds, FILE * log)
 
 int strcmp_arg(char * user, char * cmd, int allow_arg)
 {
-    while( *user && cmd )
+    while( *user && *cmd )
     {
-	if(*user < *cmd)
-	    return -1;
-	else if(*user > *cmd)
-	    return 1;
+	if(*user != *cmd)
+	    return 0;
 	
 	user++;
 	cmd++;
@@ -204,7 +202,7 @@ int strcmp_arg(char * user, char * cmd, int allow_arg)
 	    break;
     }
 
-    return 0;
+    return *cmd == '\0';
 }
 
 void log_write_rescmd(FILE * log, char * cmd)

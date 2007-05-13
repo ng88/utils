@@ -24,7 +24,7 @@ EOF
 
 make mrproper || exit 1
 make min $* || exit 1
-cp -f daemon/daemon max_uptime/max_uptime range/range rsh/rsh xoror/xoror slack/usr/bin/
+cp -f daemon/daemon max_uptime/max_uptime range/range xoror/xoror slack/usr/bin/
 cp -f rsh/rsh slack/bin/
 cp -f rsh/rsh.conf slack/etc/
 

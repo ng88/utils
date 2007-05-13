@@ -45,8 +45,8 @@ void usage(const char * pname, int ev)
 		    "       -s string         crypt string, stdout is used as output\n"
 		    "       -i file           input file, cannot be used with -s\n"
 		    "                         if not specified, stdin is used\n"
-		    "       -o file           output file, cannot be used with -s\n"
-		    "                         if not specified, stdout is used\n"
+		    "       -o file           output file, if not specified, stdout\n"
+		    "                         is used\n"
 		    "\n"
 	            "       Examples :\n\n"
 	            "          Encrypt 1.tgz to 1.tgz.crypt\n"
@@ -117,7 +117,7 @@ int main(int argc, char ** argv)
     if(argc - optind)
 	usage(pname, EXIT_FAILURE);
 
-    if( (in || out) && string)
+    if(in && string)
 	usage(pname, EXIT_FAILURE);
 
     if( !pass || strlen(pass) <= 2)
@@ -128,27 +128,31 @@ int main(int argc, char ** argv)
 
     cryptor * c = cryptor_new(pass, key);
 
+    if(!out) out = stdout;
+
     if(string) /* working with string */
     {
-	char * out = (char*)malloc(strlen(string) + 1);
+	int n = strlen(string);
+	char * outs = (char*)malloc(n + 1);
 
-	encrypt_string(string, out, c);
-	puts(out);
+	encrypt_string(string, outs, c);
+	
+	int i;
+	for(i = 0; i < n; ++i)
+	    fputc(outs[i], out);
 
-	free(out);
+	free(outs);
     }
     else /* working with files */
     {
 	if(!in) in = stdin;
-	if(!out) out = stdout;
-
  
 	encrypt_file(in, out, c);
 
 	fclose(in);
-	fclose(out);
-
     }
+
+    fclose(out);
 
     cryptor_free(c);
 

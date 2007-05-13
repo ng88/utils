@@ -209,18 +209,21 @@ void log_write_rescmd(FILE * log, char * cmd)
 {
     log_write_linehead(log);
     fprintf(log, "command resulted in `%s'\n", cmd);
+    fflush(log);
 }
 
 void log_write_execcmd(FILE * log, char * cmd)
 {
     log_write_linehead(log);
     fprintf(log, "executed command `%s'\n", cmd);
+    fflush(log);
 }
 
 void log_write_str(FILE * log, char * str)
 {
     log_write_linehead(log);
-    fputs(str, log);
+    fflush(log); 
+   fputs(str, log);
 }
 
 void log_write_linehead(FILE * log)

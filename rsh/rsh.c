@@ -222,8 +222,8 @@ void log_write_execcmd(FILE * log, char * cmd)
 void log_write_str(FILE * log, char * str)
 {
     log_write_linehead(log);
-    fflush(log); 
-   fputs(str, log);
+    fputs(str, log);
+    fflush(log);
 }
 
 void log_write_linehead(FILE * log)

@@ -28,6 +28,9 @@
 */
 
 
+#define LAST_ALGO_VERSION_MAJOR 0
+#define LAST_ALGO_VERSION_MINOR 2
+
 #include <stdio.h>
 
 

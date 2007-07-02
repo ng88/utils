@@ -30,16 +30,24 @@
   Warning: This may NOT resist anybody.
            Do NOT use it for critical data.
 
-     Compile with:  gcc -Wall xoror.c main.c -o xoror
+     Compile with:  make
 
 */
 
+void version(const char * pname)
+{
+    printf("%s v%d.%d\n\n"
+	   "Copyright (C) 2006, 2007 by GUILLAUME Nicolas\n"
+	   "ng@ngsoft-fr.com\n\n", pname, LAST_ALGO_VERSION_MAJOR, LAST_ALGO_VERSION_MINOR);
 
-/* -h -p blabla -k 456 -s salut|-i file1 -o file2*/
+    exit(EXIT_SUCCESS);
+}
+
 void usage(const char * pname, int ev)
 {
     fprintf(stderr, "usage: %s [-h] -p passphrase [-k key] [-s string] [-i file_in] [-o file_out]\n\n"
 	            "       -h                show this help\n"
+	            "       -v                show version\n"
 	            "       -p passphrase     passphrase used to crypt data\n"
 		    "       -k key            key used with passphrase to crypt data\n"
 		    "       -s string         crypt string, stdout is used as output\n"
@@ -54,7 +62,10 @@ void usage(const char * pname, int ev)
 	            "          Decrypt 1.tgz.crypt back to 1.tgz\n"
 		    "          %s -p \"this is a test\" -o 1.tgz -i 1.tgz.crypt\n\n"
 	            "          Encrypt 'salut'\n"
-		    "          %s -p \"this is a test\" -s salut\n"
+		    "          %s -p \"this is a test\" -s salut\n\n"
+	            "   Copyright (C) 2006, 2007 by GUILLAUME Nicolas\n"
+	            "   ng@ngsoft-fr.com\n\n"
+
 		    , pname, pname, pname, pname);
     exit(ev);
 }
@@ -76,7 +87,7 @@ int main(int argc, char ** argv)
     FILE * in = NULL;
     FILE * out = NULL;
 
-    while( (optch = getopt(argc, argv, "p:k:s:hi:o:")) != -1 )
+    while( (optch = getopt(argc, argv, "p:k:s:hvi:o:")) != -1 )
     {
 	switch(optch)
 	{
@@ -105,6 +116,8 @@ int main(int argc, char ** argv)
 	case 's':
 	    string = optarg;
 	    break;
+	case 'v':
+	    version(pname);
 	case 'h':
 	    usage(pname, EXIT_SUCCESS);
 	    break;

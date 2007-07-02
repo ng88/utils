@@ -34,6 +34,8 @@
 
 */
 
+#define MAX_PASS 4096
+
 void version(const char * pname)
 {
     printf("%s v%d.%d\n\n"
@@ -49,6 +51,8 @@ void usage(const char * pname, int ev)
 	            "       -h                show this help\n"
 	            "       -v                show version\n"
 	            "       -p passphrase     passphrase used to crypt data\n"
+	            "       -r                read passphrase from stdin, max passphrase\n"
+                    "                         size is %d bytes\n"
 		    "       -k key            key used with passphrase to crypt data\n"
 		    "       -s string         crypt string, stdout is used as output\n"
 		    "       -i file           input file, cannot be used with -s\n"
@@ -66,9 +70,10 @@ void usage(const char * pname, int ev)
 	            "   Copyright (C) 2006, 2007 by GUILLAUME Nicolas\n"
 	            "   ng@ngsoft-fr.com\n\n"
 
-		    , pname, pname, pname, pname);
+		    , pname, MAX_PASS, pname, pname, pname);
     exit(ev);
 }
+
 
 int main(int argc, char ** argv)
 {
@@ -81,13 +86,15 @@ int main(int argc, char ** argv)
 
     int optch;
 
+    int pass_from_stdin = 0;
     int key = 0;
     char * pass = NULL;
     char * string = NULL;
     FILE * in = NULL;
     FILE * out = NULL;
+    char buff[MAX_PASS];
 
-    while( (optch = getopt(argc, argv, "p:k:s:hvi:o:")) != -1 )
+    while( (optch = getopt(argc, argv, "p:k:s:hvri:o:")) != -1 )
     {
 	switch(optch)
 	{
@@ -106,6 +113,9 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "%s: unable to open output file `%s'\n", pname, optarg);
 		return EXIT_FAILURE;
 	    }
+	    break;
+	case 'r':
+	    pass_from_stdin = 1;
 	    break;
 	case 'p':
 	    pass = optarg;
@@ -133,8 +143,28 @@ int main(int argc, char ** argv)
     if(in && string)
 	usage(pname, EXIT_FAILURE);
 
-    if( !pass || strlen(pass) <= 2)
+    if(!pass_from_stdin && (!pass || strlen(pass) <= 2))
 	usage(pname, EXIT_FAILURE);
+
+    if(pass && pass_from_stdin)
+	usage(pname, EXIT_FAILURE);
+
+    if(!in && pass_from_stdin)
+	usage(pname, EXIT_FAILURE);
+
+    if(pass_from_stdin)
+    {
+	pass = fgets(buff, MAX_PASS, stdin);
+	if(!pass)
+	{
+	    fputs("unable to read passphrase from stdin!\n", stderr);
+	    return EXIT_FAILURE;
+	}
+
+	if(!pass[0] || !pass[1])
+	    usage(pname, EXIT_FAILURE);
+	
+    }
 
     if(!key)
 	key = pass[0] * pass[1];

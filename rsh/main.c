@@ -39,11 +39,12 @@ int main(int argc, char ** argv)
     command_list_t commands;
     char * message;
     char * prompt;
+    char * startup;
     FILE * log;
 
     char * hist_file = conf_get_history_file();
 
-    read_conf(&prompt, &message, &commands, &log);
+    read_conf(&prompt, &message, &startup, &commands, &log);
 
     if(log)
 	log_write_login(log);
@@ -59,6 +60,7 @@ int main(int argc, char ** argv)
 	shell_read_history(hist_file);
 
 	puts(message);
+	system(startup);
 
 	char * line;
 
@@ -91,6 +93,7 @@ int main(int argc, char ** argv)
     free_command_list(commands);
     free(prompt);
     free(message);
+    free(startup);
 
     return EXIT_SUCCESS;
 }

@@ -73,7 +73,7 @@ void syntax_error()
     exit(EXIT_FAILURE);
 }
 
-void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** log)
+void read_conf(char ** prompt, char ** message, char ** startup, command_list_t * cmds, FILE ** log)
 {
 
     char * username = getpwuid(getuid())->pw_name;
@@ -82,6 +82,7 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
     *message = NULL;
     *prompt = NULL;
     *log  = NULL;
+    *startup = NULL;
 
     /* read configuration */
     FILE * f = fopen(CONF_FILE, "r");
@@ -123,6 +124,16 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 
 		    }
 
+		    test = read_token(pos, " startup command is '");
+		    if(test) /* startup */
+		    {
+			if(*startup)
+			    free(*startup);
+
+			read_to_quote(test, startup);
+
+		    }
+
 
 		    test = read_token(pos, " prompt is '");
 		    if(test) /* prompt configuration */
@@ -137,7 +148,7 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 		    /* to be factorized & improved...*/
 
 		    test = read_token(pos, " allow hidden with args '");
-		    if(test) /* allow hidden command */
+		    if(test) /* allow hidden command with arg */
 		    {
 			char * cmd, *alias;
 
@@ -167,7 +178,7 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 		    }
 
 		    test = read_token(pos, " allow with args '");
-		    if(test) /* allow command */
+		    if(test) /* allow command with arg */
 		    {
 			char * cmd, *alias;
 
@@ -197,7 +208,7 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 		    }
 
 		    test = read_token(pos, " log into '");
-		    if(test) /* allow command */
+		    if(test) /* log file */
 		    {
 			char * logpath;
 
@@ -233,6 +244,8 @@ void read_conf(char ** prompt, char ** message, command_list_t * cmds, FILE ** l
 	if(!*message) *message = strdup("Welcome to rsh!");
 
 	if(!*prompt) *prompt = strdup("rhs> ");
+
+	if(!*startup) *startup = strdup("");
 
     }
 

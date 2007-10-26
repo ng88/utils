@@ -25,7 +25,7 @@ void usage(const char * pname, int ev)
     fprintf(stderr, "usage: %s [option]\n"
 	            "  Accepted options:\n"
 	            "   -p                plain text output (default)\n"
-	            "   -h                html output\n"
+	            "   -w                html output\n"
                     "   -f file           input file, stdin is used if not specified\n"
                     "   -q                display only the solution\n"
 		    , pname);
@@ -46,21 +46,21 @@ int main(int argc, char ** argv)
     void (*print_format)(grid_t*) = &ss_print_grid_text;
     int quiet = 0;
 
-    while( (optch = getopt(argc, argv, "f:phq")) != -1 )
+    while( (optch = getopt(argc, argv, "wf:phq")) != -1 )
     {
 	switch(optch)
 	{
-	case 'h':
+	case 'w':
 	    print_format = &ss_print_grid_html;
 	    break;
 	case 'p':
 	    print_format = &ss_print_grid_text;
 	    break;
 	case 'f':
-	     	f = fopen(argv[1], "r");
+	     	f = fopen(optarg, "r");
 		if(!f)
 		{
-		    fprintf(stderr, "Unable to read `%s'!\n", argv[1]);
+		    fprintf(stderr, "Unable to read `%s'!\n", optarg);
 		    return EXIT_FAILURE;
 		}
 	    break;

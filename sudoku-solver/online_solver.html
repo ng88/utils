@@ -1,0 +1,266 @@
+<html>
+
+
+<head>
+
+<script language="javascript">
+
+    function solveit()
+    {
+       var i,j;
+       var req="";       
+
+       for(j=1; j <= 9; j++)
+       {      
+           for(i=1; i <= 9; i++)
+           {
+	   
+	      var v = document.getElementsByName("ss_t"+i+j).item(0).value;
+
+              if(v.length == 0)
+	         v = "_";
+
+              req += v;
+           }
+	   req += "\n";
+        }
+       
+       solve_rqst(req);
+
+       return false;
+    }
+
+    function solve_rqst(req)
+    {
+
+
+        document.getElementById("ss_sol").innerHTML = "Solving...";
+
+        var xhr;
+
+        try
+        {
+            xhr = new ActiveXObject("Microsoft.XMLHTTP"); 
+        }
+        catch(e)
+        {
+            xhr = new XMLHttpRequest()
+        }
+
+        xhr.onreadystatechange = function()
+        { 
+            if(xhr.readyState  == 4)
+                if(xhr.status  == 200)
+                    document.getElementById("ss_sol").innerHTML = xhr.responseText;
+                else 
+                    document.getElementById("ss_sol").innerHTML = "Server error";
+        }; 
+    
+        xhr.open( "POST", "http://abygaelle.ngsoft-fr.com/cgi-bin/sudoku_solver",  true);
+        xhr.send(req); 
+
+    }
+    
+
+    
+</script>
+
+
+</head>
+
+
+
+<body>
+
+<form name="ss_f" onSubmit="return solveit();">
+
+<table>
+    <tr>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t11"></td>
+	           <td><input type="text" size=1 name="ss_t21"></td>
+	           <td><input type="text" size=1 name="ss_t31"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t12"></td>
+	           <td><input type="text" size=1 name="ss_t22"></td>
+	           <td><input type="text" size=1 name="ss_t32"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t13"></td>
+	           <td><input type="text" size=1 name="ss_t23"></td>
+	           <td><input type="text" size=1 name="ss_t33"></td>
+		 </tr>
+             </table>
+	 </td>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t41"></td>
+	           <td><input type="text" size=1 name="ss_t51"></td>
+	           <td><input type="text" size=1 name="ss_t61"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t42"></td>
+	           <td><input type="text" size=1 name="ss_t52"></td>
+	           <td><input type="text" size=1 name="ss_t62"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t43"></td>
+	           <td><input type="text" size=1 name="ss_t53"></td>
+	           <td><input type="text" size=1 name="ss_t63"></td>
+		 </tr>
+             </table>
+	 </td>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t71"></td>
+	           <td><input type="text" size=1 name="ss_t81"></td>
+	           <td><input type="text" size=1 name="ss_t91"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t72"></td>
+	           <td><input type="text" size=1 name="ss_t82"></td>
+	           <td><input type="text" size=1 name="ss_t92"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t73"></td>
+	           <td><input type="text" size=1 name="ss_t83"></td>
+	           <td><input type="text" size=1 name="ss_t93"></td>
+		 </tr>
+             </table>
+	 </td>
+     </tr>
+    <tr>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t14"></td>
+	           <td><input type="text" size=1 name="ss_t24"></td>
+	           <td><input type="text" size=1 name="ss_t34"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t15"></td>
+	           <td><input type="text" size=1 name="ss_t25"></td>
+	           <td><input type="text" size=1 name="ss_t35"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t16"></td>
+	           <td><input type="text" size=1 name="ss_t26"></td>
+	           <td><input type="text" size=1 name="ss_t36"></td>
+		 </tr>
+             </table>
+	 </td>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t44"></td>
+	           <td><input type="text" size=1 name="ss_t54"></td>
+	           <td><input type="text" size=1 name="ss_t64"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t45"></td>
+	           <td><input type="text" size=1 name="ss_t55"></td>
+	           <td><input type="text" size=1 name="ss_t65"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t46"></td>
+	           <td><input type="text" size=1 name="ss_t56"></td>
+	           <td><input type="text" size=1 name="ss_t66"></td>
+		 </tr>
+             </table>
+	 </td>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t74"></td>
+	           <td><input type="text" size=1 name="ss_t84"></td>
+	           <td><input type="text" size=1 name="ss_t94"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t75"></td>
+	           <td><input type="text" size=1 name="ss_t85"></td>
+	           <td><input type="text" size=1 name="ss_t95"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t76"></td>
+	           <td><input type="text" size=1 name="ss_t86"></td>
+	           <td><input type="text" size=1 name="ss_t96"></td>
+		 </tr>
+             </table>
+	 </td>
+     </tr>
+     <tr>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t17"></td>
+	           <td><input type="text" size=1 name="ss_t27"></td>
+	           <td><input type="text" size=1 name="ss_t37"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t18"></td>
+	           <td><input type="text" size=1 name="ss_t28"></td>
+	           <td><input type="text" size=1 name="ss_t38"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t19"></td>
+	           <td><input type="text" size=1 name="ss_t29"></td>
+	           <td><input type="text" size=1 name="ss_t39"></td>
+		 </tr>
+             </table>
+	 </td>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t47"></td>
+	           <td><input type="text" size=1 name="ss_t57"></td>
+	           <td><input type="text" size=1 name="ss_t67"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t48"></td>
+	           <td><input type="text" size=1 name="ss_t58"></td>
+	           <td><input type="text" size=1 name="ss_t68"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t49"></td>
+	           <td><input type="text" size=1 name="ss_t59"></td>
+	           <td><input type="text" size=1 name="ss_t69"></td>
+		 </tr>
+             </table>
+	 </td>
+         <td>
+	     <table width="100%">
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t77"></td>
+	           <td><input type="text" size=1 name="ss_t87"></td>
+	           <td><input type="text" size=1 name="ss_t97"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t78"></td>
+	           <td><input type="text" size=1 name="ss_t88"></td>
+	           <td><input type="text" size=1 name="ss_t98"></td>
+		 </tr>
+	         <tr>
+	           <td><input type="text" size=1 name="ss_t79"></td>
+	           <td><input type="text" size=1 name="ss_t89"></td>
+	           <td><input type="text" size=1 name="ss_t99"></td>
+		 </tr>
+             </table>
+	 </td>
+     </tr>
+
+</table>
+
+<input type="submit" value="Solve it!">
+
+</form>
+
+<span id="ss_sol"></span>
+
+</body>
+
+</html>

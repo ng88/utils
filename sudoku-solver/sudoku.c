@@ -85,32 +85,55 @@ void ss_print_grid_text(grid_t * g)
 
 }
 
+void ss_print_ssquare_html(grid_t * g, int x, int y)
+{
+    /* existe t-il deja dans son sous carré ? */
+    int square_x = x * B_SQ_SIZE;
+    int square_y = y * B_SQ_SIZE;
+
+    int i, j;
+
+    puts("\t\t\t<table class=\"ss_sq_tbl\" width=\"100%\">");
+
+    for(j = 0; j < B_SQ_SIZE; ++j)
+    {
+	puts("\t\t\t\t<tr>");
+	for(i = 0; i < B_SQ_SIZE; ++i)
+	{
+	    box_t c = ss_get_box(g, square_x + i, square_y + j);
+
+	    if(ss_get_known(g, square_x + i, square_y + j))
+		printf("<td><b>%c</b></td>", ss_box_to_char(c));
+	    else
+		printf("<td>%c</td>", ss_box_to_char(c));
+
+	}
+        puts("\t\t\t\t</tr>");
+    }
+
+    puts("</table>");
+}
+
 void ss_print_grid_html(grid_t * g)
 {
 
     int i, j;
 
-    print_line();
+    puts("<table class=\"ss_tbl\">");
 
-    for(j = 0; j < B_SIZE; ++j)
+    for(j = 0; j < B_SQ_SIZE; ++j)
     {
-	putchar('|');
-	for(i = 0; i < B_SIZE; ++i)
+	puts("\t<tr>");
+	for(i = 0; i < B_SQ_SIZE; ++i)
 	{
-	    box_t c = ss_get_box(g, i, j);
-	    putchar(ss_box_to_char(c));
-
-	    if( (i+1) % B_SQ_SIZE == 0)
-		putchar('|');
-	    else
-		putchar(' ');
+	    puts("\t\t<td>");
+	    ss_print_ssquare_html(g, i, j);
+	    puts("\t\t</td>");
 	}
-
-	putchar('\n');
-
-	if( (j+1) % B_SQ_SIZE == 0)
-	    print_line();
+	puts("\t</tr>");
     }
+
+    puts("</table>");
 
 }
 

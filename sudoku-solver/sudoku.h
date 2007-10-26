@@ -75,8 +75,11 @@ typedef struct
   */
 int ss_read_grid_from_file(FILE * f, grid_t * dest);
 
-/** Print g to stdout */
-void ss_print_grid(grid_t * g);
+/** Print g to stdout (plain text) */
+void ss_print_grid_text(grid_t * g);
+
+/** Print g to stdout (html) */
+void ss_print_grid_html(grid_t * g);
 
 /** Check is g is valid */
 int ss_check_grid(grid_t * g);

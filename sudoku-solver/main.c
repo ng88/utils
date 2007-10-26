@@ -16,44 +16,84 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <unistd.h>
+#include <string.h>
 #include "sudoku.h"
+
+void usage(const char * pname, int ev)
+{
+    fprintf(stderr, "usage: %s [option]\n"
+	            "  Accepted options:\n"
+	            "   -p                plain text output (default)\n"
+	            "   -h                html output\n"
+                    "   -f file           input file, stdin is used if not specified\n"
+                    "   -q                display only the solution\n"
+		    , pname);
+    exit(ev);
+}
 
 int main(int argc, char ** argv)
 {
+    char * pname = strrchr(argv[0], '/');
+    if( !pname )
+        pname = argv[0];
+    else
+	pname++;
+
+    int optch;
 
     FILE * f = stdin;
+    void (*print_format)(grid_t*) = &ss_print_grid_text;
+    int quiet = 0;
 
-    if(argc > 1)
+    while( (optch = getopt(argc, argv, "f:phq")) != -1 )
     {
-	f = fopen(argv[1], "r");
-	if(!f)
+	switch(optch)
 	{
-	    fprintf(stderr, "Impossible de lire le ficher `%s' !\n", argv[1]);
-	    return EXIT_FAILURE;
+	case 'h':
+	    print_format = &ss_print_grid_html;
+	    break;
+	case 'p':
+	    print_format = &ss_print_grid_text;
+	    break;
+	case 'f':
+	     	f = fopen(argv[1], "r");
+		if(!f)
+		{
+		    fprintf(stderr, "Unable to read `%s'!\n", argv[1]);
+		    return EXIT_FAILURE;
+		}
+	    break;
+	case 'q':
+	    quiet = 1;
+	    break;
+	default:
+	    usage(pname, EXIT_FAILURE);
+	    break;
 	}
-
     }
+
 
     grid_t g;
 
     if(!ss_read_grid_from_file(f, &g))
     {
-	fputs("Impossible de lire la grille !\n", stderr);
+	fputs("Unable to load the grid correctly!\n", stderr);
 
 	fclose(f);
 	return EXIT_FAILURE;
     }
 
-    ss_print_grid(&g);
+    if(!quiet)
+	(*print_format)(&g);
 
     if(ss_solve_grid(&g))
     {
-	puts("Solution :");
-	ss_print_grid(&g);
+	puts("Solution:");
+	(*print_format)(&g);
     }
     else
-	puts("Grille impossible à résoudre !");
+	puts("Unable to solve this grid!");
 
 
     fclose(f);

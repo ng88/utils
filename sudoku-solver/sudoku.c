@@ -56,7 +56,36 @@ void print_line()
     putchar('\n');
 }
 
-void ss_print_grid(grid_t * g)
+void ss_print_grid_text(grid_t * g)
+{
+
+    int i, j;
+
+    print_line();
+
+    for(j = 0; j < B_SIZE; ++j)
+    {
+	putchar('|');
+	for(i = 0; i < B_SIZE; ++i)
+	{
+	    box_t c = ss_get_box(g, i, j);
+	    putchar(ss_box_to_char(c));
+
+	    if( (i+1) % B_SQ_SIZE == 0)
+		putchar('|');
+	    else
+		putchar(' ');
+	}
+
+	putchar('\n');
+
+	if( (j+1) % B_SQ_SIZE == 0)
+	    print_line();
+    }
+
+}
+
+void ss_print_grid_html(grid_t * g)
 {
 
     int i, j;

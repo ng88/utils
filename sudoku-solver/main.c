@@ -83,20 +83,25 @@ int main(int argc, char ** argv)
 	fclose(f);
 	return EXIT_FAILURE;
     }
+    fclose(f);
 
     if(!quiet)
 	(*print_format)(&g);
 
-    if(ss_solve_grid(&g))
+    if(ss_check_grid(&g))
     {
-	puts("Solution:");
-	(*print_format)(&g);
+	
+	if(ss_solve_grid(&g))
+	{
+	    puts("Solution:");
+	    (*print_format)(&g);
+	}
+	else
+	    puts("Unable to solve this grid!");
     }
     else
-	puts("Unable to solve this grid!");
-
-
-    fclose(f);
+	puts("Invalid grid!");
+   
     return EXIT_SUCCESS;
 
 }

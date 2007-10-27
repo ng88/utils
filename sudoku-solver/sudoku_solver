@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Author : Nicoals GUILLAUME <ng@ngsoft-fr.com>
+
+set -f
+
+
+
+echo Content-type: text/html
+echo
+
+
+/var/www/cgi-bin/ss/sudokusolver -w -q 2>&1
+
+exit 0

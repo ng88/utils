@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Author : Nicoals GUILLAUME <ng@ngsoft-fr.com>
+# Author : Nicolas GUILLAUME <ng@ngsoft-fr.com>
 
 set -f
 

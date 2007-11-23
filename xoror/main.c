@@ -143,7 +143,7 @@ int main(int argc, char ** argv)
     if(in && string)
 	usage(pname, EXIT_FAILURE);
 
-    if(!pass_from_stdin && (!pass || strlen(pass) <= 2))
+    if(!pass_from_stdin && !pass)
 	usage(pname, EXIT_FAILURE);
 
     if(pass && pass_from_stdin)
@@ -160,10 +160,12 @@ int main(int argc, char ** argv)
 	    fputs("unable to read passphrase from stdin!\n", stderr);
 	    return EXIT_FAILURE;
 	}
+    }
 
-	if(!pass[0] || !pass[1])
-	    usage(pname, EXIT_FAILURE);
-	
+    if(!pass[0] || !pass[1])
+    {
+	fprintf(stderr, "%s: passphrase too small\n", pname);
+	return EXIT_FAILURE;
     }
 
     if(!key)

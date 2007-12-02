@@ -33,6 +33,9 @@ install: min
 	install -m 644 rsh/rsh.conf /etc/
 
 
+package:
+	./make_slack_package.sh ENABLE_READLINE=1
+
 clean:
 	$(MAKE) -C cpufreq clean
 	$(MAKE) -C daemon clean
@@ -46,4 +49,4 @@ clean:
 mrproper: clean
 	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror
 
-.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror install
+.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror install package

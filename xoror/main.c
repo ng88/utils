@@ -122,6 +122,7 @@ int main(int argc, char ** argv)
 	    }
 	    break;
 	case 'r':
+	    fputs("warning: -r option is deprecated, please use -f - instead.\n", stderr);
 	    pass_file = stdin;
 	    break;
 	case 'f':

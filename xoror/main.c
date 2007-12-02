@@ -39,7 +39,7 @@
 void version(const char * pname)
 {
     printf("%s v%d.%d\n\n"
-	   "Copyright (C) 2006, 2007 by GUILLAUME Nicolas\n"
+	   "Copyright (C) 2006, 2008 by GUILLAUME Nicolas\n"
 	   "ng@ngsoft-fr.com\n\n", pname, LAST_ALGO_VERSION_MAJOR, LAST_ALGO_VERSION_MINOR);
 
     exit(EXIT_SUCCESS);
@@ -47,12 +47,14 @@ void version(const char * pname)
 
 void usage(const char * pname, int ev)
 {
-    fprintf(stderr, "usage: %s [-h] -p passphrase [-k key] [-s string] [-i file_in] [-o file_out]\n\n"
+    fprintf(stderr, "usage: %s [-h] [-v] [-p passphrase | -r | -f passfile] [-k key]\n"
+	            "          [-s string | -i file_in] [-o file_out]\n\n"
 	            "       -h                show this help\n"
 	            "       -v                show version\n"
 	            "       -p passphrase     passphrase used to crypt data\n"
-	            "       -r                read passphrase from stdin, max passphrase\n"
-                    "                         size is %d bytes\n"
+	            "       -f file           read passphrase from file (or from stdin if - is\n"
+                    "                         specified), max passphrase size is %d bytes\n"
+	            "       -r                deprecated, equivalent of -f -\n"
 		    "       -k key            key used with passphrase to crypt data\n"
 		    "       -s string         crypt string, stdout is used as output\n"
 		    "       -i file           input file, cannot be used with -s\n"
@@ -61,13 +63,13 @@ void usage(const char * pname, int ev)
 		    "                         is used\n"
 		    "\n"
 	            "       Examples :\n\n"
-	            "          Encrypt 1.tgz to 1.tgz.crypt\n"
-		    "          %s -p \"this is a test\" -i 1.tgz -o 1.tgz.crypt\n\n"
-	            "          Decrypt 1.tgz.crypt back to 1.tgz\n"
-		    "          %s -p \"this is a test\" -o 1.tgz -i 1.tgz.crypt\n\n"
+	            "          Encrypt 1.tgz to 1.tgz.cr\n"
+		    "          %s -p \"this is a test\" -i 1.tgz -o 1.tgz.cr\n\n"
+	            "          Decrypt 1.tgz.cr back to 1.tgz\n"
+		    "          %s -p \"this is a test\" -o 1.tgz -i 1.tgz.cr\n\n"
 	            "          Encrypt 'salut'\n"
 		    "          %s -p \"this is a test\" -s salut\n\n"
-	            "   Copyright (C) 2006, 2007 by GUILLAUME Nicolas\n"
+	            "   Copyright (C) 2006, 2008 by GUILLAUME Nicolas\n"
 	            "   ng@ngsoft-fr.com\n\n"
 
 		    , pname, MAX_PASS, pname, pname, pname);
@@ -86,7 +88,7 @@ int main(int argc, char ** argv)
 
     int optch;
 
-    int pass_from_stdin = 0;
+    FILE * pass_file = NULL;
     int key = 0;
     char * pass = NULL;
     char * string = NULL;
@@ -94,7 +96,7 @@ int main(int argc, char ** argv)
     FILE * out = NULL;
     char buff[MAX_PASS];
 
-    while( (optch = getopt(argc, argv, "p:k:s:hvri:o:")) != -1 )
+    while( (optch = getopt(argc, argv, "p:k:s:hvri:o:f:")) != -1 )
     {
 	switch(optch)
 	{
@@ -115,7 +117,20 @@ int main(int argc, char ** argv)
 	    }
 	    break;
 	case 'r':
-	    pass_from_stdin = 1;
+	    pass_file = stdin;
+	    break;
+	case 'f':
+	    if(!strcmp(optarg, "-"))
+		pass_file = stdin;
+	    else
+	    {
+		pass_file = fopen(optarg, "rb");
+		if(!pass_file)
+		{
+		    fprintf(stderr, "%s: unable to open pass file `%s'\n", pname, optarg);
+		    return EXIT_FAILURE;
+		}
+	    }
 	    break;
 	case 'p':
 	    pass = optarg;
@@ -143,23 +158,33 @@ int main(int argc, char ** argv)
     if(in && string)
 	usage(pname, EXIT_FAILURE);
 
-    if(!pass_from_stdin && !pass)
-	usage(pname, EXIT_FAILURE);
-
-    if(pass && pass_from_stdin)
-	usage(pname, EXIT_FAILURE);
-
-    if(!in && pass_from_stdin)
-	usage(pname, EXIT_FAILURE);
-
-    if(pass_from_stdin)
+    if(!pass_file && !pass)
     {
-	pass = fgets(buff, MAX_PASS, stdin);
+	fprintf(stderr, "%s: passphrase not defined\n", pname);
+	return EXIT_FAILURE;
+    }
+
+    if(pass && pass_file)
+    {
+	fprintf(stderr, "%s: passphrase defined twice\n", pname);
+	return EXIT_FAILURE;
+    }
+
+    if(pass_file == stdin && !in)
+    {
+	fprintf(stderr, "%s: cannot read both passphrase and input file from stdin\n", pname);
+	return EXIT_FAILURE;
+    }
+
+    if(pass_file)
+    {
+	pass = fgets(buff, MAX_PASS, pass_file);
 	if(!pass)
 	{
-	    fputs("unable to read passphrase from stdin!\n", stderr);
+	    fputs("unable to read passphrase from pass file/stdin!\n", stderr);
 	    return EXIT_FAILURE;
 	}
+	fclose(pass_file);
     }
 
     if(!pass[0] || !pass[1])

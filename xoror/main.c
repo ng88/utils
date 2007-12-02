@@ -34,13 +34,18 @@
 
 */
 
+#define PROG_VERSION_MAJOR 0
+#define PROG_VERSION_MINOR 9
+
 #define MAX_PASS 4096
 
 void version(const char * pname)
 {
-    printf("%s v%d.%d\n\n"
+    printf("%s v%d.%d, cryptor v%d.%d\n\n"
 	   "Copyright (C) 2006, 2008 by GUILLAUME Nicolas\n"
-	   "ng@ngsoft-fr.com\n\n", pname, LAST_ALGO_VERSION_MAJOR, LAST_ALGO_VERSION_MINOR);
+	   "ng@ngsoft-fr.com\n\n", pname,
+	   PROG_VERSION_MAJOR, PROG_VERSION_MINOR,
+	   LAST_ALGO_VERSION_MAJOR, LAST_ALGO_VERSION_MINOR);
 
     exit(EXIT_SUCCESS);
 }

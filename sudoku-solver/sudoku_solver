@@ -9,7 +9,6 @@ set -f
 echo Content-type: text/html
 echo
 
-
-/var/www/cgi-bin/ss/sudokusolver -w -q 2>&1
+timeout 1 "/var/www/cgi-bin/ss/sudokusolver -w -q"  2>&1
 
 exit 0

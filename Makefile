@@ -1,7 +1,7 @@
 
 min: daemon max_uptime range rsh xoror
 
-all: min cpufreq scanp win2unix
+all: min cpufreq scanp win2unix sudoku-solver
 
 cpufreq:
 	$(MAKE) -C $@
@@ -27,6 +27,9 @@ win2unix:
 xoror:
 	$(MAKE) -C $@
 
+sudoku-solver:
+	$(MAKE) -C $@
+
 install: min
 	install -sm 755 daemon/daemon max_uptime/max_uptime range/range xoror/xoror /usr/bin/
 	install -sm 755 rsh/rsh /bin/
@@ -45,8 +48,9 @@ clean:
 	$(MAKE) -C scanp clean
 	$(MAKE) -C win2unix clean
 	$(MAKE) -C xoror clean
+	$(MAKE) -C sudoku-solver clean
 
 mrproper: clean
-	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror
+	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror sudoku-solver/sudoku-solver
 
-.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror install package
+.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror sudoku-solver install package

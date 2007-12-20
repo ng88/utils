@@ -27,6 +27,8 @@ SRC2=btun.c $(SRC)
 OBJS2=$(SRC2:.c=.o)
 EXE2=btun
 
+all: $(EXE1) $(EXE2)
+
 
 btund.o: server.h
 channel.o: vector.h channel.h server.h assert.h
@@ -34,7 +36,7 @@ server.o: assert.h channel.h
 vector.o: vector.h assert.h
 
 
-all: $(EXE1) $(EXE2)
+
 
 $(EXE1): $(OBJS1)
 	$(CC) $(OBJS1) -o $@ $(LDFLAGS)

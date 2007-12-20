@@ -8,14 +8,19 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 #include "assert.h"
 #include "channel.h"
+
+int server_run;
 
 
 
 int start_server(port_t port)
 {
+    server_run = 1;
+
     fd_set master;
     fd_set read_fds;
 
@@ -66,11 +71,17 @@ int start_server(port_t port)
 
     fdmax = fdlisten;
 
-    while(1)
+    while(server_run)
     {
         read_fds = master;
         if(select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1)
 	{
+	    if(errno == EINTR)
+	    {
+		dbg_printf("select interrupted\n");
+		break;
+	    }
+
             perror("select");
 	    return EXIT_FAILURE;
         }
@@ -147,7 +158,13 @@ int start_server(port_t port)
         }
     }
     
+    dbg_printf("server halted\n");
 
     return EXIT_SUCCESS;
 }
 
+void stop_server()
+{
+    dbg_printf("server will stop\n");
+    server_run = 0;
+}

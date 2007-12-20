@@ -14,4 +14,6 @@ typedef uint16_t port_t;
 
 int start_server(port_t port);
 
+void stop_server();
+
 #endif

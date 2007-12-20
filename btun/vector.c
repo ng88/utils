@@ -43,8 +43,8 @@ void vector_del_element_at(vector_t * v, size_t index)
 
     if(index < v->size)
     {
-	int i;
-	for(i = index; i < v->size)
+	size_t i;
+	for(i = index; i < v->size; ++i)
 	    v->table[i] = v->table[i + 1];
     }
 

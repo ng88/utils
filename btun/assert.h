@@ -8,14 +8,14 @@
 
 
 /** check that cond is true, str is displayed if it fails */
-#define c_assert2(cond, str) __assert((cond), __LINE__, __FILE__, (str), #cond)
+#define c_assert2(cond, str) __assert((cond), __LINE__, __FILE__, __FUNCTION__, (str), #cond)
 
 /** check that cond is true, "assertion failed" is displayed if it failed */
 #define c_assert(cond) c_assert2((cond), "assertion failed")
 
 
 /** warm by showing str if cond is not true */
-#define c_warning2(cond, str) __warning((cond), __LINE__, __FILE__, (str), #cond)
+#define c_warning2(cond, str) __warning((cond), __LINE__, __FILE__, __FUNCTION__, (str), #cond)
 
 /** warm by showing "warning" if cond is not true */
 #define c_warning(cond) c_warning2((cond), "warning")

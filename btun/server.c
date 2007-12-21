@@ -53,6 +53,9 @@ int start_server(user_pool_t * existing_users, port_t port)
     int fdmax;
     int fdlisten;
 
+    size_t s;
+    size_t i;
+
     int yes = 1;
 
     FD_ZERO(&master);
@@ -120,94 +123,79 @@ int start_server(user_pool_t * existing_users, port_t port)
             perror("select");
 	    return EXIT_FAILURE;
         }
-//parcourir ls entries, sortie le listen...
-	int i;
-        for(i = 0; i <= fdmax; i++)
+
+
+	if(FD_ISSET(fdlisten, &read_fds))
 	{
-            if(FD_ISSET(i, &read_fds))
+	    socklen_t addrlen = sizeof(rmaddr);
+	    
+	    int fd = accept(fdlisten,
+			       (struct sockaddr *)&rmaddr,
+			       &addrlen);
+	    
+	    if(fd == -1)
 	    {
-                if(i == fdlisten)
+		perror("accept");
+	    }
+	    else
+	    {
+		
+		FD_SET(fd, &master);
+		
+		if (fd > fdmax)
+		    fdmax = fd;
+		
+		vector_add_element(users,
+				   create_channel_entry(fd));
+		
+		dbg_printf("incoming connection from %s on socket %d\n",
+			   inet_ntoa(rmaddr.sin_addr), fd);
+		//send_challenge(fd);
+		
+	    }
+	    
+	}
+
+	s = vector_size(users);
+
+        for(i = 0; i < s; i++)
+	{
+	    channel_entry_t * e = get_entry_at(users, i);
+
+            if(FD_ISSET(e->fd, &read_fds))
+	    {
+
+		char buf[RECV_BUFF_SIZE];
+		int n = recv(e->fd, buf, RECV_BUFF_SIZE, 0);
+
+		if(n <= 0)
 		{
-                    socklen_t addrlen = sizeof(rmaddr);
-
-		    int newfd = accept(fdlisten,
-				       (struct sockaddr *)&rmaddr,
-                                       &addrlen);
-
-                    if(newfd == -1)
-		    {
-                        perror("accept");
-                    }
+		    if(n <= 0)
+			dbg_printf("connection to socket %d closed\n", e->fd)
 		    else
-		    {
+			perror("recv");
 
-			FD_SET(newfd, &master);
-
-			if (newfd > fdmax)
-			    fdmax = newfd;
-
-			vector_add_element(users,
-					   create_channel_entry(newfd));
-
-                        dbg_printf("incoming connection from %s on socket %d\n",
-				   inet_ntoa(rmaddr.sin_addr), newfd);
-			//send_challenge(newfd);
-
-                    }
-
-                }
+		    vector_del_element_at(users, i);
+		    i--; s--;
+		    close(e->fd);
+		    FD_CLR(e->fd, &master);
+		}
 		else
-		{
-		    char buf[RECV_BUFF_SIZE];
-		    int nbytes = recv(i, buf, RECV_BUFF_SIZE, 0);
-
-		    if(nbytes <= 0)
-		    {
-			if(nbytes <= 0)
-			{
-			    dbg_printf("connection to socket %d closed\n", i);
-			}
-			else
-			    perror("recv");
-
-                        close(i);
-                        FD_CLR(i, &master);
-		    }
-		    else
-		    {
-                    //process_incoming_data();
-			dbg_printf("data received from socket %d\n", i);
-
-			int j;
-
-                        for(j = 0; j <= fdmax; j++)
-			{
-                            if(FD_ISSET(j, &master))
-			    {
-                                if (j != fdlisten && j != i)
-				{
-
-                                    if (send(j, buf, nbytes, 0) == -1)
-                                        perror("send");
-
-                                }
-                            }
-                        }
-                    }
-                }
+                    process_incoming_data(buf, n, existing_users,
+					  users, e, &master);
             }
         }
+
     }
     
 
     free_channel_pool(channels);
 
-    size_t s = vector_size(users);
-    size_t u;
+    s = vector_size(users);
 
-    for(u = 0; u < s; ++u)
+    for(i = 0; i < s; ++i)
     {
-	channel_entry_t * e = get_entry_at(users, u);
+	channel_entry_t * e = get_entry_at(users, i);
 	if(!e->channel)
 	    free_channel_entry(e);
     }
@@ -216,6 +204,32 @@ int start_server(user_pool_t * existing_users, port_t port)
     dbg_printf("server halted\n");
 
     return EXIT_SUCCESS;
+}
+
+void process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
+			   vector_t * u, channel_entry_t * e, fd_set * fs)
+{
+
+    c_assert(e);
+
+    dbg_printf("data received from socket %d\n", e->fd);
+
+    size_t s = vector_size(u);
+    size_t i;
+
+    for(i = 0; i < s; i++)
+    {
+	channel_entry_t * ce = get_entry_at(u, i);
+
+	if(ce->fd != e->fd && FD_ISSET(ce->fd, fs))
+	{
+	
+	    if (send(ce->fd, buf, n, 0) == -1)
+		perror("send");
+		
+
+	}
+    }
 }
 
 void send_challenge(int fd)
@@ -244,6 +258,5 @@ bool recv_data(channel_entry_t * e, char * data, size_t len)
 
 void stop_server()
 {
-    dbg_printf("server stop requested\n");
     server_run = 0;
 }

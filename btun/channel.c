@@ -162,7 +162,7 @@ void print_entry_vector(vector_t * v, FILE * f)
 	fprintf(f, "user %s:%d (%d) on channel %s\n",
 		e->user ? e->user->login : "unknown",
 		e->fd, e->step,
-		e->channel ? e->channel->name : "none"
+		e->channel ? e->channel->name : "unknown"
 		);
     }
 

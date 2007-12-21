@@ -52,7 +52,7 @@ vector_elt_t vector_get_element_at(vector_t * v, size_t index)
 void vector_del_element_at(vector_t * v, size_t index)
 {
     c_assert(v);
-    c_assert(index);
+    c_assert(v->size);
     c_assert2(index < v->size, "index out of bound");
 
     v->size--;

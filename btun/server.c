@@ -74,7 +74,6 @@ int start_server(user_pool_t * existing_users, port_t port)
         return EXIT_FAILURE;
     }
 
-
     myaddr.sin_family = AF_INET;
     myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     myaddr.sin_port = htons(port);
@@ -173,12 +172,24 @@ int start_server(user_pool_t * existing_users, port_t port)
 		    if(n <= 0)
 			dbg_printf("connection to socket %d closed\n", e->fd)
 		    else
+		    {
 			perror("recv");
+			dbg_printf("recv error on socket %d, closing\n", e->fd);
+		    }
+
+		    close(e->fd);
+		    FD_CLR(e->fd, &master);
+
 
 		    vector_del_element_at(users, i);
 		    i--; s--;
-		    close(e->fd);
-		    FD_CLR(e->fd, &master);
+
+		    /* si on est le max il faut trouver le nouveau max */
+		    if(e->fd == fdmax)
+			get_highest_fd(users, fdlisten);
+
+		    free_channel_entry(e);
+
 		}
 		else
                     process_incoming_data(buf, n, existing_users,
@@ -221,15 +232,30 @@ void process_incoming_data(char * buf, int n, user_pool_t * existing_users,
     {
 	channel_entry_t * ce = get_entry_at(u, i);
 
-	if(ce->fd != e->fd && FD_ISSET(ce->fd, fs))
+	if(ce != e && FD_ISSET(ce->fd, fs))
 	{
-	
-	    if (send(ce->fd, buf, n, 0) == -1)
+	    if (send(ce->fd, buf, n, MSG_NOSIGNAL) == -1)
 		perror("send");
-		
 
 	}
     }
+}
+
+int get_highest_fd(vector_t * u, int fdlist)
+{
+    size_t s = vector_size(u);
+    size_t i;
+
+    int r = fdlist;
+
+    for(i = 0; i < s; i++)
+    {
+	channel_entry_t * e = get_entry_at(u, i);
+	if(e->fd > r)
+	    r = e->fd;
+    }
+
+    return r;
 }
 
 void send_challenge(int fd)

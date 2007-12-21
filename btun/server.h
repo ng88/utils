@@ -42,6 +42,10 @@ bool recv_data(channel_entry_t * e, char * data, size_t len);
 void process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
 			   vector_t * u, channel_entry_t * e, fd_set * fs);
 
+
+int get_highest_fd(vector_t * u, int fdlist);
+
+
 void stop_server();
 
 #endif

@@ -16,26 +16,35 @@
 
 
 #include <string.h>
-#include <stdlib.h>
 
 #include "xoror.h"
 
 
 cryptor* cryptor_new(char * passphrase, int key)
 {
-    cryptor* ret = (cryptor*)malloc(sizeof(cryptor));
+    cryptor* ret = cryptor_malloc();
+    cryptor_init(ret, strdup(passphrase), key);
+    return ret;
+}
 
+cryptor* cryptor_malloc()
+{
+    cryptor* c = (cryptor*)malloc(sizeof(cryptor));
+
+    return c;
+}
+
+void cryptor_init(cryptor* ret, char * passphrase, int key)
+{
     ret->pos = 0;
     ret->rnd = 0;
-    ret->passphrase = strdup(passphrase);
+    ret->passphrase = passphrase;
     ret->size = strlen(passphrase);
 
     ret->cseed = key *  ret->size;
-    int i;
+    size_t i;
     for(i = 0; i < ret->size; ++i)
 	ret->cseed += passphrase[i] ^ key;
-
-    return ret;
 }
 
 void cryptor_free(cryptor* c)
@@ -57,7 +66,10 @@ char cryptor_next(cryptor* c, char in)
     if(c->pos >= c->size)
 	c->pos = 0;
 
-    ret = in ^ ( (c->rnd > 25000) ? c->passphrase[c->pos] : c->rnd );
+    if(c->rnd > 25000)
+	ret = in ^ c->passphrase[c->pos];
+    else
+	ret = in ^ c->rnd;
 
     c->pos++;
 

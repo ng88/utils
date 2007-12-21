@@ -33,7 +33,7 @@
 #define LAST_ALGO_VERSION (LAST_ALGO_VERSION_MAJOR * 1000 + LAST_ALGO_VERSION_MINOR)
 
 #include <stdio.h>
-
+#include <stdlib.h>
 
 typedef struct
 {
@@ -43,7 +43,7 @@ typedef struct
     /* length of passphrase */
     size_t size;
     /* current position in passphrase */
-    int pos;
+    size_t pos;
 
     /* seed used by the  pseudo random number generator */
     int cseed;
@@ -54,6 +54,9 @@ typedef struct
 
 /* Create a new cryptor */
 cryptor* cryptor_new(char * passphrase, int key);
+
+cryptor* cryptor_malloc();
+void cryptor_init(cryptor* c, char * passphrase, int key);
 
 /* Destroy c */
 void cryptor_free(cryptor* c);

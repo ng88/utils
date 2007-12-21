@@ -22,8 +22,7 @@
 #include "vector.h"
 #include "bool.h"
 
-#define USER_MAX_PASS_SIZE 64
-#define USER_MAX_LOGIN_SIZE 8
+#include "protocol.h"
 
 typedef struct
 {

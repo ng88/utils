@@ -25,17 +25,24 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <time.h>
 
 #include "assert.h"
-#include "channel.h"
+#include "vector.h"
+
+#define RECV_BUFF_SIZE 256
 
 int server_run;
 
 
-
-int start_server(port_t port)
+int start_server(user_pool_t * existing_users, port_t port)
 {
     server_run = 1;
+
+    srand(time(0));
+
+    channel_pool_t * channels = create_channel_pool();
+    vector_t * users = create_vector(16);
 
     fd_set master;
     fd_set read_fds;
@@ -87,6 +94,8 @@ int start_server(port_t port)
 
     fdmax = fdlisten;
 
+    dbg_printf("server started\n");
+
     while(server_run)
     {
         read_fds = master;
@@ -95,6 +104,16 @@ int start_server(port_t port)
 	    if(errno == EINTR)
 	    {
 		dbg_printf("select interrupted\n");
+		if(server_run)
+		{
+		    puts("\n\nAccount list:");
+		    print_user_pool(existing_users, stdout);
+		    puts("\n\nConnected users:");
+		    print_entry_vector(users, stdout);
+		    puts("\n\nChannel list:");
+		    print_channel_pool(channels, stdout);
+		    continue;
+		}
 		break;
 	    }
 
@@ -121,20 +140,24 @@ int start_server(port_t port)
                     }
 		    else
 		    {
-                        FD_SET(newfd, &master);
-
-                        if (newfd > fdmax)
-                            fdmax = newfd;
 
                         dbg_printf("incoming connection from %s on socket %d\n",
 				   inet_ntoa(rmaddr.sin_addr), newfd);
+
+			FD_SET(newfd, &master);
+
+			if (newfd > fdmax)
+			    fdmax = newfd;
+
+			send_challenge(newfd);
+
                     }
 
                 }
 		else
 		{
-		    char buf[256];
-		    int nbytes = recv(i, buf, sizeof(buf), 0);
+		    char buf[RECV_BUFF_SIZE];
+		    int nbytes = recv(i, buf, RECV_BUFF_SIZE, 0);
 
 		    if(nbytes <= 0)
 		    {
@@ -150,7 +173,7 @@ int start_server(port_t port)
 		    }
 		    else
 		    {
-
+                    //process_incoming_data();
 			dbg_printf("data received from socket %d\n", i);
 
 			int j;
@@ -174,13 +197,51 @@ int start_server(port_t port)
         }
     }
     
+
+    free_channel_pool(channels);
+
+    size_t s = vector_size(users);
+    size_t u;
+
+    for(u = 0; u < s; ++u)
+    {
+	channel_entry_t * e = get_entry_at(users, u);
+	if(!e->channel)
+	    free_channel_entry(e);
+    }
+    free_vector(users, 0);
+
     dbg_printf("server halted\n");
 
     return EXIT_SUCCESS;
 }
 
+void send_challenge(int fd)
+{
+    char buff[CHALLENGE_SIZE];
+
+    int i = 0;
+    while(i < CHALLENGE_SIZE)
+	buff[i++] = 'A' + (int)((double)('Z' - 'A') * (rand() / (double)RAND_MAX));
+
+    
+    send(fd, buff, CHALLENGE_SIZE, 0);
+}
+
+bool send_data(channel_entry_t * e, char * data, size_t len)
+{
+    send(e->fd, data, len, 0);
+    return true;
+}
+
+bool recv_data(channel_entry_t * e, char * data, size_t len)
+{
+    recv(e->fd, data, len, 0);
+    return true;
+}
+
 void stop_server()
 {
-    dbg_printf("server will stop\n");
+    dbg_printf("server stop requested\n");
     server_run = 0;
 }

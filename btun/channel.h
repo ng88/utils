@@ -19,15 +19,27 @@
 
 #include "vector.h"
 #include "user.h"
+#include "bool.h"
+
+typedef enum
+{
+    S_START = 0,
+    S_CHALLENGE_OK = 1,
+    S_AFFECTED = 2,
+} step_t;
+
+struct _channel_t;
 
 typedef struct
 {
     int fd;
+    step_t step;
     user_t * user;
+    struct _channel_t * channel;
 } channel_entry_t;
 
 
-typedef struct
+typedef struct _channel_t
 {
     /* vector of channel_entry_t * */
     vector_t * entries;
@@ -58,13 +70,13 @@ channel_t * channel_from_name(channel_pool_t * p, char * name);
 
 void free_channel_pool(channel_pool_t * p);
 
-
+void print_channel_pool(channel_pool_t * p, FILE * f);
 
 /*********  CHANNEL  **********/
 
 channel_t * create_channel(char * name);
 
-int channel_add_user(channel_t * c, channel_entry_t * e);
+bool channel_add_user(channel_t * c, channel_entry_t * e);
 
 #define channel_user_count(c)   (vector_size((c)->entries))
 
@@ -74,6 +86,11 @@ int channel_add_user(channel_t * c, channel_entry_t * e);
 void channel_del_user_at(channel_t * c, size_t i);
 
 void free_channel(channel_t * c);
+
+#define get_entry_at(v, i) \
+           ((channel_entry_t*)vector_get_element_at((v), (i)))
+
+void print_entry_vector(vector_t * v, FILE * f);
 
 
 /*********  CHANNEL ENTRY  **********/

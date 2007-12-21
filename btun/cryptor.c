@@ -20,7 +20,7 @@
 
 #define XOROR_KEY 0xfeab
 
-c_mode_t cmode = C_XOROR;
+c_mode_t cmode = C_NONE;
 cryptor * ec = NULL;
 
 

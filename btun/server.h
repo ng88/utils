@@ -19,16 +19,27 @@
 
 #include <netinet/in.h>
 
+#include "user.h"
+#include "channel.h"
+#include "protocol.h"
+
 #define SERVER_BACKLOG 5
-#define SERVER_DEFAULT_PORT 12358
 
 #define SERVER_MAX_CHANNEL 10
 #define SERVER_MAX_USER_PER_CHANNEL 10
 
+
 typedef uint16_t port_t;
 
 
-int start_server(port_t port);
+int start_server(user_pool_t * existing_users, port_t port);
+
+void send_challenge(int fd);
+
+bool send_data(channel_entry_t * e, char * data, size_t len);
+bool recv_data(channel_entry_t * e, char * data, size_t len);
+
+void process_incoming_data();
 
 void stop_server();
 

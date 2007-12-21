@@ -114,12 +114,12 @@ void print_user_pool(user_pool_t * p, FILE * f)
     size_t s = user_count(p);
     size_t i;
 
-    fprintf(f, "-- user table ---------\n");
+    fprintf(f, "---- user table --------------\n");
 
     for(i = 0; i < s; ++i)
 	print_user(get_user_at(p, i), f);
 
-    fprintf(f, "-- %u users ---------\n", s);
+    fprintf(f, "---- %3u users ---------------\n", s);
 
 }
 
@@ -158,7 +158,7 @@ void print_user(user_t * u, FILE * f)
 {
     c_assert(u);
 
-    fprintf(f, "%s:%s:%u\n", u->login, u->passphrase, u->is_root);
+    fprintf(f, "%s (%u)\n", u->login, u->is_root);
 }
 
 void free_user(user_t * u)

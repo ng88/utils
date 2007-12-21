@@ -21,10 +21,15 @@
 #include <string.h>
 
 #include "server.h"
+#include "user.h"
+#include "cryptor.h"
 
 #define DEFAULT_USER_FILE /etc/btund/user.conf
 
-#include "user.h"
+
+void do_nohing()
+{
+}
 
 void stop_server_handler(int s)
 {
@@ -41,6 +46,12 @@ int main(int argc, char ** argv)
     sigaction(SIGTERM, &nv, &old);
     sigaction(SIGINT, &nv, &old);
 
+    nv.sa_handler = &do_nohing;
+    sigaction(SIGUSR1, &nv, &old);
+    sigaction(SIGHUP, &nv, &old);
+
+    set_encryptor_mode(C_XOROR);
+
     user_pool_t * p = create_user_pool();
 
     FILE * f = fopen("users", "r");
@@ -54,11 +65,13 @@ int main(int argc, char ** argv)
 
     fclose(f);
 
-    print_user_pool(p, stdout);
+    
 
+    int r = start_server(p, SERVER_DEFAULT_PORT);
+
+
+    free_encryptor();
     free_user_pool(p);
-
-    int r = start_server(SERVER_DEFAULT_PORT);
 
     return r;
 }

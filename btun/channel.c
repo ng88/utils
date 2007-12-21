@@ -72,6 +72,24 @@ void free_channel_pool(channel_pool_t * p)
 }
 
 
+void print_channel_pool(channel_pool_t * p, FILE * f)
+{
+    size_t i;
+    size_t s = channel_count(p);
+
+    fprintf(f, "---- channel table -----------\n");
+
+    for(i = 0; i < s; ++i)
+    {
+	channel_t * c = channel_at(p, i);
+	fprintf(f, "Channel %s (%d):\n", c->name, i);
+	print_entry_vector(c->entries, f);
+    }
+
+    fprintf(f, "---- %3u channels ------------\n", s);
+}
+
+
 /*********  CHANNEL  **********/
 
 
@@ -97,16 +115,17 @@ void channel_del_user_at(channel_t * c, size_t i)
 }
 
 
-int channel_add_user(channel_t * c, channel_entry_t * e)
+bool channel_add_user(channel_t * c, channel_entry_t * e)
 {
     c_assert(c);
 
     if(channel_user_count(c) >= SERVER_MAX_USER_PER_CHANNEL)
-	return 0;
+	return false;
     else
     {
 	vector_add_element(c->entries, e);
-	return 1;
+	e->channel = c;
+	return true;
     }
 }
 
@@ -128,6 +147,28 @@ void free_channel(channel_t * c)
     free(c);
 }
 
+void print_entry_vector(vector_t * v, FILE * f)
+{
+    c_assert(v);
+
+    size_t i;
+    size_t s = vector_size(v);
+
+    fprintf(f, "---- entry table -------------\n");
+
+    for(i = 0; i < s; ++i)
+    {
+	channel_entry_t * e = get_entry_at(v, i);
+	fprintf(f, "user %s:%d (%d) on channel %s\n",
+		e->user ? e->user->login : "unknown",
+		e->fd, e->step,
+		e->channel ? e->channel->name : "none"
+		);
+    }
+
+    fprintf(f, "---- %3u entries -------------\n", s);
+}
+
 
 
 /*********  CHANNEL ENTRY  **********/
@@ -141,7 +182,8 @@ channel_entry_t * create_channel_entry(int fd, user_t * user)
 
     r->fd = fd;
     r->user = user;
-
+    r->step = S_START;
+    r->channel = NULL;
     return r;
 }
 

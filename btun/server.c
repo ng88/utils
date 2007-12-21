@@ -14,6 +14,11 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
+/* TODO
+   option -d (lancement en demon)
+   option pty
+   option master (celui qui demarre en master envoir a tout le monde)
+ */
 
 #include "server.h"
 
@@ -170,7 +175,9 @@ int start_server(user_pool_t * existing_users, port_t port)
 		if(n <= 0)
 		{
 		    if(n <= 0)
-			dbg_printf("connection to socket %d closed\n", e->fd)
+		    {
+			dbg_printf("connection to socket %d closed\n", e->fd);
+		    }
 		    else
 		    {
 			perror("recv");

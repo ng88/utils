@@ -1,6 +1,6 @@
 
 ifdef DEBUG
-    DEBUGFLAGS=-g -ggdb -dH -D_DEBUG_=1
+    DEBUGFLAGS=-g -ggdb -dH -D_DEBUG_=1 -DDEBUG=1
     STRIP=@echo
 else
     DEBUGFLAGS=

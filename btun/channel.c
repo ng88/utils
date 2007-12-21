@@ -173,7 +173,7 @@ void print_entry_vector(vector_t * v, FILE * f)
 
 /*********  CHANNEL ENTRY  **********/
 
-channel_entry_t * create_channel_entry(int fd, user_t * user)
+channel_entry_t * create_channel_entry(int fd)
 {
    channel_entry_t * r = 
 	(channel_entry_t *)malloc(sizeof(channel_entry_t));
@@ -181,8 +181,8 @@ channel_entry_t * create_channel_entry(int fd, user_t * user)
     c_assert2(r, "malloc failed");
 
     r->fd = fd;
-    r->user = user;
-    r->step = S_START;
+    r->user = NULL;
+    r->step = S_WAIT_LOGIN;
     r->channel = NULL;
     return r;
 }

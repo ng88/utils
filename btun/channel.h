@@ -23,9 +23,10 @@
 
 typedef enum
 {
-    S_START = 0,
-    S_CHALLENGE_OK = 1,
-    S_AFFECTED = 2,
+    S_WAIT_LOGIN = 0,
+    S_WAIT_CHALLENGE = 1,
+    S_WAIT_CHANNEL = 2,
+    S_AFFECTED = 3,
 } step_t;
 
 struct _channel_t;
@@ -95,7 +96,7 @@ void print_entry_vector(vector_t * v, FILE * f);
 
 /*********  CHANNEL ENTRY  **********/
 
-channel_entry_t * create_channel_entry(int fd, user_t * user);
+channel_entry_t * create_channel_entry(int fd);
 
 void free_channel_entry(channel_entry_t * e);
 

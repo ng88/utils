@@ -120,7 +120,7 @@ int start_server(user_pool_t * existing_users, port_t port)
             perror("select");
 	    return EXIT_FAILURE;
         }
-
+//parcourir ls entries, sortie le listen...
 	int i;
         for(i = 0; i <= fdmax; i++)
 	{
@@ -141,15 +141,17 @@ int start_server(user_pool_t * existing_users, port_t port)
 		    else
 		    {
 
-                        dbg_printf("incoming connection from %s on socket %d\n",
-				   inet_ntoa(rmaddr.sin_addr), newfd);
-
 			FD_SET(newfd, &master);
 
 			if (newfd > fdmax)
 			    fdmax = newfd;
 
-			send_challenge(newfd);
+			vector_add_element(users,
+					   create_channel_entry(newfd));
+
+                        dbg_printf("incoming connection from %s on socket %d\n",
+				   inet_ntoa(rmaddr.sin_addr), newfd);
+			//send_challenge(newfd);
 
                     }
 

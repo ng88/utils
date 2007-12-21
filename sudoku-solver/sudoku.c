@@ -3,7 +3,7 @@
  *                                                                         *
  *   'utils' projects                                                      *
  *                                                                         *
- *   Copyright (C) 2006, 2007 by GUILLAUME Nicolas                         *
+ *   Copyright (C) 2006, 2008 by GUILLAUME Nicolas                         *
  *   ng@ngsoft-fr.com                                                      *
  *                                                                         *
  *   http://www.ngsoft-fr.com/                                             *

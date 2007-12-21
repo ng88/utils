@@ -14,51 +14,26 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <string.h>
-
-#include "server.h"
-
-#define DEFAULT_USER_FILE /etc/btund/user.conf
+#ifndef CRYPTOR_H
+#define CRYPTOR_H
 
 #include "user.h"
 
-void stop_server_handler(int s)
+typedef enum
 {
-    stop_server();
-}
+    C_NONE,
+    C_XOROR
+} c_mode_t;
 
-int main(int argc, char ** argv)
-{
 
-    struct sigaction nv, old;
-    memset(&nv, 0, sizeof(nv));
-    nv.sa_handler = &stop_server_handler;
+void set_encryptor_mode(c_mode_t m);
 
-    sigaction(SIGTERM, &nv, &old);
-    sigaction(SIGINT, &nv, &old);
+void reinit_encryptor(user_t * u);
+char * encrypt(char * src, char * dst);
 
-    user_pool_t * p = create_user_pool();
 
-    FILE * f = fopen("users", "r");
-    if(!f)
-    {
-	fprintf(stderr, "btund: cannot read user file `%s'\n", "users");
-	return EXIT_FAILURE;
-    }
+#define free_encryptor() set_encryptor_mode(C_NONE)
 
-    read_users_from_file(p, f);
 
-    fclose(f);
 
-    print_user_pool(p, stdout);
-
-    free_user_pool(p);
-
-    int r = start_server(SERVER_DEFAULT_PORT);
-
-    return r;
-}
+#endif

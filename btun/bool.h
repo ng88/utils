@@ -14,51 +14,37 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
+#ifndef BOOL_H
+#define BOOL_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <string.h>
+#ifdef FALSE
+# undef FALSE
+#endif
 
-#include "server.h"
+#ifdef TRUE
+# undef TRUE
+#endif
 
-#define DEFAULT_USER_FILE /etc/btund/user.conf
+#ifdef false
+# undef false
+#endif
 
-#include "user.h"
+#ifdef true
+# undef true
+#endif
 
-void stop_server_handler(int s)
-{
-    stop_server();
-}
+#ifdef bool
+# undef bool
+#endif
 
-int main(int argc, char ** argv)
-{
+#define FALSE false
+#define TRUE  true
+#define true  (!false)
+#define false 0
+#define bool  __bool__
 
-    struct sigaction nv, old;
-    memset(&nv, 0, sizeof(nv));
-    nv.sa_handler = &stop_server_handler;
 
-    sigaction(SIGTERM, &nv, &old);
-    sigaction(SIGINT, &nv, &old);
+typedef unsigned char __bool__;
 
-    user_pool_t * p = create_user_pool();
+#endif
 
-    FILE * f = fopen("users", "r");
-    if(!f)
-    {
-	fprintf(stderr, "btund: cannot read user file `%s'\n", "users");
-	return EXIT_FAILURE;
-    }
-
-    read_users_from_file(p, f);
-
-    fclose(f);
-
-    print_user_pool(p, stdout);
-
-    free_user_pool(p);
-
-    int r = start_server(SERVER_DEFAULT_PORT);
-
-    return r;
-}

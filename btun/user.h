@@ -14,51 +14,50 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
+#ifndef USER_H
+#define USER_H
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <signal.h>
-#include <string.h>
 
-#include "server.h"
+#include "vector.h"
+#include "bool.h"
 
-#define DEFAULT_USER_FILE /etc/btund/user.conf
+#define USER_MAX_PASS_SIZE 64
+#define USER_MAX_LOGIN_SIZE 8
 
-#include "user.h"
-
-void stop_server_handler(int s)
+typedef struct
 {
-    stop_server();
-}
+    int fd;
+    char * login;
+    char * passphrase;
+    bool is_root;
+} user_t;
 
-int main(int argc, char ** argv)
+typedef struct
 {
+    /* vector of user_t * */
+    vector_t * users;
+} user_pool_t;
 
-    struct sigaction nv, old;
-    memset(&nv, 0, sizeof(nv));
-    nv.sa_handler = &stop_server_handler;
 
-    sigaction(SIGTERM, &nv, &old);
-    sigaction(SIGINT, &nv, &old);
+user_pool_t * create_user_pool();
+void read_users_from_file(user_pool_t * p, FILE * f);
+user_t * get_user_from_name(user_pool_t * p, char * login);
+#define get_user_at(p, i) \
+        ((user_t *)vector_get_element_at((p)->users, (i)))
+#define user_count(p) \
+          (vector_size((p)->users))
+#define user_add(p, u) \
+         (vector_add_element((p)->users, (u)))
+void print_user_pool(user_pool_t * p, FILE * f);
+void free_user_pool(user_pool_t * p);
 
-    user_pool_t * p = create_user_pool();
 
-    FILE * f = fopen("users", "r");
-    if(!f)
-    {
-	fprintf(stderr, "btund: cannot read user file `%s'\n", "users");
-	return EXIT_FAILURE;
-    }
+user_t * creature_user(char * login, char * pass, bool is_root);
+void print_user(user_t * u, FILE * f);
+void free_user(user_t * u);
 
-    read_users_from_file(p, f);
 
-    fclose(f);
+bool read_delim_string(char* s, int max, char sep, FILE * f);
 
-    print_user_pool(p, stdout);
-
-    free_user_pool(p);
-
-    int r = start_server(SERVER_DEFAULT_PORT);
-
-    return r;
-}
+#endif

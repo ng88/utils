@@ -1,3 +1,19 @@
+/***************************************************************************
+ *   This file is part of the 'utils' projects                             *
+ *                                                                         *
+ *   'utils' projects                                                      *
+ *                                                                         *
+ *   Copyright (C) 2006, 2008 by GUILLAUME Nicolas                         *
+ *   ng@ngsoft-fr.com                                                      *
+ *                                                                         *
+ *   http://www.ngsoft-fr.com/                                             *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; version 2 of the License only.          *
+ *   See the COPYING file.                                                 *
+ ***************************************************************************/                                                                
+
 
 ifdef DEBUG
     DEBUGFLAGS=-g -ggdb -dH -D_DEBUG_=1
@@ -17,7 +33,7 @@ CC=gcc
 CFLAGS=-W -Wall -Wno-unused $(DEBUGFLAGS) $(ASSERTFLAGS)
 LDFLAGS=
 
-SRC=channel.c server.c vector.c
+SRC=channel.c server.c vector.c user.c cryptor.c ../xoror/xoror.c
 
 SRC1=btund.c $(SRC)
 OBJS1=$(SRC1:.c=.o)
@@ -29,12 +45,12 @@ EXE2=btun
 
 all: $(EXE1) $(EXE2)
 
-
-btund.o: server.h
-channel.o: vector.h channel.h server.h assert.h
-server.o: assert.h channel.h
+btund.o: server.h user.h
+channel.o: vector.h user.h channel.h server.h assert.h
+cryptor.o: user.h cryptor.h ../xoror/xoror.h assert.h
+server.o: server.h assert.h channel.h
+user.o: vector.h bool.h user.h assert.h
 vector.o: vector.h assert.h
-
 
 
 

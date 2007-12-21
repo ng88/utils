@@ -14,51 +14,61 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
+#include "cryptor.h"
+#include "../xoror/xoror.h"
+#include "assert.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <string.h>
+#define XOROR_KEY 0xfeab
 
-#include "server.h"
+c_mode_t cmode = C_XOROR;
+cryptor * ec = NULL;
 
-#define DEFAULT_USER_FILE /etc/btund/user.conf
 
-#include "user.h"
-
-void stop_server_handler(int s)
+void set_encryptor_mode(c_mode_t m)
 {
-    stop_server();
-}
+    cmode = m;
 
-int main(int argc, char ** argv)
-{
-
-    struct sigaction nv, old;
-    memset(&nv, 0, sizeof(nv));
-    nv.sa_handler = &stop_server_handler;
-
-    sigaction(SIGTERM, &nv, &old);
-    sigaction(SIGINT, &nv, &old);
-
-    user_pool_t * p = create_user_pool();
-
-    FILE * f = fopen("users", "r");
-    if(!f)
+    switch(cmode)
     {
-	fprintf(stderr, "btund: cannot read user file `%s'\n", "users");
-	return EXIT_FAILURE;
+    case C_XOROR:
+	if(!ec) ec = cryptor_malloc();
+	break;
+    case C_NONE:
+	if(ec) free(ec);
+	break;
     }
 
-    read_users_from_file(p, f);
-
-    fclose(f);
-
-    print_user_pool(p, stdout);
-
-    free_user_pool(p);
-
-    int r = start_server(SERVER_DEFAULT_PORT);
-
-    return r;
 }
+
+void reinit_encryptor(user_t * u)
+{
+    c_assert(u);
+
+    switch(cmode)
+    {
+    case C_XOROR:
+	c_assert(ec);
+	cryptor_init(ec, u->passphrase, XOROR_KEY);
+    case C_NONE:
+	break;
+    }
+}
+
+char * encrypt(char * src, char * dst)
+{
+    c_assert(src);
+
+    switch(cmode)
+    {
+    case C_XOROR:
+	c_assert(ec);
+	encrypt_string(src, dst, ec);
+	return dst;
+    case C_NONE:
+	return src;
+    }
+
+    return NULL;
+}
+
+

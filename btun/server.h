@@ -29,6 +29,7 @@
 
 int start_server(user_pool_t * existing_users, port_t port);
 
+void remove_user(channel_entry_t * e);
 
 bool send_data(channel_entry_t * e, char * data, size_t len);
 bool recv_data(channel_entry_t * e, char * data, size_t len);

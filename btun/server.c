@@ -167,7 +167,7 @@ int start_server(user_pool_t * eu, port_t port)
 		bool closeit = false;
 
 		char buf[RECV_BUFF_SIZE];
-		int n = recv(e->fd, buf, RECV_BUFF_SIZE, 0);
+		int n = recv(e->fd, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
 
 		if(n <= 0)
 		{
@@ -191,7 +191,7 @@ int start_server(user_pool_t * eu, port_t port)
 		    if(e->fd == fdmax)
 			get_highest_fd(users, fdlisten);
 
-		    free_channel_entry(e);
+		    remove_user(e);
 		}
 
 
@@ -216,6 +216,26 @@ int start_server(user_pool_t * eu, port_t port)
     dbg_printf("server halted\n");
 
     return EXIT_SUCCESS;
+}
+
+void remove_user(channel_entry_t * e)
+{
+    channel_t * c = e->channel;
+
+    if(c)
+    {
+	if(c->master == e)
+	    c->master = NULL;
+
+	channel_del_user_from_channel(c, e); /* free e also*/
+
+	if(channel_user_count(c) == 0) /*nobody left */
+	    del_channel_from_pool(channels, c); /* free c also*/
+
+    }
+    else
+	free_channel_entry(e);
+
 }
 
 bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
@@ -367,29 +387,51 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	return (rep == CA_GRANTED);
 
     case S_AFFECTED:
-
-	break;
-
-    }
-
-
-/*
-    size_t s = vector_size(u);
-    size_t i;
-
-    for(i = 0; i < s; i++)
     {
-	channel_entry_t * ce = get_entry_at(u, i);
+	size_t i;
+	size_t count;
 
-	if(ce != e && FD_ISSET(ce->fd, fs))
+	channel_t * c = e->channel;
+
+	if(!c || !e->user) /* protocol violation */
+	    return false;
+
+	k = channel_user_count(c);
+
+	if(c->master == NULL || c->master == e) 
 	{
-	    if (send(ce->fd, buf, n, MSG_NOSIGNAL) == -1)
-		perror("send");
+	    for(i = 0; i < k; i++)
+	    {
+		channel_entry_t * ce = channel_get_user_at(c, i);		
+		if(ce != e && FD_ISSET(ce->fd, fs))
+		{
+		    count = n;
+		    if(sendall(ce->fd, buf, &count) == -1)
+		    {
+			perror("send");
+			return false;
+		    }
+		    
+		}
+	    }
 
 	}
+	else
+	{
+	    count = n;
+	    if(FD_ISSET(c->master->fd, fs))
+		if(sendall(c->master->fd, buf, &count) == -1)
+		{
+		    perror("send");
+		    return false;
+		}
+	}
+
+    }
+    break;
+
     }
 
-*/
 
     return true;
 }

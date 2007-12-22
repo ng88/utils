@@ -32,6 +32,7 @@
  */
 
 #include "md5.h"
+#include "assert.h"
 
 /*
  ***********************************************************************
@@ -297,36 +298,41 @@ UINT4 *in;
 
 
 
-void MD5Str(MD5_CTX_ppp * m, char * str, unsigned int size)
-{
-
-	MD5Init_ppp(m);
-    
-	MD5Update_ppp(m, str, size);
-
-	MD5Final_ppp(m);
-
-}
-
 void MD5Print(MD5_CTX_ppp * m, FILE * f)
 {
-	int i;
+    c_assert(m);
 
-	for (i = 0; i < 16; i++)
-		fprintf(f, "%02x", (unsigned char) m->digest[i]);
+    int i;
+
+    for (i = 0; i < MD5_SIZE; i++)
+	fprintf(f, "%02x", (unsigned char) m->digest[i]);
 }
 
-/*
-int main(int a, char ** s)
+
+void MD5ToSring(MD5_CTX_ppp * m, char * dest)
 {
-    MD5_CTX_ppp m;
+    c_assert(m && dest);
 
-    MD5Str(&m, s[1], strlen(s[1]));
+    sprintf(dest,
+	    "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+	    (unsigned char) m->digest[0],
+	    (unsigned char) m->digest[1],
+	    (unsigned char) m->digest[2],
+	    (unsigned char) m->digest[3],
+	    (unsigned char) m->digest[4],
+	    (unsigned char) m->digest[5],
+	    (unsigned char) m->digest[6],
+	    (unsigned char) m->digest[7],
+	    (unsigned char) m->digest[8],
+	    (unsigned char) m->digest[9],
+	    (unsigned char) m->digest[10],
+	    (unsigned char) m->digest[11],
+	    (unsigned char) m->digest[12],
+	    (unsigned char) m->digest[13],
+	    (unsigned char) m->digest[14],
+	    (unsigned char) m->digest[15]
+	);
 
-    MD5Print(&m, stdout);
-
-    putchar('\n');
-
-    return 0;
 }
-*/
+
+

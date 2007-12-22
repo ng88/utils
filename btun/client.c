@@ -6,11 +6,13 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <errno.h>
-
+#include <unistd.h>
 
 #include "client.h"
 #include "assert.h"
 #include "misc.h"
+
+#define RECV_BUFF_SIZE 256
 
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
@@ -106,9 +108,55 @@ int connect_to_server(char * server, port_t port,
 	return EXIT_FAILURE;
     }
 
-    n = sizeof(ch);
-    while(1)
-	recvall(sockfd, ch, &n);
+    fd_set fds;
+
+    FD_ZERO(&fds);
+    FD_SET(0, &fds); /* stdin */
+    FD_SET(sockfd, &fds); /* socket */
+
+    bool run = true;
+    char buf[RECV_BUFF_SIZE];
+
+    while(run)
+    {
+        if(select(sockfd + 1, &fds, NULL, NULL, NULL) == -1)
+	    run = false;
+	else
+	{
+	    if(FD_ISSET(0, &fds)) /* stdin */
+	    {
+		n = read(0, buf, RECV_BUFF_SIZE);
+		if(n <= 0 || sendall(sockfd, buf, &n) == -1)
+		    run = false;
+	    }
+
+	    if(run && FD_ISSET(sockfd, &fds))
+	    {
+		n = recv(0, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
+		if(n <= 0 || writeall(0, buf, n) == -1)
+		    run = false;
+	    }
+
+
+	}
+    }
 
     return EXIT_SUCCESS;
+}
+
+
+int writeall(int fd, void * src, size_t s)
+{
+    while(s)
+    {
+	int lu = write(fd, src, s);
+
+	if(lu <= 0)
+	    return -1;
+
+	src += lu;
+	s -= lu;
+    }
+
+    return 0;
 }

@@ -68,6 +68,26 @@ bool add_channel_to_pool(channel_pool_t * p, channel_t * c)
     return true;
 }
 
+void del_channel_at(channel_pool_t * c, size_t i)
+{
+    c_assert(c);
+
+    free_channel(vector_get_element_at(c->channels, i));
+    vector_del_element_at(c->channels, i);
+}
+
+void del_channel_from_pool(channel_pool_t * c, channel_t * e)
+{
+    c_assert(c);
+
+    size_t s = channel_count(c);
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+	if(channel_at(c, i) == e)
+	    del_channel_at(c, i); /* free e */
+}
+
 void free_channel_pool(channel_pool_t * p)
 {
     c_assert(p);
@@ -89,13 +109,18 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
     size_t i;
     size_t s = channel_count(p);
 
-    fprintf(f, "---- channel table -----------\n");
+    fputs("---- channel table -----------\n", f);
 
     for(i = 0; i < s; ++i)
     {
 	channel_t * c = channel_at(p, i);
-	fprintf(f, "Channel %s (%d) - (master is %s):\n", 
-		c->name, i, (c->master ? c->master->user->login : "no master"));
+	fprintf(f, "Channel %s (%d)", c->name, i);
+
+	if(c->master)
+	    fprintf(f, " - (master is %s:%d)", c->master->user->login, c->master->fd);
+
+	fputs(":\n", f);
+
 	print_entry_vector(c->entries, f);
     }
 
@@ -127,6 +152,18 @@ void channel_del_user_at(channel_t * c, size_t i)
 
     free_channel_entry(vector_get_element_at(c->entries, i));
     vector_del_element_at(c->entries, i);
+}
+
+void channel_del_user_from_channel(channel_t * c, channel_entry_t * e)
+{
+    c_assert(c);
+
+    size_t s = channel_user_count(c);
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+	if(channel_get_user_at(c, i) == e)
+	    channel_del_user_at(c, i); /* free e */
 }
 
 

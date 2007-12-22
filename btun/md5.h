@@ -60,7 +60,7 @@ void MD5Final_ppp (MD5_CTX_ppp*);
 
 void MD5Print(MD5_CTX_ppp * m, FILE * f);
 
-void MD5Str(MD5_CTX_ppp * m, char * str, unsigned int size);
+void MD5ToSring(MD5_CTX_ppp * m, char * dest);
 
 #define __MD5_INCLUDE__
 #endif /* __MD5_INCLUDE__ */

@@ -43,7 +43,7 @@ bool read_delim_string(char* s, int max, char sep, FILE * f)
 
 	s[i] = (char)c;
 
-	if(s[i] == ':')
+	if(s[i] == sep)
 	{
 	    s[i] = '\0';
 	    return true;
@@ -60,7 +60,7 @@ void read_users_from_file(user_pool_t * p, FILE * f)
 {
     char login[USER_MAX_LOGIN_SIZE + 1];
     char pass[USER_MAX_PASS_SIZE + 1];
-    bool root;
+
     int c;
 
     while(!feof(f))
@@ -68,26 +68,10 @@ void read_users_from_file(user_pool_t * p, FILE * f)
 	if(!read_delim_string(login, USER_MAX_LOGIN_SIZE + 1, ':', f))
 	    break;
 
-	if(!read_delim_string(pass, USER_MAX_PASS_SIZE + 1, ':', f))
+	if(!read_delim_string(pass, USER_MAX_PASS_SIZE + 1, '\n', f))
 	    break;
 
-	if((c = fgetc(f)) == EOF)
-	    break;
-
-	if(c == '0')
-	    root = false;
-	else if(c == '1')
-	    root = true;
-	else
-	    break;
-
-	if((c = fgetc(f)) == EOF)
-	    break;
-
-	if(c != '\n')
-	    break;
-
-	user_add(p, create_user(login, pass, root));
+	user_add(p, create_user(login, pass));
     }
 }
 
@@ -140,7 +124,7 @@ void free_user_pool(user_pool_t * p)
 
 
 
-user_t * create_user(char * login, char * pass, bool is_root)
+user_t * create_user(char * login, char * pass)
 {
     user_t * r = 
 	(user_t *)malloc(sizeof(user_t));
@@ -149,7 +133,6 @@ user_t * create_user(char * login, char * pass, bool is_root)
 
     r->login = strdup(login);
     r->passphrase = strdup(pass);
-    r->is_root = is_root;
 
     return r;
 }
@@ -158,7 +141,7 @@ void print_user(user_t * u, FILE * f)
 {
     c_assert(u);
 
-    fprintf(f, "%s (%u)\n", u->login, u->is_root);
+    fprintf(f, "%s\n", u->login);
 }
 
 void free_user(user_t * u)

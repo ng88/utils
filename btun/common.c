@@ -87,6 +87,5 @@ void challenge_answer(char * ch, char * pass, MD5_CTX_ppp * m)
     MD5Update_ppp(m, ch, CHALLENGE_SIZE);
 
     MD5Final_ppp(m);
-
 }
 

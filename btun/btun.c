@@ -28,7 +28,7 @@ int main(int argc, char ** argv)
 {
 
     char * login;
-    char  pass[USER_MAX_PASS_SIZE];
+    char  pass[MD5_SIZE * 2];
     char * channel;
     char * server;
     option_t options = 0;
@@ -38,7 +38,11 @@ int main(int argc, char ** argv)
     c_assert2(argc >= 5, "# d'argument incorrect");
     server = argv[1];
     login = argv[2];
-    strncpy(pass, argv[3], USER_MAX_PASS_SIZE);
+    MD5_CTX_ppp m;
+    MD5Init_ppp(&m);
+    MD5Update_ppp(&m, argv[3], strlen(argv[3]));
+    MD5Final_ppp(&m);
+    MD5ToSring(&m, pass);
     channel = argv[4];
 
     if(argc >= 6 && argv[5][0] == 'M')

@@ -14,5 +14,6 @@ int connect_to_server(char * server, port_t port,
 
 
 
+int writeall(int fd, void * src, size_t s);
 
 #endif

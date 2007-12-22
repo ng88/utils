@@ -73,6 +73,10 @@ channel_t * channel_from_name(channel_pool_t * p, char * name);
 
 bool add_channel_to_pool(channel_pool_t * p, channel_t * c);
 
+void del_channel_at(channel_pool_t * c, size_t i);
+
+void del_channel_from_pool(channel_pool_t * c, channel_t * e);
+
 void free_channel_pool(channel_pool_t * p);
 
 void print_channel_pool(channel_pool_t * p, FILE * f);
@@ -89,6 +93,8 @@ bool channel_add_user(channel_t * c, channel_entry_t * e, bool master);
          ((channel_entry_t *)vector_get_element_at((c)->entries, (i)))
 
 void channel_del_user_at(channel_t * c, size_t i);
+
+void channel_del_user_from_channel(channel_t * c, channel_entry_t * e);
 
 void free_channel(channel_t * c);
 

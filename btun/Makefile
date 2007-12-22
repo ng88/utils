@@ -23,7 +23,7 @@ CC=gcc
 CFLAGS=-W -Wall -Wno-unused $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS)
 LDFLAGS=
 
-SRC=common.c channel.c vector.c user.c cryptor.c ../xoror/xoror.c
+SRC=common.c channel.c vector.c user.c cryptor.c ../xoror/xoror.c md5.c misc.c
 
 SRC1=btund.c server.c $(SRC)
 OBJS1=$(SRC1:.c=.o)

@@ -31,7 +31,7 @@ int main(int argc, char ** argv)
     char * pass;
     char * channel;
     char * server;
-    bool master;
+    option_t options = 0;
     port_t port = SERVER_DEFAULT_PORT;
 
     /*      Temporaire     */
@@ -40,13 +40,13 @@ int main(int argc, char ** argv)
     login = argv[2];
     pass = argv[3];
     channel = argv[4];
-    master = (argc >= 6 && argv[5][0] == 'M');
+
+    if(argc >= 6 && argv[5][0] == 'M')
+	options = options | OPT_MASTER;
+
     /*      Temporaire     */
 
 
-    dbg_printf("login = `%s', pass = `%s', channel = `%s', master = %d\n",
-	       login, pass, channel, master);
-
-    return connect_to_server(server, port, login, pass, channel, master);
+    return connect_to_server(server, port, login, pass, channel, options);
 
 }

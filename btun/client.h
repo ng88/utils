@@ -8,7 +8,7 @@
 
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
-		      char * channel, bool master);
+		      char * channel, option_t options);
 
 
 

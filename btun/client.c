@@ -125,15 +125,19 @@ int connect_to_server(char * server, port_t port,
 	{
 	    if(FD_ISSET(0, &fds)) /* stdin */
 	    {
+		dbg_printf("data on stdin\n");
 		n = read(0, buf, RECV_BUFF_SIZE);
+		int u; for(u = 0; u < n; ++u) dbg_printf(">> %c\n", buf[u]);
 		if(n <= 0 || sendall(sockfd, buf, &n) == -1)
 		    run = false;
 	    }
 
 	    if(run && FD_ISSET(sockfd, &fds))
 	    {
-		n = recv(0, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
-		if(n <= 0 || writeall(0, buf, n) == -1)
+		dbg_printf("data on socket\n");
+		n = recv(sockfd, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
+		int u; for(u = 0; u < n; ++u) dbg_printf(">> %c\n", buf[u]);
+		if(n <= 0 || writeall(1, buf, n) == -1)
 		    run = false;
 	    }
 

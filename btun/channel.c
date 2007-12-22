@@ -85,7 +85,10 @@ void del_channel_from_pool(channel_pool_t * c, channel_t * e)
 
     for(i = 0; i < s; ++i)
 	if(channel_at(c, i) == e)
+	{
 	    del_channel_at(c, i); /* free e */
+	    break;
+	}
 }
 
 void free_channel_pool(channel_pool_t * p)
@@ -161,9 +164,12 @@ void channel_del_user_from_channel(channel_t * c, channel_entry_t * e)
     size_t s = channel_user_count(c);
     size_t i;
 
-    for(i = 0; i < s; ++i)
+    for(i = 0; i <  s; ++i)
 	if(channel_get_user_at(c, i) == e)
+	{
 	    channel_del_user_at(c, i); /* free e */
+	    break;
+	}
 }
 
 

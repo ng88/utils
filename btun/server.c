@@ -396,6 +396,8 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	if(!c || !e->user) /* protocol violation */
 	    return false;
 
+	dbg_printf("socket `%d' want to dispatch some data...\n", e->fd);
+
 	k = channel_user_count(c);
 
 	if(c->master == NULL || c->master == e) 
@@ -406,6 +408,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 		if(ce != e && FD_ISSET(ce->fd, fs))
 		{
 		    count = n;
+		    dbg_printf("socket `%d': sending data to `%d'...\n", e->fd, ce->fd);
 		    if(sendall(ce->fd, buf, &count) == -1)
 		    {
 			perror("send");
@@ -420,11 +423,15 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	{
 	    count = n;
 	    if(FD_ISSET(c->master->fd, fs))
+	    {
+		dbg_printf("socket `%d': sending data to master `%d'...\n", e->fd, c->master->fd);
 		if(sendall(c->master->fd, buf, &count) == -1)
 		{
 		    perror("send");
 		    return false;
 		}
+	    }
+
 	}
 
     }

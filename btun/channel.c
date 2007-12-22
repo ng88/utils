@@ -94,7 +94,8 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
     for(i = 0; i < s; ++i)
     {
 	channel_t * c = channel_at(p, i);
-	fprintf(f, "Channel %s (%d):\n", c->name, i);
+	fprintf(f, "Channel %s (%d) - (master is %s):\n", 
+		c->name, i, (c->master ? c->master->user->login : "no master"));
 	print_entry_vector(c->entries, f);
     }
 
@@ -113,7 +114,7 @@ channel_t * create_channel(char * name)
     c_assert2(r, "malloc failed");
 
     r->entries = create_vector(8);
-    r->name = name;
+    r->name = strdup(name);
     r->master = NULL;
 
     return r;

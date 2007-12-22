@@ -52,7 +52,7 @@ void print_user_pool(user_pool_t * p, FILE * f);
 void free_user_pool(user_pool_t * p);
 
 
-user_t * creature_user(char * login, char * pass, bool is_root);
+user_t * create_user(char * login, char * pass, bool is_root);
 void print_user(user_t * u, FILE * f);
 void free_user(user_t * u);
 

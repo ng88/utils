@@ -56,6 +56,18 @@ channel_t * channel_from_name(channel_pool_t * p, char * name)
 
 }
 
+bool add_channel_to_pool(channel_pool_t * p, channel_t * c)
+{
+    c_assert(p && c);
+
+    if(channel_count(p) >= SERVER_MAX_CHANNEL)
+	return false;
+
+    vector_add_element(p->channels, c);
+
+    return true;
+}
+
 void free_channel_pool(channel_pool_t * p)
 {
     c_assert(p);
@@ -117,16 +129,25 @@ void channel_del_user_at(channel_t * c, size_t i)
 }
 
 
-bool channel_add_user(channel_t * c, channel_entry_t * e)
+bool channel_add_user(channel_t * c, channel_entry_t * e, bool master)
 {
     c_assert(c);
 
-    if(channel_user_count(c) >= SERVER_MAX_USER_PER_CHANNEL)
+    size_t cc = channel_user_count(c);
+
+    if(cc >= SERVER_MAX_USER_PER_CHANNEL)
 	return false;
     else
     {
+	if(cc > 0 && master)
+	    return false;
+
 	vector_add_element(c->entries, e);
 	e->channel = c;
+
+	if(master)
+	    c->master = e;
+
 	return true;
     }
 }

@@ -45,7 +45,7 @@ int connect_to_server(char * server, port_t port,
     dbg_printf("connected.\n");
 
     /*     SEND LOGIN    */
-    int n = min_u(strlen(login), (size_t)USER_MAX_LOGIN_SIZE);
+    int n = min_u(strlen(login) + 1, (size_t)USER_MAX_LOGIN_SIZE);
     HANDLE_ERR(sendall(sockfd, login, &n), "sendall");
 
 
@@ -77,9 +77,9 @@ int connect_to_server(char * server, port_t port,
 
 
     /*     SEND CHANNEL NAME    */
-    n = min_u(strlen(channel), (size_t)USER_MAX_CHANNEL_SIZE - 2);
+    n = min_u(strlen(channel) + 1, (size_t)USER_MAX_CHANNEL_SIZE - 1);
     strncpy(ch, channel, n);
-    ch[++n] = (char)options;
+    ch[n++] = (char)options;
     HANDLE_ERR(sendall(sockfd, ch, &n), "sendall");
 
 
@@ -90,18 +90,25 @@ int connect_to_server(char * server, port_t port,
     switch(ch[0])
     {
     case CA_GRANTED:
-	dbg_printf("connected to channel.");
+	dbg_printf("connected to channel.\n");
 	break;
     case CA_DENIED:
 	fprintf(stderr, "channel `%s': permission denied\n", channel);
 	return EXIT_FAILURE;
-    case CA_ALREADY_EXISTS:
+    case CA_CANT_BE_MASTER:
 	fprintf(stderr, "channel `%s' already exists, you can't be the master.\n", channel);
+	return EXIT_FAILURE;
+    case CA_TOO_MUCH_CHANNEL:
+	fprintf(stderr, "can't add channel `%s', too much channels !\n", channel);
 	return EXIT_FAILURE;
     default:
 	fprintf(stderr, "can not connect to channel `%s', error %d\n", channel, ch[0]);
 	return EXIT_FAILURE;
     }
+
+    n = sizeof(ch);
+    while(1)
+	recvall(sockfd, ch, &n);
 
     return EXIT_SUCCESS;
 }

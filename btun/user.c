@@ -87,7 +87,7 @@ void read_users_from_file(user_pool_t * p, FILE * f)
 	if(c != '\n')
 	    break;
 
-	user_add(p, creature_user(login, pass, root));
+	user_add(p, create_user(login, pass, root));
     }
 }
 
@@ -140,7 +140,7 @@ void free_user_pool(user_pool_t * p)
 
 
 
-user_t * creature_user(char * login, char * pass, bool is_root)
+user_t * create_user(char * login, char * pass, bool is_root)
 {
     user_t * r = 
 	(user_t *)malloc(sizeof(user_t));

@@ -38,13 +38,15 @@
 #define RECV_BUFF_SIZE 256
 
 int server_run;
+user_pool_t * existing_users;
+channel_pool_t * channels;
 
-
-int start_server(user_pool_t * existing_users, port_t port)
+int start_server(user_pool_t * eu, port_t port)
 {
     server_run = 1;
 
-    channel_pool_t * channels = create_channel_pool();
+    existing_users = eu;
+    channels = create_channel_pool();
     vector_t * users = create_vector(16);
 
     fd_set master;
@@ -136,12 +138,9 @@ int start_server(user_pool_t * existing_users, port_t port)
 			       &addrlen);
 	    
 	    if(fd == -1)
-	    {
 		perror("accept");
-	    }
 	    else
 	    {
-		
 		FD_SET(fd, &master);
 		
 		if (fd > fdmax)
@@ -152,8 +151,6 @@ int start_server(user_pool_t * existing_users, port_t port)
 		
 		dbg_printf("incoming connection from %s on socket %d\n",
 			   inet_ntoa(rmaddr.sin_addr), fd);
-		//send_challenge(fd);
-		
 	    }
 	    
 	}
@@ -174,28 +171,18 @@ int start_server(user_pool_t * existing_users, port_t port)
 
 		if(n <= 0)
 		{
-		    if(n <= 0)
-		    {
-			dbg_printf("connection to socket %d closed\n", e->fd);
-		    }
-		    else
-		    {
-			perror("recv");
-			dbg_printf("recv error on socket %d, closing\n", e->fd);
-		    }
-
+		    if(n < 0) perror("recv");
 		    closeit = true;
-
 		}
 		else
-                    closeit = !process_incoming_data(buf, n, existing_users,
-						    users, e, &master);
+                    closeit = !process_incoming_data(buf, n, e, &master);
 
 		if(closeit)
 		{
+		    dbg_printf("socket %d closed\n", e->fd);
+
 		    close(e->fd);
 		    FD_CLR(e->fd, &master);
-
 
 		    vector_del_element_at(users, i);
 		    i--; s--;
@@ -231,16 +218,13 @@ int start_server(user_pool_t * existing_users, port_t port)
     return EXIT_SUCCESS;
 }
 
-bool process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
-			   vector_t * u, channel_entry_t * e, fd_set * fs)
+bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 {
 
     c_assert(e);
 
-    dbg_printf("data received from socket %d\n", e->fd);
-
     size_t k;
-    unsigned char rep;
+    unsigned char rep, opt;
     char * str;
 
     switch(e->step)
@@ -263,7 +247,7 @@ bool process_incoming_data(char * buf, int n, user_pool_t * existing_users,
 
 	c_assert(str);
 
-	dbg_printf("user on socket `%d' pretends he is `%s', sending challenge...\n",
+	dbg_printf("user on socket `%d' pretends to be `%s', sending challenge...\n",
 		   e->fd, str);
 
 	/* if client provide an invalid login, we do not tell him now */
@@ -303,6 +287,7 @@ bool process_incoming_data(char * buf, int n, user_pool_t * existing_users,
 	    rep = UA_DENIED;
 
 	free(e->challenge);
+	e->challenge = NULL;
 
 	k = 1;
 	if(sendall(e->fd, &rep, &k) == -1)
@@ -330,13 +315,13 @@ bool process_incoming_data(char * buf, int n, user_pool_t * existing_users,
 
 	if(n >= USER_MAX_CHANNEL_SIZE) /* channel name full or too long*/
 	{
-	    rep = (unsigned char)buf[USER_MAX_CHANNEL_SIZE - 1];
+	    opt = (unsigned char)buf[USER_MAX_CHANNEL_SIZE - 1];
 	    buf[USER_MAX_CHANNEL_SIZE - 1] = '\0';
 	    str = buf;
 	}
 	else /* channel name shorter than max*/
 	{
-	    rep = (unsigned char)buf[n - 1];
+	    opt = (unsigned char)buf[n - 1];
 	    if(buf[n - 2] == '\0')
 		str = buf;
 	    else
@@ -345,14 +330,41 @@ bool process_incoming_data(char * buf, int n, user_pool_t * existing_users,
 
 	c_assert(str);
 
-	dbg_printf("user on socket `%d' want to join the channel nammed `%s' (%d)\n",
-		   e->fd, str, rep);
+	dbg_printf("user on socket `%d' want to join the channel named `%s' (%d)\n",
+		   e->fd, str, opt);
 
-        /*TODO*/
+	rep = CA_GRANTED;
+
+        e->channel = channel_from_name(channels, str);
+
+	if(!e->channel) /* channel does not exist, try to create it*/
+	{
+	    e->channel = create_channel(str);
+
+	    if(!add_channel_to_pool(channels, e->channel))
+	    {
+		rep = CA_TOO_MUCH_CHANNEL;
+		e->channel = NULL;
+		free_channel(e->channel);
+	    }
+
+	}
+
+	if( e->channel && !channel_add_user(e->channel, e, (opt & OPT_MASTER)) )
+	    rep = CA_CANT_BE_MASTER;
 
 	e->step = S_AFFECTED;
 
-	break;
+	k = 1;
+	if(sendall(e->fd, &rep, &k) == -1)
+	{
+	    dbg_printf("send failed for `%d'\n", e->fd);
+	    return false;
+	}
+
+	dbg_printf("channel connection/creation for `%d':%d\n", e->fd, rep);
+
+	return (rep == CA_GRANTED);
 
     case S_AFFECTED:
 

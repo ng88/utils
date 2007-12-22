@@ -33,7 +33,8 @@ enum
 {
     CA_GRANTED = 0,
     CA_DENIED = 1,
-    CA_ALREADY_EXISTS = 2,
+    CA_CANT_BE_MASTER = 2,
+    CA_TOO_MUCH_CHANNEL = 3,
 };
 
 

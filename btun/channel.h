@@ -21,6 +21,7 @@
 #include "user.h"
 #include "bool.h"
 
+
 typedef enum
 {
     S_WAIT_LOGIN = 0,
@@ -37,6 +38,7 @@ typedef struct
     step_t step;
     user_t * user;
     struct _channel_t * channel;
+    char * challenge;
 } channel_entry_t;
 
 

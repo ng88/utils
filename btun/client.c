@@ -50,7 +50,7 @@ int connect_to_server(char * server, port_t port,
 
 
     /*    RECEIVE CHALLENGE   */
-    char ch[CHALLENGE_SIZE];
+    char ch[  MMAX(CHALLENGE_SIZE, USER_MAX_CHANNEL_SIZE + 1)  ];
     n = CHALLENGE_SIZE;
     HANDLE_ERR(recvall(sockfd, ch, &n), "recvall");
 
@@ -59,13 +59,14 @@ int connect_to_server(char * server, port_t port,
     /*    ANSWER CHALLENGE   */
     MD5_CTX_ppp m;
     challenge_answer(ch, pass, &m);
-    n = 16;
+   memset(pass, '*', strlen(pass));
+    n = MD5_SIZE;
     HANDLE_ERR(sendall(sockfd, m.digest, &n), "sendall");
 
     /*  RECEIVE AGREEMENT  */
     n = 1;
     HANDLE_ERR(recvall(sockfd, ch, &n), "recvall");
-    if(ch[0])
+    if(ch[0] != UA_GRANTED)
     {
 	fputs("login failed\n", stderr);
 	dbg_printf("login failed, error %d\n", ch[0]);
@@ -76,13 +77,10 @@ int connect_to_server(char * server, port_t port,
 
 
     /*     SEND CHANNEL NAME    */
-    n = min_u(strlen(channel), (size_t)USER_MAX_CHANNEL_SIZE);
-    HANDLE_ERR(sendall(sockfd, channel, &n), "sendall");
-
-
-    /*     SEND CHANNEL OPTIONS   */
-    n = 1;
-    HANDLE_ERR(sendall(sockfd, &options, &n), "sendall");
+    n = min_u(strlen(channel), (size_t)USER_MAX_CHANNEL_SIZE - 2);
+    strncpy(ch, channel, n);
+    ch[++n] = (char)options;
+    HANDLE_ERR(sendall(sockfd, ch, &n), "sendall");
 
 
     /*  RECEIVE AGREEMENT  */

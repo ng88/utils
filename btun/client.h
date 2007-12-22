@@ -6,6 +6,7 @@
 #include "common.h"
 
 
+/* warning, pass must be writable, this function clear it */
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
 		      char * channel, option_t options);

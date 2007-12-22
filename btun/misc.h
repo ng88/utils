@@ -38,4 +38,7 @@ bool __min_u(unsigned int a, unsigned int b);
 #endif
 
 
+#define MMAX(a, b) ((a) > (b) ? (a) : (b))
+#define MMIN(a, b) ((a) > (b) ? (b) : (a))
+
 #endif

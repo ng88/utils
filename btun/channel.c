@@ -186,12 +186,16 @@ channel_entry_t * create_channel_entry(int fd)
     r->user = NULL;
     r->step = S_WAIT_LOGIN;
     r->channel = NULL;
+    r->challenge = NULL;
     return r;
 }
 
 void free_channel_entry(channel_entry_t * e)
 {
     c_assert(e);
+
+    if(e->challenge)
+	free(e->challenge);
 
     free(e);
 }

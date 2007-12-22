@@ -28,7 +28,7 @@ int main(int argc, char ** argv)
 {
 
     char * login;
-    char * pass;
+    char  pass[USER_MAX_PASS_SIZE];
     char * channel;
     char * server;
     option_t options = 0;
@@ -38,7 +38,7 @@ int main(int argc, char ** argv)
     c_assert2(argc >= 5, "# d'argument incorrect");
     server = argv[1];
     login = argv[2];
-    pass = argv[3];
+    strncpy(pass, argv[3], USER_MAX_PASS_SIZE);
     channel = argv[4];
 
     if(argc >= 6 && argv[5][0] == 'M')

@@ -41,6 +41,8 @@
 
 #include <stdio.h>
 
+#define MD5_SIZE 16
+
 /* typedef a 32-bit type */
 typedef unsigned int UINT4;
 

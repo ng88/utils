@@ -29,12 +29,11 @@
 
 int start_server(user_pool_t * existing_users, port_t port);
 
-void send_challenge(int fd);
 
 bool send_data(channel_entry_t * e, char * data, size_t len);
 bool recv_data(channel_entry_t * e, char * data, size_t len);
 
-void process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
+bool process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
 			   vector_t * u, channel_entry_t * e, fd_set * fs);
 
 

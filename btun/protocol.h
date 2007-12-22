@@ -10,7 +10,7 @@ typedef uint16_t port_t;
 #define USER_MAX_LOGIN_SIZE 8
 #define USER_MAX_CHANNEL_SIZE 16
 
-#define CHALLENGE_SIZE 8
+#define CHALLENGE_SIZE 16
 
 
 /* channel options */
@@ -21,6 +21,12 @@ enum
 
 typedef unsigned char option_t;
 
+/* user access  */
+enum
+{
+    UA_GRANTED = 0,
+    UA_DENIED = 1,
+};
 
 /* channel access  */
 enum

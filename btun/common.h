@@ -12,6 +12,8 @@ int sendall(int fd, char * buff, int * size);
 /** Receive 'size' bytes from 'fd' to 'buff' */
 int recvall(int fd, char * buff, int * size);
 
+char * create_challenge();
+
 /** Compute the challenge answer */
 void challenge_answer(char * challenge, char * userpwd, MD5_CTX_ppp * m);
 

@@ -30,7 +30,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include <time.h>
+
 
 #include "assert.h"
 #include "vector.h"
@@ -43,8 +43,6 @@ int server_run;
 int start_server(user_pool_t * existing_users, port_t port)
 {
     server_run = 1;
-
-    srand(time(0));
 
     channel_pool_t * channels = create_channel_pool();
     vector_t * users = create_vector(16);
@@ -169,6 +167,8 @@ int start_server(user_pool_t * existing_users, port_t port)
             if(FD_ISSET(e->fd, &read_fds))
 	    {
 
+		bool closeit = false;
+
 		char buf[RECV_BUFF_SIZE];
 		int n = recv(e->fd, buf, RECV_BUFF_SIZE, 0);
 
@@ -184,6 +184,15 @@ int start_server(user_pool_t * existing_users, port_t port)
 			dbg_printf("recv error on socket %d, closing\n", e->fd);
 		    }
 
+		    closeit = true;
+
+		}
+		else
+                    closeit = !process_incoming_data(buf, n, existing_users,
+						    users, e, &master);
+
+		if(closeit)
+		{
 		    close(e->fd);
 		    FD_CLR(e->fd, &master);
 
@@ -196,11 +205,9 @@ int start_server(user_pool_t * existing_users, port_t port)
 			get_highest_fd(users, fdlisten);
 
 		    free_channel_entry(e);
-
 		}
-		else
-                    process_incoming_data(buf, n, existing_users,
-					  users, e, &master);
+
+
             }
         }
 
@@ -224,7 +231,7 @@ int start_server(user_pool_t * existing_users, port_t port)
     return EXIT_SUCCESS;
 }
 
-void process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
+bool process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
 			   vector_t * u, channel_entry_t * e, fd_set * fs)
 {
 
@@ -232,6 +239,129 @@ void process_incoming_data(char * buf, int n, user_pool_t * existing_users,
 
     dbg_printf("data received from socket %d\n", e->fd);
 
+    size_t k;
+    unsigned char rep;
+    char * str;
+
+    switch(e->step)
+    {
+    case S_WAIT_LOGIN:
+	str = NULL;
+
+	if(n >= USER_MAX_LOGIN_SIZE) /* login full or too long*/
+	{
+	    buf[USER_MAX_LOGIN_SIZE - 1] = '\0';
+	    str = buf;
+	}
+	else /* login shorter than max*/
+	{
+	    if(buf[n - 1] == '\0') /* assume we have the complete login*/
+		str = buf;
+	    else
+		return false;
+	}
+
+	c_assert(str);
+
+	dbg_printf("user on socket `%d' pretends he is `%s', sending challenge...\n",
+		   e->fd, str);
+
+	/* if client provide an invalid login, we do not tell him now */
+	e->user = get_user_from_name(existing_users, str);
+
+	e->challenge = create_challenge();
+
+	e->step = S_WAIT_CHALLENGE;
+
+	k = CHALLENGE_SIZE;
+	if(sendall(e->fd, e->challenge, &k) == -1)
+	{
+	    dbg_printf("send failed for `%d'\n", e->fd);
+	    return false;
+	}
+ 
+	break;
+
+    case S_WAIT_CHALLENGE:
+
+	rep = UA_GRANTED;
+
+	if(n == MD5_SIZE && e->user)
+	{
+	    MD5_CTX_ppp m;
+	    challenge_answer(e->challenge, e->user->passphrase, &m);
+
+	    for(k = 0; k < MD5_SIZE; ++k)
+		if( (unsigned char)(buf[k]) != m.digest[k] )
+		{
+		    rep = UA_DENIED;
+		    break;
+		}
+
+	}
+	else
+	    rep = UA_DENIED;
+
+	free(e->challenge);
+
+	k = 1;
+	if(sendall(e->fd, &rep, &k) == -1)
+	{
+	    dbg_printf("send failed for `%d'\n", e->fd);
+	    return false;
+	}
+
+	e->step = S_WAIT_CHANNEL;
+
+	if(rep == UA_DENIED)
+	{
+	    dbg_printf("user on socket `%d': challenge failed.\n", e->fd);
+	}
+	else
+	{
+	    dbg_printf("user on socket `%d': authentified.\n", e->fd);
+	}
+
+	return (rep == UA_GRANTED);
+
+    case S_WAIT_CHANNEL:
+
+	str = NULL;
+
+	if(n >= USER_MAX_CHANNEL_SIZE) /* channel name full or too long*/
+	{
+	    rep = (unsigned char)buf[USER_MAX_CHANNEL_SIZE - 1];
+	    buf[USER_MAX_CHANNEL_SIZE - 1] = '\0';
+	    str = buf;
+	}
+	else /* channel name shorter than max*/
+	{
+	    rep = (unsigned char)buf[n - 1];
+	    if(buf[n - 2] == '\0')
+		str = buf;
+	    else
+		return false;
+	}
+
+	c_assert(str);
+
+	dbg_printf("user on socket `%d' want to join the channel nammed `%s' (%d)\n",
+		   e->fd, str, rep);
+
+        /*TODO*/
+
+	e->step = S_AFFECTED;
+
+	break;
+
+    case S_AFFECTED:
+
+	break;
+
+    }
+
+
+/*
     size_t s = vector_size(u);
     size_t i;
 
@@ -246,6 +376,10 @@ void process_incoming_data(char * buf, int n, user_pool_t * existing_users,
 
 	}
     }
+
+*/
+
+    return true;
 }
 
 int get_highest_fd(vector_t * u, int fdlist)
@@ -265,17 +399,7 @@ int get_highest_fd(vector_t * u, int fdlist)
     return r;
 }
 
-void send_challenge(int fd)
-{
-    char buff[CHALLENGE_SIZE];
 
-    int i = 0;
-    while(i < CHALLENGE_SIZE)
-	buff[i++] = 'A' + (int)((double)('Z' - 'A') * (rand() / (double)RAND_MAX));
-
-    
-    send(fd, buff, CHALLENGE_SIZE, 0);
-}
 
 bool send_data(channel_entry_t * e, char * data, size_t len)
 {

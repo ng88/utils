@@ -23,7 +23,7 @@ CC=gcc
 CFLAGS=-W -Wall -Wno-unused $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS)
 LDFLAGS=
 
-SRC=common.c channel.c vector.c user.c cryptor.c ../xoror/xoror.c md5.c misc.c
+SRC=common.c channel.c vector.c user.c  md5.c misc.c
 
 SRC1=btund.c server.c $(SRC)
 OBJS1=$(SRC1:.c=.o)
@@ -36,11 +36,10 @@ EXE2=btun
 all: $(EXE1) $(EXE2)
 
 btun.o: assert.h bool.h client.h
-btund.o: server.h user.h cryptor.h
+btund.o: server.h user.h
 channel.o: vector.h user.h bool.h channel.h server.h assert.h
 client.o: bool.h common.h client.h assert.h misc.h
 common.o: protocol.h md5.h common.h bool.h assert.h
-cryptor.o: user.h cryptor.h ../xoror/xoror.h assert.h
 md5.o: md5.h assert.h
 misc.o: bool.h misc.h
 server.o: user.h channel.h common.h server.h assert.h vector.h

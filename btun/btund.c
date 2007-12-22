@@ -22,7 +22,6 @@
 
 #include "server.h"
 #include "user.h"
-#include "cryptor.h"
 
 #define DEFAULT_USER_FILE /etc/btund/user.conf
 
@@ -50,8 +49,6 @@ int main(int argc, char ** argv)
     sigaction(SIGUSR1, &nv, &old);
     sigaction(SIGHUP, &nv, &old);
 
-    set_encryptor_mode(C_XOROR);
-
     user_pool_t * p = create_user_pool();
 
     FILE * f = fopen("users", "r");
@@ -69,8 +66,6 @@ int main(int argc, char ** argv)
 
     int r = start_server(p, SERVER_DEFAULT_PORT);
 
-
-    free_encryptor();
     free_user_pool(p);
 
     return r;

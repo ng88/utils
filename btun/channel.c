@@ -101,6 +101,8 @@ channel_t * create_channel(char * name)
     c_assert2(r, "malloc failed");
 
     r->entries = create_vector(8);
+    r->name = name;
+    r->master = NULL;
 
     return r;
 }

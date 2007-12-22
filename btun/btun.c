@@ -14,33 +14,39 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
-#ifndef SERVER_H
-#define SERVER_H
 
-#include "user.h"
-#include "channel.h"
-#include "common.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <signal.h>
+#include <string.h>
+#include "assert.h"
 
-#define SERVER_BACKLOG 5
+#include "bool.h"
+#include "client.h"
 
-#define SERVER_MAX_CHANNEL 10
-#define SERVER_MAX_USER_PER_CHANNEL 10
+int main(int argc, char ** argv)
+{
+
+    char * login;
+    char * pass;
+    char * channel;
+    char * server;
+    bool master;
+    port_t port = SERVER_DEFAULT_PORT;
+
+    /*      Temporaire     */
+    c_assert2(argc >= 5, "# d'argument incorrect");
+    server = argv[1];
+    login = argv[2];
+    pass = argv[3];
+    channel = argv[4];
+    master = (argc >= 6 && argv[5][0] == 'M');
+    /*      Temporaire     */
 
 
-int start_server(user_pool_t * existing_users, port_t port);
+    dbg_printf("login = `%s', pass = `%s', channel = `%s', master = %d\n",
+	       login, pass, channel, master);
 
-void send_challenge(int fd);
+    return connect_to_server(server, port, login, pass, channel, master);
 
-bool send_data(channel_entry_t * e, char * data, size_t len);
-bool recv_data(channel_entry_t * e, char * data, size_t len);
-
-void process_incoming_data(char * buf, int n, user_pool_t * existing_users, 
-			   vector_t * u, channel_entry_t * e, fd_set * fs);
-
-
-int get_highest_fd(vector_t * u, int fdlist);
-
-
-void stop_server();
-
-#endif
+}

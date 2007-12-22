@@ -38,7 +38,7 @@
 
 
 
-#ifdef DEBUG
+#ifndef DISABLE_DEBUG_PRINT
 
 #define dbg_printf(args ...) \
           { fprintf(stderr, "debug> line %d: in %s::%s(): ", __LINE__, __FILE__, ___FUNCTION); fprintf(stderr, args); }

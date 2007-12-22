@@ -1,6 +1,8 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+#include <netinet/in.h>
+typedef uint16_t port_t;
 
 #define SERVER_DEFAULT_PORT 12358
 

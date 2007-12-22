@@ -44,6 +44,7 @@ typedef struct _channel_t
 {
     /* vector of channel_entry_t * */
     vector_t * entries;
+    channel_entry_t * master;
     char * name;
 
 } channel_t;

@@ -27,13 +27,14 @@
 #include "protocol.h"
 #include "misc.h"
 #include "bool.h"
+#include "assert.h"
 
 #define DEFAULT_USER_FILE "/etc/btund/users"
 
 void usage(int ev)
 {
     fputs("usage: " SERVER_NAME " [options]\n"
-          "  Start the btun server.\n\n"
+          "  Start the btund server.\n\n"
 	  "  Accepted options:\n"
           "   -h                 print this help and quit\n"
           "   -v                 print version and quit\n"
@@ -70,7 +71,7 @@ int main(int argc, char ** argv)
 {
     int optch;
 
-    bool daemon = false;
+    bool exe_daemon = false;
     port_t port = SERVER_DEFAULT_PORT;
 
     FILE * fusers = NULL;
@@ -91,7 +92,7 @@ int main(int argc, char ** argv)
 	    port = atoi(optarg);
 	    break;
 	case 'd':
-	    daemon = true;
+	    exe_daemon = true;
 	    break;
 	case 'v':
 	    print_version();
@@ -132,7 +133,15 @@ int main(int argc, char ** argv)
     sigaction(SIGUSR1, &nv, &old);
     sigaction(SIGHUP, &nv, &old);
 
-
+    if(exe_daemon)
+    {
+	dbg_printf("daemonisation...\n");
+	if(daemon(0, 0) != 0)
+	{
+	    perror("daemon");
+	    return EXIT_FAILURE;
+	}
+    }
 
     int r = start_server(pool, port);
 

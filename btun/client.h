@@ -21,11 +21,6 @@
 #include "bool.h"
 #include "common.h"
 
-/*int grantpt(int fd);
-int unlockpt(int fd);
-char *ptsname(int fd);
-int posix_openpt(int m);*/
-
 typedef enum
 {
     M_NORMAL,

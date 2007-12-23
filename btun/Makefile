@@ -22,7 +22,7 @@ endif
 ifdef REV
     REVFLAGS=-D__SVN_HEAD__=\"$(REV)\"
 else
-    REVFLAGS=-D__SVN_HEAD__=`cat last_svn_rev~`
+    REVFLAGS=-D__SVN_HEAD__=\"`cat last_svn_rev~`\"
 endif
 
 CC=gcc
@@ -64,7 +64,7 @@ $(EXE2): svnrev $(OBJS2)
 .PHONY: clean mrproper svnrev
 
 svnrev:
-	@sed -n 's/.*revision=\("[^"]*"\).*/\1/gp' .svn/entries | tail -1 > last_svn_rev~
+	@sed -n 's/.*revision="\([^"]*\)".*/\1/gp' .svn/entries | sort -nr | head -1 > last_svn_rev~
 
 clean:
 	@rm -f *.o */*.o *~ core *.core core.* *.tmp

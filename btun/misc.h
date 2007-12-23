@@ -19,6 +19,9 @@
 
 #include "bool.h"
 
+#define MXSTR(s) MSTR(s)
+#define MSTR(s) #s
+
 #ifdef __GNUC__
 
 #define __max(a,b) \

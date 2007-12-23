@@ -28,18 +28,19 @@
 #include "protocol.h"
 #include "misc.h"
 
-//##USER_MAX_PASS_SIZE
+
 void usage(int ev)
 {
     fputs("usage: " CLIENT_NAME " [option] user@host channel [command arg1 ... argn]\n"
           "  Connect to the btun daemon on specified host.\n\n"
 	  "  Accepted options:\n"
-          "   -h                        print this help and quit\n"
-          "   -v                        print version and quit\n"
-	  "   -t                        change amount of processes (2 by default)\n"
-	  "   -m                        linear job affectation (default)\n"
-	  "   -f <filename>             output file (if filename is -, stdout is used)\n"
-	  "   -p <port>                 output unsigned int in binary mode\n"
+          "   -h                 print this help and quit\n"
+          "   -v                 print version and quit\n"
+	  "   -t                 use a pseudo terminal for command execution\n"
+	  "   -m                 request to be the master of the channel\n"
+	  "   -f <file>          read passhrase from 'file' (if 'file' is -, stdout is used)\n"
+	  "                      (max passphrase size is " MXSTR(USER_MAX_PASS_SIZE) "b)\n"
+	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
 	  "\n"
 	  , stderr);
     exit(ev);
@@ -192,6 +193,7 @@ int main(int argc, char ** argv)
 
     MD5ToSring(&m, pass);
 
+    memset(&m, '*', sizeof(m));
 
     struct sigaction nv, old;
     memset(&nv, 0, sizeof(nv));

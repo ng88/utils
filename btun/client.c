@@ -14,14 +14,13 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
-#include <stdlib.h>
+
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdlib.h>
 #include <netdb.h>
 #include <errno.h>
 #include <unistd.h>
@@ -29,6 +28,9 @@
 #include <fcntl.h>
 #include <termios.h>
 
+#define __USE_XOPEN
+#define __USE_XOPEN2K
+#include <stdlib.h>
 
 #include "client.h"
 #include "assert.h"
@@ -43,7 +45,7 @@ pid_t ch_pid;
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
 		      char * channel, option_t options,
-		      char * cmd, char * args)
+		      mode_t mode, char ** cmd_args)
 {
 
     int sockfd;
@@ -88,7 +90,7 @@ int connect_to_server(char * server, port_t port,
     /*    ANSWER CHALLENGE   */
     MD5_CTX_ppp m;
     challenge_answer(ch, pass, &m);
-   memset(pass, '*', strlen(pass));
+    memset(pass, '*', strlen(pass));
     n = MD5_SIZE;
     HANDLE_ERR(sendall(sockfd, m.digest, &n), "sendall");
 
@@ -139,10 +141,18 @@ int connect_to_server(char * server, port_t port,
     run = true;
     ch_pid = 0;
 
-    if(cmd)
-	run_with_prog_on_pty(sockfd, cmd);
-    else
+    switch(mode)
+    {
+    case M_NORMAL:
 	run_normal(sockfd, 0, 1);
+	break;
+    case M_EXEC_CMD:
+	run_cmd(sockfd, cmd_args);
+	break;
+    case M_EXEC_CMD_PTY:
+	run_cmd_pty(sockfd, cmd_args);
+	break;
+    }
 
     dbg_printf("client halted.\n");
 
@@ -201,8 +211,10 @@ void run_normal(int sockfd, int in, int out)
 
 
 
-void run_with_prog(int sockfd, char * p, char * args)
+void run_cmd(int sockfd, char ** args)
 {
+
+    c_assert(args && args[0]);
 
     ch_pid = fork();
 
@@ -215,7 +227,7 @@ void run_with_prog(int sockfd, char * p, char * args)
 	dup(sockfd);
 	dup(sockfd);
 	close(sockfd);
-	execvp(p, args);
+	execvp(args[0], args);
 	perror("exec");
 	_exit(1);
     }
@@ -228,9 +240,12 @@ void run_with_prog(int sockfd, char * p, char * args)
 
 }
 
-void run_with_prog_on_pty(int sockfd, char * p, char * args)
+void run_cmd_pty(int sockfd, char ** args)
 {
-    int fdm, fds, rc;
+
+    c_assert(args && args[0]);
+
+    int fdm, fds;
 
     if( (fdm = posix_openpt(O_RDWR)) < 0 )
     {
@@ -238,13 +253,13 @@ void run_with_prog_on_pty(int sockfd, char * p, char * args)
 	return;
     }
 
-    if( (rc = grantpt(fdm)) != 0)
+    if( grantpt(fdm) != 0)
     {
 	perror("grantpt");
 	return;
     }
 
-    if( (rc = unlockpt(fdm)) != 0)
+    if( unlockpt(fdm) != 0)
     {
 	perror("unlockpt");
 	return;
@@ -261,13 +276,20 @@ void run_with_prog_on_pty(int sockfd, char * p, char * args)
 
 	struct termios settings;
 
-	rc = tcgetattr(fds, &settings);
-	cfmakeraw(&settings);
-	tcsetattr(fds, TCSANOW, &settings);
+	if( tcgetattr(fds, &settings) == -1 )
+	{
+	    perror("tcgetattr");
+	    return;
+	}
 
-	rc = tcgetattr(fds, &settings);
 	cfmakeraw(&settings);
-	tcsetattr(fds, TCSANOW, &settings);
+
+	if( tcsetattr(fds, TCSANOW, &settings) == -1 )
+	{
+	    perror("tcsetattr");
+	    return;
+	}
+
 
 	close(0);
 	close(1);
@@ -278,9 +300,13 @@ void run_with_prog_on_pty(int sockfd, char * p, char * args)
 
 	close(sockfd);
 
-	setsid();
+	if(setsid() == -1)
+	{
+	    perror("setsid");
+	    return;
+	}
 
-	execvp(p, args);
+	execvp(args[0], args);
 	perror("exec");
 	_exit(1);
     }
@@ -312,4 +338,66 @@ int writeall(int fd, void * src, size_t s)
     }
 
     return 0;
+}
+
+
+
+char * read_passphrase(char * buff, size_t size)
+{
+    fputs("Enter passphrase: ", stdout);
+    fflush(stdout);
+
+    char * ret = buff;
+
+    struct termios settings;
+
+    if( tcgetattr(1, &settings) == -1 )
+    {
+	perror("tcgetattr");
+	return NULL;
+    }
+
+    settings.c_lflag &= ~ECHO;
+
+    if( tcsetattr(1, TCSANOW, &settings) == -1 )
+    {
+	perror("tcsetattr");
+	return NULL;
+    }
+
+    if(fgets(buff, size, stdin))
+    {
+	buff[size - 1] = '\0';
+	char * p = strchr(buff, '\n');
+	if(p) *p = '\0';
+    }
+    else
+	ret = NULL;
+
+    settings.c_lflag |= ECHO;
+
+    if( tcsetattr(1, TCSANOW, &settings) == -1 )
+    {
+	perror("tcsetattr");
+	return NULL;
+    }
+    
+    putchar('\n');
+
+    return ret;
+}
+
+
+
+void flush_std()
+{
+    fflush(stdout);
+    fflush(stderr);
+
+/*  
+    ungetc('*', stdin); 
+    int ch;
+    while( (ch = getc(stdin)) != EOF && ch != '\n');
+*/
+
 }

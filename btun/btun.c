@@ -19,12 +19,42 @@
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
-#include "assert.h"
+#include <unistd.h>
 
+#include "assert.h"
 #include "bool.h"
 #include "client.h"
 #include "version.h"
+#include "protocol.h"
+#include "misc.h"
 
+//##USER_MAX_PASS_SIZE
+void usage(int ev)
+{
+    fputs("usage: " CLIENT_NAME " [option] user@host channel [command arg1 ... argn]\n"
+          "  Connect to the btun daemon on specified host.\n\n"
+	  "  Accepted options:\n"
+          "   -h                        print this help and quit\n"
+          "   -v                        print version and quit\n"
+	  "   -t                        change amount of processes (2 by default)\n"
+	  "   -m                        linear job affectation (default)\n"
+	  "   -f <filename>             output file (if filename is -, stdout is used)\n"
+	  "   -p <port>                 output unsigned int in binary mode\n"
+	  "\n"
+	  , stderr);
+    exit(ev);
+}
+
+void print_version()
+{
+    puts(CLIENT_NAME " version " CLIENT_VERSION " (r" CLIENT_REVISION ")"
+	 " - protocol version " PROTOCOL_VERSION "\n"
+	 "   compiled " CLIENT_DATE "\n\n"
+	 SC_COPYRIGHT
+	);
+
+    exit(EXIT_SUCCESS);
+}
 
 void stop_client_handler(int s)
 {
@@ -33,6 +63,136 @@ void stop_client_handler(int s)
 
 int main(int argc, char ** argv)
 {
+
+    int optch;
+
+    mode_t mode = M_NORMAL;
+    port_t port = SERVER_DEFAULT_PORT;
+    FILE * fpass = NULL;
+    option_t opts = 0;
+
+    char * channel;
+    char * host;
+    char login[USER_MAX_LOGIN_SIZE];
+    char pass[MMAX(USER_MAX_PASS_SIZE, MD5_SIZE * 2) + 1];
+
+    char ** cmd_args = NULL;
+
+
+
+    while( (optch = getopt(argc, argv, "hvmtf:p:")) != EOF )
+    {
+	switch(optch)
+	{
+	case 'f':
+	    if(!strcmp(optarg, "-"))
+		fpass = stdin;
+	    else
+	    {
+		fpass = fopen(optarg, "rb");
+		if(!fpass)
+		{
+		    fprintf(stderr, CLIENT_NAME ": unable to open `%s' for reading\n", optarg);
+		    return EXIT_FAILURE;
+		}
+	    }
+	    break;
+	case 'p':
+	    port = atoi(optarg);
+	    break;
+	case 't':
+	    mode = M_EXEC_CMD_PTY;
+	    break;
+	case 'm':
+	    opts |= OPT_MASTER;
+	    break;
+	case 'v':
+	    print_version();
+	    break;
+	case 'h':
+	    usage(EXIT_SUCCESS);
+	    break;
+	default:
+	    usage(EXIT_FAILURE);
+	    break;
+	}
+    }
+
+    /*         LOGIN AND HOST       */
+    if(argc - optind < 2)
+    {
+	fputs(CLIENT_NAME ": argument missing.\n", stderr);
+	usage(EXIT_FAILURE);
+    }
+
+    host = strchr(argv[optind], '@');
+    if(!host)
+    {
+	fprintf(stderr, CLIENT_NAME ": invalid parameter `%s', login@host expected.\n", 
+		argv[optind]);
+	return EXIT_FAILURE;
+    }
+
+    size_t pos = host - argv[optind];
+    host++;
+    strncpy(login, argv[optind], min_u((size_t)USER_MAX_LOGIN_SIZE, pos));
+    login[pos] = '\0';
+
+
+    /*            CHANNEL          */
+    channel = argv[optind + 1];
+
+
+
+    /*       MODE, COMMAND AND ITS ARGS      */
+    if(argc - optind > 2)
+    {
+	if(mode == M_NORMAL)
+	    mode = M_EXEC_CMD;
+
+	cmd_args = argv + optind + 2;
+
+    }
+    else
+    {
+	if(mode == M_EXEC_CMD_PTY)
+	{
+	    fputs(CLIENT_NAME ": you must specify a command with the -t option.\n", stderr);
+	    return EXIT_FAILURE;
+	}
+    }
+
+
+    /*         PASSPHRASE       */
+    if(fpass)
+    {
+	if(!fgets(pass, USER_MAX_PASS_SIZE, fpass))
+	{
+	    fputs(CLIENT_NAME ": unable to read passphrase from pass file/stdin!\n", stderr);
+	    return EXIT_FAILURE;
+	}
+	fclose(fpass);
+    }
+    else
+    {
+	if(!read_passphrase(pass, USER_MAX_PASS_SIZE))
+	{
+	    fputs(CLIENT_NAME ": unable to read passphrase!\n", stderr);
+	    return EXIT_FAILURE;
+	}
+
+    }
+
+    flush_std();
+
+    MD5_CTX_ppp m;
+    MD5Init_ppp(&m);
+    MD5Update_ppp( &m, pass, strlen(pass) );
+    MD5Final_ppp(&m);
+
+    MD5ToSring(&m, pass);
+
+
     struct sigaction nv, old;
     memset(&nv, 0, sizeof(nv));
     nv.sa_handler = &stop_client_handler;
@@ -41,35 +201,7 @@ int main(int argc, char ** argv)
     sigaction(SIGINT, &nv, &old);
 
 
-    char * login;
-    char  pass[MD5_SIZE * 2];
-    char * channel;
-    char * server;
-    option_t options = 0;
-    port_t port = SERVER_DEFAULT_PORT;
-    char * cmd = NULL;
-
-    /*      Temporaire     */
-    c_assert2(argc >= 5, "# d'argument incorrect");
-    server = argv[1];
-    login = argv[2];
-    MD5_CTX_ppp m;
-    MD5Init_ppp(&m);
-    MD5Update_ppp(&m, argv[3], strlen(argv[3]));
-    MD5Final_ppp(&m);
-    MD5ToSring(&m, pass);
-    channel = argv[4];
-
-    if(argc >= 6 && argv[5][0] == 'M')
-	options = options | OPT_MASTER;
-
-    if(argc >= 7)
-	cmd = argv[6];
-
-    /*      Temporaire     */
-
-
-    //return connect_to_server(server, port, login, pass, channel, options, cmd, NULL);
-    puts("vers=" CLIENT_VERSION " rev=" CLIENT_REVISION " date=" CLIENT_DATE);
+    return connect_to_server(host, port, login, pass,
+			     channel, opts, mode, cmd_args);
 
 }

@@ -21,22 +21,37 @@
 #include "bool.h"
 #include "common.h"
 
+/*int grantpt(int fd);
+int unlockpt(int fd);
+char *ptsname(int fd);
+int posix_openpt(int m);*/
+
+typedef enum
+{
+    M_NORMAL,
+    M_EXEC_CMD,
+    M_EXEC_CMD_PTY,
+} mode_t;
+
 
 /* warning, pass must be writable, this function clear it */
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
 		      char * channel, option_t options,
-		      char * cmd, char * args);
+		      mode_t m,  char ** cmd_args);
 
 void stop_client();
 
 void run_normal(int sockfd, int in, int out);
 
-void run_with_prog(int sockfd, char * p, char * args);
+void run_cmd(int sockfd, char ** args);
 
-void run_with_prog_on_pty(int sockfd, char * p, char * args);
+void run_cmd_pty(int sockfd, char ** args);
 
 int writeall(int fd, void * src, size_t s);
 
+char * read_passphrase(char * buff, size_t size);
+
+void flush_std();
 
 #endif

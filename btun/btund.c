@@ -22,11 +22,22 @@
 
 #include "server.h"
 #include "user.h"
+#include "version.h"
 
-#define DEFAULT_USER_FILE /etc/btund/user.conf
+#define DEFAULT_USER_FILE "/etc/btund/users"
 
+void print_version()
+{
+    puts(SERVER_NAME " version " SERVER_VERSION " (r" SERVER_REVISION ")"
+	 " - protocol version " PROTOCOL_VERSION "\n"
+	 "   compiled " SERVER_DATE "\n\n"
+	 SC_COPYRIGHT
+	);
 
-void do_nohing()
+    exit(EXIT_SUCCESS);
+}
+
+void do_nothing()
 {
 }
 
@@ -45,7 +56,7 @@ int main(int argc, char ** argv)
     sigaction(SIGTERM, &nv, &old);
     sigaction(SIGINT, &nv, &old);
 
-    nv.sa_handler = &do_nohing;
+    nv.sa_handler = &do_nothing;
     sigaction(SIGUSR1, &nv, &old);
     sigaction(SIGHUP, &nv, &old);
 

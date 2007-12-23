@@ -23,6 +23,8 @@
 
 #include "bool.h"
 #include "client.h"
+#include "version.h
+
 
 void stop_client_handler(int s)
 {
@@ -67,6 +69,7 @@ int main(int argc, char ** argv)
     /*      Temporaire     */
 
 
-    return connect_to_server(server, port, login, pass, channel, options, cmd);
+    //return connect_to_server(server, port, login, pass, channel, options, cmd, NULL);
+    puts("vers=" CLIENT_VERSION " rev=" CLIENT_REVISION " date=" CLIENT_DATE);
 
 }

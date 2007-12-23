@@ -31,14 +31,9 @@ int start_server(user_pool_t * existing_users, port_t port);
 
 void remove_user(channel_entry_t * e);
 
-bool send_data(channel_entry_t * e, char * data, size_t len);
-bool recv_data(channel_entry_t * e, char * data, size_t len);
-
 bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs);
 
-
 int get_highest_fd(vector_t * u, int fdlist);
-
 
 void stop_server();
 

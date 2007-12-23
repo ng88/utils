@@ -1,3 +1,19 @@
+/***************************************************************************
+ *   This file is part of the 'utils' projects                             *
+ *                                                                         *
+ *   'utils' projects                                                      *
+ *                                                                         *
+ *   Copyright (C) 2006, 2008 by GUILLAUME Nicolas                         *
+ *   ng@ngsoft-fr.com                                                      *
+ *                                                                         *
+ *   http://www.ngsoft-fr.com/                                             *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; version 2 of the License only.          *
+ *   See the COPYING file.                                                 *
+ ***************************************************************************/                                                                
+
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -27,7 +43,7 @@ pid_t ch_pid;
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
 		      char * channel, option_t options,
-		      char * cmd)
+		      char * cmd, char * args)
 {
 
     int sockfd;
@@ -185,7 +201,7 @@ void run_normal(int sockfd, int in, int out)
 
 
 
-void run_with_prog(int sockfd, char * p)
+void run_with_prog(int sockfd, char * p, char * args)
 {
 
     ch_pid = fork();
@@ -199,7 +215,7 @@ void run_with_prog(int sockfd, char * p)
 	dup(sockfd);
 	dup(sockfd);
 	close(sockfd);
-	execlp(p, p, NULL);
+	execvp(p, args);
 	perror("exec");
 	_exit(1);
     }
@@ -212,7 +228,7 @@ void run_with_prog(int sockfd, char * p)
 
 }
 
-void run_with_prog_on_pty(int sockfd, char * p)
+void run_with_prog_on_pty(int sockfd, char * p, char * args)
 {
     int fdm, fds, rc;
 
@@ -264,7 +280,7 @@ void run_with_prog_on_pty(int sockfd, char * p)
 
 	setsid();
 
-	execlp(p, p, NULL);
+	execvp(p, args);
 	perror("exec");
 	_exit(1);
     }

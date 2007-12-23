@@ -468,19 +468,6 @@ int get_highest_fd(vector_t * u, int fdlist)
 }
 
 
-
-bool send_data(channel_entry_t * e, char * data, size_t len)
-{
-    send(e->fd, data, len, 0);
-    return true;
-}
-
-bool recv_data(channel_entry_t * e, char * data, size_t len)
-{
-    recv(e->fd, data, len, 0);
-    return true;
-}
-
 void stop_server()
 {
     server_run = 0;

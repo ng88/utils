@@ -6,7 +6,7 @@
  *   Copyright (C) 2006, 2008 by GUILLAUME Nicolas                         *
  *   ng@ngsoft-fr.com                                                      *
  *                                                                         *
- *   http://www.ngsoft-fr.com/                                             *
+ *   http://svn.ngsoft-fr.com/trac/utils/                                  *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +23,7 @@
 
 #include "bool.h"
 #include "client.h"
-#include "version.h
+#include "version.h"
 
 
 void stop_client_handler(int s)

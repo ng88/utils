@@ -31,7 +31,7 @@
 
 void usage(int ev)
 {
-    fputs("usage: " CLIENT_NAME " [option] user@host channel [command arg1 ... argn]\n"
+    fputs("usage: " CLIENT_NAME " [options] user@host channel [command arg1 ... argn]\n"
           "  Connect to the btun daemon on specified host.\n\n"
 	  "  Accepted options:\n"
           "   -h                 print this help and quit\n"

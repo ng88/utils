@@ -19,12 +19,32 @@
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "server.h"
 #include "user.h"
 #include "version.h"
+#include "protocol.h"
+#include "misc.h"
+#include "bool.h"
 
 #define DEFAULT_USER_FILE "/etc/btund/users"
+
+void usage(int ev)
+{
+    fputs("usage: " SERVER_NAME " [options]\n"
+          "  Start the btun server.\n\n"
+	  "  Accepted options:\n"
+          "   -h                 print this help and quit\n"
+          "   -v                 print version and quit\n"
+	  "   -d                 execute server as a system daemon\n"
+	  "   -u <file>          specify the user definition file\n"
+	  "                      (default is " DEFAULT_USER_FILE  ")\n"
+	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
+	  "\n"
+	  , stderr);
+    exit(ev);
+}
 
 void print_version()
 {
@@ -48,6 +68,58 @@ void stop_server_handler(int s)
 
 int main(int argc, char ** argv)
 {
+    int optch;
+
+    bool daemon = false;
+    port_t port = SERVER_DEFAULT_PORT;
+
+    FILE * fusers = NULL;
+
+    while( (optch = getopt(argc, argv, "hvdp:u:")) != EOF )
+    {
+	switch(optch)
+	{
+	case 'u':
+	    fusers = fopen(optarg, "r");
+	    if(!fusers)
+	    {
+		fprintf(stderr, SERVER_NAME ": unable to open `%s' for reading\n", optarg);
+		return EXIT_FAILURE;
+	    }
+	    break;
+	case 'p':
+	    port = atoi(optarg);
+	    break;
+	case 'd':
+	    daemon = true;
+	    break;
+	case 'v':
+	    print_version();
+	    break;
+	case 'h':
+	    usage(EXIT_SUCCESS);
+	    break;
+	default:
+	    usage(EXIT_FAILURE);
+	    break;
+	}
+    }
+
+    if(!fusers)
+    {
+	fusers = fopen(DEFAULT_USER_FILE, "r");
+	if(!fusers)
+	{
+	    fputs(SERVER_NAME ": unable to open default user file`" DEFAULT_USER_FILE "'\n",
+		stderr);
+	    return EXIT_FAILURE;
+	}
+    }
+
+    user_pool_t * pool = create_user_pool();
+
+    read_users_from_file(pool, fusers);
+    fclose(fusers);
 
     struct sigaction nv, old;
     memset(&nv, 0, sizeof(nv));
@@ -60,24 +132,11 @@ int main(int argc, char ** argv)
     sigaction(SIGUSR1, &nv, &old);
     sigaction(SIGHUP, &nv, &old);
 
-    user_pool_t * p = create_user_pool();
 
-    FILE * f = fopen("users", "r");
-    if(!f)
-    {
-	fprintf(stderr, "btund: cannot read user file `%s'\n", "users");
-	return EXIT_FAILURE;
-    }
 
-    read_users_from_file(p, f);
+    int r = start_server(pool, port);
 
-    fclose(f);
-
-    
-
-    int r = start_server(p, SERVER_DEFAULT_PORT);
-
-    free_user_pool(p);
+    free_user_pool(pool);
 
     return r;
 }

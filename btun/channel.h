@@ -48,6 +48,7 @@ typedef struct _channel_t
     vector_t * entries;
     channel_entry_t * master;
     char * name;
+    option_t opts;
 } channel_t;
 
 
@@ -85,7 +86,7 @@ void print_channel_pool(channel_pool_t * p, FILE * f);
 
 channel_t * create_channel(char * name);
 
-bool channel_add_user(channel_t * c, channel_entry_t * e, bool master);
+unsigned char channel_add_user(channel_t * c, channel_entry_t * e, option_t opt);
 
 #define channel_user_count(c)   (vector_size((c)->entries))
 

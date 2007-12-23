@@ -377,8 +377,8 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 
 	}
 
-	if( e->channel && !channel_add_user(e->channel, e, (opt & OPT_MASTER)) )
-	    rep = CA_CANT_BE_MASTER;
+	if( e->channel )
+	    rep = channel_add_user(e->channel, e, opt);
 
 	e->step = S_AFFECTED;
 

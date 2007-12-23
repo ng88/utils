@@ -120,7 +120,10 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
 	fprintf(f, "Channel %s (%d)", c->name, i);
 
 	if(c->master)
-	    fprintf(f, " - (master is %s:%d)", c->master->user->login, c->master->fd);
+	    fprintf(f, " - master is %s:%d", c->master->user->login, c->master->fd);
+
+	if( (c->opts & OPT_RESTRICTED) )
+	    fputs(" - restricted", f);
 
 	fputs(":\n", f);
 
@@ -173,27 +176,46 @@ void channel_del_user_from_channel(channel_t * c, channel_entry_t * e)
 }
 
 
-bool channel_add_user(channel_t * c, channel_entry_t * e, bool master)
+unsigned char channel_add_user(channel_t * c, channel_entry_t * e, option_t opt)
 {
     c_assert(c);
 
     size_t cc = channel_user_count(c);
 
     if(cc >= SERVER_MAX_USER_PER_CHANNEL)
-	return false;
+	return CA_TOO_MUCH_USER;
     else
     {
-	if(cc > 0 && master)
-	    return false;
+
+	/* we join an existing channel */
+	if(cc > 0)
+	{
+	    if( (opt & OPT_MASTER) )
+		return CA_CANT_BE_MASTER;
+
+	    if( (opt & OPT_RESTRICTED) )
+		return CA_CANT_CHPERM;
+
+	    if( (c->opts & OPT_RESTRICTED) && channel_get_user_at(c, 0)->user != e->user )
+		return CA_DENIED;
+	}
+	else /* we created the channel */
+	{
+	    if( (opt & OPT_MASTER) )
+		c->master = e;
+
+	    c->opts = opt;
+
+	}
 
 	vector_add_element(c->entries, e);
 	e->channel = c;
 
-	if(master)
-	    c->master = e;
 
-	return true;
+	return CA_GRANTED;
     }
+
+
 }
 
 

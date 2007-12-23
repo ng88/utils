@@ -32,7 +32,8 @@ typedef uint16_t port_t;
 /* channel options */
 enum
 {
-    OPT_MASTER = 1
+    OPT_MASTER = 1,
+    OPT_RESTRICTED = 2,
 };
 
 typedef unsigned char option_t;
@@ -51,6 +52,8 @@ enum
     CA_DENIED = 1,
     CA_CANT_BE_MASTER = 2,
     CA_TOO_MUCH_CHANNEL = 3,
+    CA_TOO_MUCH_USER = 4,
+    CA_CANT_CHPERM = 5,
 };
 
 

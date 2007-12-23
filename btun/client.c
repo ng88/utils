@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <termios.h>
 
+#define _XOPEN_SOURCE_
 #define __USE_XOPEN
 #define __USE_XOPEN2K
 #include <stdlib.h>
@@ -124,16 +125,22 @@ int connect_to_server(char * server, port_t port,
 	dbg_printf("connected to channel.\n");
 	break;
     case CA_DENIED:
-	fprintf(stderr, "channel `%s': permission denied\n", channel);
+	fprintf(stderr, "can't join channel `%s': permission denied\n", channel);
 	return EXIT_FAILURE;
     case CA_CANT_BE_MASTER:
-	fprintf(stderr, "channel `%s' already exists, you can't be the master.\n", channel);
+	fprintf(stderr, "channel `%s' already exists, can't be the master.\n", channel);
+	return EXIT_FAILURE;
+    case CA_CANT_CHPERM:
+	fprintf(stderr, "channel `%s' already exists, can't change permissions.\n", channel);
 	return EXIT_FAILURE;
     case CA_TOO_MUCH_CHANNEL:
-	fprintf(stderr, "can't add channel `%s', too much channels !\n", channel);
+	fprintf(stderr, "can't create channel `%s', too much channels!\n", channel);
+	return EXIT_FAILURE;
+    case CA_TOO_MUCH_USER:
+	fprintf(stderr, "can't join channel `%s', too much users!\n", channel);
 	return EXIT_FAILURE;
     default:
-	fprintf(stderr, "can not connect to channel `%s', error %d\n", channel, ch[0]);
+	fprintf(stderr, "can't join channel `%s', error %d\n", channel, ch[0]);
 	return EXIT_FAILURE;
     }
 

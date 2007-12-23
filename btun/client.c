@@ -20,6 +20,10 @@
 
 #define RECV_BUFF_SIZE 256
 
+
+bool run;
+pid_t ch_pid;
+
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
 		      char * channel, option_t options,
@@ -115,20 +119,36 @@ int connect_to_server(char * server, port_t port,
 	return EXIT_FAILURE;
     }
 
+
+    run = true;
+    ch_pid = 0;
+
     if(cmd)
 	run_with_prog_on_pty(sockfd, cmd);
     else
 	run_normal(sockfd, 0, 1);
 
+    dbg_printf("client halted.\n");
+
     return EXIT_SUCCESS;
 }
 
+void stop_client()
+{
+    if(ch_pid)
+    {
+	kill(ch_pid, SIGTERM);
+	usleep(100*1000);
+	kill(ch_pid, SIGKILL);
+	usleep(100*1000);
+    }
+    run = false;
+}
 
 void run_normal(int sockfd, int in, int out)
 {
     fd_set fds;
 
-    bool run = true;
     char buf[RECV_BUFF_SIZE];
     int n;
 
@@ -168,9 +188,9 @@ void run_normal(int sockfd, int in, int out)
 void run_with_prog(int sockfd, char * p)
 {
 
-    pid_t f = fork();
+    ch_pid = fork();
 
-    if(f == 0) /* fils */
+    if(ch_pid == 0) /* fils */
     {
 	close(0);
 	close(1);
@@ -183,7 +203,7 @@ void run_with_prog(int sockfd, char * p)
 	perror("exec");
 	_exit(1);
     }
-    else if(f > 0) /* pere */
+    else if(ch_pid > 0) /* pere */
     {
 	wait(NULL);
     }
@@ -216,9 +236,9 @@ void run_with_prog_on_pty(int sockfd, char * p)
 
     fds = open(ptsname(fdm), O_RDWR);
 
-    pid_t f = fork();
+    ch_pid = fork();
 
-    if(f == 0) /* fils */
+    if(ch_pid == 0) /* fils */
     {
 
 	close(fdm);
@@ -248,7 +268,7 @@ void run_with_prog_on_pty(int sockfd, char * p)
 	perror("exec");
 	_exit(1);
     }
-    else if(f > 0) /* pere */
+    else if(ch_pid > 0) /* pere */
     {
 
 	close(fds);

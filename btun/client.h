@@ -12,6 +12,8 @@ int connect_to_server(char * server, port_t port,
 		      char * channel, option_t options,
 		      char * cmd);
 
+void stop_client();
+
 void run_normal(int sockfd, int in, int out);
 
 void run_with_prog(int sockfd, char * p);

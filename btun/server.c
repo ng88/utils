@@ -199,7 +199,14 @@ int start_server(user_pool_t * eu, port_t port)
         }
 
     }
-    
+
+    s = vector_size(users);
+    for(i = 0; i < s; i++)
+    {
+	channel_entry_t * e = get_entry_at(users, i);
+	close(e->fd);
+    }
+    close(fdlisten);
 
     free_channel_pool(channels);
 

@@ -24,8 +24,20 @@
 #include "bool.h"
 #include "client.h"
 
+void stop_client_handler(int s)
+{
+    stop_client();
+}
+
 int main(int argc, char ** argv)
 {
+    struct sigaction nv, old;
+    memset(&nv, 0, sizeof(nv));
+    nv.sa_handler = &stop_client_handler;
+
+    sigaction(SIGTERM, &nv, &old);
+    sigaction(SIGINT, &nv, &old);
+
 
     char * login;
     char  pass[MD5_SIZE * 2];

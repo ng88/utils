@@ -33,6 +33,7 @@ int main(int argc, char ** argv)
     char * server;
     option_t options = 0;
     port_t port = SERVER_DEFAULT_PORT;
+    char * cmd = NULL;
 
     /*      Temporaire     */
     c_assert2(argc >= 5, "# d'argument incorrect");
@@ -48,9 +49,12 @@ int main(int argc, char ** argv)
     if(argc >= 6 && argv[5][0] == 'M')
 	options = options | OPT_MASTER;
 
+    if(argc >= 7)
+	cmd = argv[6];
+
     /*      Temporaire     */
 
 
-    return connect_to_server(server, port, login, pass, channel, options);
+    return connect_to_server(server, port, login, pass, channel, options, cmd);
 
 }

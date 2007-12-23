@@ -1,6 +1,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
@@ -16,7 +17,8 @@
 
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
-		      char * channel, option_t options)
+		      char * channel, option_t options,
+		      char * cmd)
 {
 
     int sockfd;
@@ -108,35 +110,42 @@ int connect_to_server(char * server, port_t port,
 	return EXIT_FAILURE;
     }
 
-    fd_set fds;
+    if(cmd)
+	run_with_prog(sockfd, cmd);
+    else
+	run_normal(sockfd);
 
-    FD_ZERO(&fds);
-    FD_SET(0, &fds); /* stdin */
-    FD_SET(sockfd, &fds); /* socket */
+    return EXIT_SUCCESS;
+}
+
+void run_normal(int sockfd)
+{
+    fd_set fds;
 
     bool run = true;
     char buf[RECV_BUFF_SIZE];
+    int n;
 
     while(run)
     {
+	FD_ZERO(&fds);
+	FD_SET(0, &fds); /* stdin */
+	FD_SET(sockfd, &fds); /* socket */
+
         if(select(sockfd + 1, &fds, NULL, NULL, NULL) == -1)
 	    run = false;
 	else
 	{
 	    if(FD_ISSET(0, &fds)) /* stdin */
 	    {
-		dbg_printf("data on stdin\n");
 		n = read(0, buf, RECV_BUFF_SIZE);
-		int u; for(u = 0; u < n; ++u) dbg_printf(">> %c\n", buf[u]);
 		if(n <= 0 || sendall(sockfd, buf, &n) == -1)
 		    run = false;
 	    }
 
 	    if(run && FD_ISSET(sockfd, &fds))
 	    {
-		dbg_printf("data on socket\n");
 		n = recv(sockfd, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
-		int u; for(u = 0; u < n; ++u) dbg_printf(">> %c\n", buf[u]);
 		if(n <= 0 || writeall(1, buf, n) == -1)
 		    run = false;
 	    }
@@ -144,8 +153,39 @@ int connect_to_server(char * server, port_t port,
 
 	}
     }
+}
 
-    return EXIT_SUCCESS;
+
+
+void run_with_prog(int sockfd, char * p)
+{
+
+    pid_t f = fork();
+
+    if(f == 0) /* fils */
+    {
+	close(0);
+	close(1);
+	close(2);
+	dup(sockfd);
+	dup(sockfd);
+	dup(sockfd);
+	close(sockfd);
+	execlp(p, p, NULL);
+	perror("exec");
+	_exit(1);
+    }
+    else if(f > 0) /* pere */
+    {
+	dbg_printf("start    \n");
+	//run_normal(sockfd);
+	dbg_printf("waiting child...\n");
+	wait(NULL);
+	dbg_printf("done.\n");
+    }
+    else
+	perror("fork");
+
 }
 
 

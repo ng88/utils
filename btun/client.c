@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -8,6 +9,10 @@
 #include <netdb.h>
 #include <errno.h>
 #include <unistd.h>
+
+#include <fcntl.h>
+#include <termios.h>
+
 
 #include "client.h"
 #include "assert.h"
@@ -111,14 +116,15 @@ int connect_to_server(char * server, port_t port,
     }
 
     if(cmd)
-	run_with_prog(sockfd, cmd);
+	run_with_prog_on_pty(sockfd, cmd);
     else
-	run_normal(sockfd);
+	run_normal(sockfd, 0, 1);
 
     return EXIT_SUCCESS;
 }
 
-void run_normal(int sockfd)
+
+void run_normal(int sockfd, int in, int out)
 {
     fd_set fds;
 
@@ -126,19 +132,21 @@ void run_normal(int sockfd)
     char buf[RECV_BUFF_SIZE];
     int n;
 
+    int fdmax = max_s(sockfd, in);
+
     while(run)
     {
 	FD_ZERO(&fds);
-	FD_SET(0, &fds); /* stdin */
+	FD_SET(in, &fds); /* stdin */
 	FD_SET(sockfd, &fds); /* socket */
 
-        if(select(sockfd + 1, &fds, NULL, NULL, NULL) == -1)
+        if(select(fdmax + 1, &fds, NULL, NULL, NULL) == -1)
 	    run = false;
 	else
 	{
-	    if(FD_ISSET(0, &fds)) /* stdin */
+	    if(FD_ISSET(in, &fds)) /* stdin */
 	    {
-		n = read(0, buf, RECV_BUFF_SIZE);
+		n = read(in, buf, RECV_BUFF_SIZE);
 		if(n <= 0 || sendall(sockfd, buf, &n) == -1)
 		    run = false;
 	    }
@@ -146,7 +154,7 @@ void run_normal(int sockfd)
 	    if(run && FD_ISSET(sockfd, &fds))
 	    {
 		n = recv(sockfd, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
-		if(n <= 0 || writeall(1, buf, n) == -1)
+		if(n <= 0 || writeall(out, buf, n) == -1)
 		    run = false;
 	    }
 
@@ -177,17 +185,82 @@ void run_with_prog(int sockfd, char * p)
     }
     else if(f > 0) /* pere */
     {
-	dbg_printf("start    \n");
-	//run_normal(sockfd);
-	dbg_printf("waiting child...\n");
 	wait(NULL);
-	dbg_printf("done.\n");
     }
     else
 	perror("fork");
 
 }
 
+void run_with_prog_on_pty(int sockfd, char * p)
+{
+    int fdm, fds, rc;
+
+    if( (fdm = posix_openpt(O_RDWR)) < 0 )
+    {
+	perror("openpt");
+	return;
+    }
+
+    if( (rc = grantpt(fdm)) != 0)
+    {
+	perror("grantpt");
+	return;
+    }
+
+    if( (rc = unlockpt(fdm)) != 0)
+    {
+	perror("unlockpt");
+	return;
+    }
+
+    fds = open(ptsname(fdm), O_RDWR);
+
+    pid_t f = fork();
+
+    if(f == 0) /* fils */
+    {
+
+	close(fdm);
+
+	struct termios settings;
+
+	rc = tcgetattr(fds, &settings);
+	cfmakeraw(&settings);
+	tcsetattr(fds, TCSANOW, &settings);
+
+	rc = tcgetattr(fds, &settings);
+	cfmakeraw(&settings);
+	tcsetattr(fds, TCSANOW, &settings);
+
+	close(0);
+	close(1);
+	close(2);
+	dup(fds);
+	dup(fds);
+	dup(fds);
+
+	close(sockfd);
+
+	setsid();
+
+	execlp(p, p, NULL);
+	perror("exec");
+	_exit(1);
+    }
+    else if(f > 0) /* pere */
+    {
+
+	close(fds);
+
+	run_normal(sockfd, fdm, fdm);
+
+	wait(NULL);
+    }
+    else
+	perror("fork");
+
+}
 
 int writeall(int fd, void * src, size_t s)
 {

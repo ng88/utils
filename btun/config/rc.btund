@@ -1,0 +1,37 @@
+#!/bin/sh
+
+function start_btund()
+{
+  /usr/sbin/btund -d
+}
+
+function stop_btund()
+{
+  killall -TERM btund
+}
+
+case "$1" in
+   'start')
+      echo Starting btund...
+      start_btund ;;
+   'stop')
+      echo Stopping btund...
+      stop_btund ;;
+   'status')
+      if ps aux | grep btund | grep -v $0 | grep -v grep > /dev/null 2>&1
+      then
+          killall -HUP btund 2> /dev/null
+      else
+          echo btund is not running.
+      fi ;;
+   'restart')
+      echo Restarting btund...
+      stop_btund
+      sleep 0.1
+      start_btund
+      sleep 0.1 ;;
+   *)
+      echo "usage $0 start|stop|restart|status" ;;
+esac
+
+

@@ -12,6 +12,6 @@ stty -echo
 read -p "Password: " pass; echo
 stty echo
 
-echo $login:$(echo -n $pass | md5sum | cut -f1 -d" ") >> $1
+echo :$login:$(echo -n $pass | md5sum | cut -f1 -d" "):: >> $1
 
 echo Added.

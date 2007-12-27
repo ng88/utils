@@ -1,0 +1,16 @@
+#
+# This is the file where use users are configured.
+#
+# The format is the following:
+# :login:md5 passphrase:reserved:reserved
+#
+# Users can be easily added by the btund_add_user.sh script.
+#
+#
+
+:ng:b971b34b7cbea14b8d4e66e0931889df::
+:eva:098f6bcd4621d373cade4e832627b4f6::
+
+
+# demo user (passphrase = demo)
+:demo:fe01ce2a7fbac8fafaed7c982a04e229::

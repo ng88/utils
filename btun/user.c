@@ -53,25 +53,54 @@ bool read_delim_string(char* s, int max, char sep, FILE * f)
     if((c = fgetc(f)) == EOF)
 	return false;
 
-    return ((char)c == ':');
+    return ((char)c == sep);
 }
 
 void read_users_from_file(user_pool_t * p, FILE * f)
 {
+    enum { BSIZE = 2 };
     char login[USER_MAX_LOGIN_SIZE + 1];
     char pass[USER_MAX_PASS_SIZE + 1];
+    char buff[BSIZE];
 
     int c;
 
     while(!feof(f))
     {
-	if(!read_delim_string(login, USER_MAX_LOGIN_SIZE + 1, ':', f))
-	    break;
+	c = fgetc(f);
 
-	if(!read_delim_string(pass, USER_MAX_PASS_SIZE + 1, '\n', f))
-	    break;
+	if(c == EOF) return;
 
-	user_add(p, create_user(login, pass));
+	switch((char)c)
+	{
+	case '\n':
+	    break;
+	case '#':
+	    while(c != EOF && (char)c != '\n')
+		c = fgetc(f);
+	    break;
+	case ':':
+
+	    if(!read_delim_string(login, USER_MAX_LOGIN_SIZE + 1, ':', f))
+		return;
+
+	    if(!read_delim_string(pass, USER_MAX_PASS_SIZE + 1, ':', f))
+		return;
+
+	    if(!read_delim_string(buff, BSIZE + 1, ':', f))
+		return;
+
+	    if(!read_delim_string(buff, BSIZE + 1, '\n', f))
+		return;
+
+	    dbg_printf("add user %s\n", login);
+	    user_add(p, create_user(login, pass));
+
+	    break;
+	default:
+	    dbg_printf("syntax error in users configuration file\n");
+	}
+
     }
 }
 

@@ -117,7 +117,7 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
     for(i = 0; i < s; ++i)
     {
 	channel_t * c = channel_at(p, i);
-	fprintf(f, "Channel %s (%d)", c->name, i);
+	fprintf(f, "Channel %s ", c->name);
 
 	if(c->master)
 	    fprintf(f, " - master is %s:%d", c->master->user->login, c->master->fd);
@@ -127,7 +127,7 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
 	else
 	    fputs(" - restricted:\n", f);
 
-	print_entry_vector(c->entries, f);
+	print_entry_vector(c->entries, f, false);
     }
 
     fprintf(f, "---- %3u channels ------------\n", s);
@@ -236,26 +236,28 @@ void free_channel(channel_t * c)
     free(c);
 }
 
-void print_entry_vector(vector_t * v, FILE * f)
+void print_entry_vector(vector_t * v, FILE * f, bool showsep)
 {
     c_assert(v);
 
     size_t i;
     size_t s = vector_size(v);
 
-    fprintf(f, "---- entry table -------------\n");
-
+    if(showsep)
+	fprintf(f, "---- entry table -------------\n");
+    
     for(i = 0; i < s; ++i)
     {
 	channel_entry_t * e = get_entry_at(v, i);
-	fprintf(f, "user %s:%d (%d) on channel %s\n",
+	fprintf(f, "%s:%d (%s)\n",
 		e->user ? e->user->login : "unknown",
-		e->fd, e->step,
+		e->fd,
 		e->channel ? e->channel->name : "unknown"
 		);
     }
 
-    fprintf(f, "---- %3u entries -------------\n", s);
+    if(showsep)
+	fprintf(f, "---- %3u entries -------------\n", s);
 }
 
 

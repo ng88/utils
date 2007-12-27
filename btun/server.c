@@ -116,7 +116,7 @@ int start_server(user_pool_t * eu, port_t port)
 		    puts("\n\nAccount list:");
 		    print_user_pool(existing_users, stdout);
 		    puts("\n\nConnected users:");
-		    print_entry_vector(users, stdout);
+		    print_entry_vector(users, stdout, true);
 		    puts("\n\nChannel list:");
 		    print_channel_pool(channels, stdout);
 		    continue;

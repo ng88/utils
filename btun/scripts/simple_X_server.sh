@@ -31,6 +31,7 @@
 if [ -z "$1" -o -z "$2" ]
 then
     echo "usage: $0 user@host channel_prefix [btun option]" >&2
+    exit 2
 fi
 
 user="$1"

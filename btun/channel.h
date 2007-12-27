@@ -102,7 +102,7 @@ void free_channel(channel_t * c);
 #define get_entry_at(v, i) \
            ((channel_entry_t*)vector_get_element_at((v), (i)))
 
-void print_entry_vector(vector_t * v, FILE * f);
+void print_entry_vector(vector_t * v, FILE * f, bool showsep);
 
 
 /*********  CHANNEL ENTRY  **********/

@@ -42,8 +42,8 @@ install: min
 	install -m 644 btun/config/users /etc/btund/
 
 package:
-	./make_slack_package.sh ENABLE_READLINE=1 DISABLE_DEBUG_PRINT=1
-
+	./make_slack_package_btun.sh DISABLE_DEBUG_PRINT=1
+	./make_slack_package_main.sh ENABLE_READLINE=1
 clean:
 	$(MAKE) -C cpufreq clean
 	$(MAKE) -C daemon clean

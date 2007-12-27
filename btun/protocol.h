@@ -33,7 +33,7 @@ typedef uint16_t port_t;
 enum
 {
     OPT_MASTER = 1,
-    OPT_RESTRICTED = 2,
+    OPT_UNRESTRICTED = 2,
 };
 
 typedef unsigned char option_t;

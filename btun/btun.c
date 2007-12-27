@@ -41,8 +41,9 @@ void usage(int ev)
 	  "                      (max passphrase size is " MXSTR(USER_MAX_PASS_SIZE) "b)\n"
 	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
 	  "   -m                 request to be the master of the channel\n"
-	  "   -r                 create a restricted channel\n\n"
-	  "  Note: -m and -n will ONLY work if you are the first to join the specified channel.\n"
+	  "   -u                 create an unrestricted channel\n"
+	  "   -r                 create a restricted channel (default)\n\n"
+	  "  Note: -m and -u will ONLY work if you are the first to join the specified channel.\n"
 	  "\n"
 	  , stderr);
     exit(ev);
@@ -83,7 +84,7 @@ int main(int argc, char ** argv)
 
 
 
-    while( (optch = getopt(argc, argv, "hvmrtf:p:")) != EOF )
+    while( (optch = getopt(argc, argv, "hvmurtf:p:")) != EOF )
     {
 	switch(optch)
 	{
@@ -110,7 +111,10 @@ int main(int argc, char ** argv)
 	    opts |= OPT_MASTER;
 	    break;
 	case 'r':
-	    opts |= OPT_RESTRICTED;
+	    opts &= ~OPT_UNRESTRICTED;
+	    break;
+	case 'u':
+	    opts |= OPT_UNRESTRICTED;
 	    break;
 	case 'v':
 	    print_version();

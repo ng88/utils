@@ -122,10 +122,10 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
 	if(c->master)
 	    fprintf(f, " - master is %s:%d", c->master->user->login, c->master->fd);
 
-	if( (c->opts & OPT_RESTRICTED) )
-	    fputs(" - restricted", f);
-
-	fputs(":\n", f);
+	if( (c->opts & OPT_UNRESTRICTED) )
+	    fputs(" - unrestricted:\n", f);
+	else
+	    fputs(" - restricted:\n", f);
 
 	print_entry_vector(c->entries, f);
     }
@@ -193,10 +193,10 @@ unsigned char channel_add_user(channel_t * c, channel_entry_t * e, option_t opt)
 	    if( (opt & OPT_MASTER) )
 		return CA_CANT_BE_MASTER;
 
-	    if( (opt & OPT_RESTRICTED) )
+	    if( (opt & OPT_UNRESTRICTED) )
 		return CA_CANT_CHPERM;
 
-	    if( (c->opts & OPT_RESTRICTED) && channel_get_user_at(c, 0)->user != e->user )
+	    if( !(c->opts & OPT_UNRESTRICTED) && channel_get_user_at(c, 0)->user != e->user )
 		return CA_DENIED;
 	}
 	else /* we created the channel */

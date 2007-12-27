@@ -1,5 +1,5 @@
 
-min: daemon max_uptime range rsh xoror
+min: daemon max_uptime range rsh xoror btun
 
 all: min cpufreq scanp win2unix sudoku-solver
 
@@ -30,14 +30,19 @@ xoror:
 sudoku-solver:
 	$(MAKE) -C $@
 
-install: min
-	install -sm 755 daemon/daemon max_uptime/max_uptime range/range xoror/xoror /usr/bin/
-	install -sm 755 rsh/rsh /bin/
-	install -m 644 rsh/rsh.conf /etc/
+btun:
+	$(MAKE) -C $@
 
+install: min
+	install -sm 755 daemon/daemon max_uptime/max_uptime range/range xoror/xoror btun/btun /usr/bin/
+	install -sm 755 rsh/rsh /bin/
+	install -sm 755 btun/btund /usr/sbin/
+	install -m 644 rsh/rsh.conf /etc/
+	install -m 644 -d /etc/btund/
+	install -m 644 btun/config/users /etc/btund/
 
 package:
-	./make_slack_package.sh ENABLE_READLINE=1
+	./make_slack_package.sh ENABLE_READLINE=1 DISABLE_DEBUG_PRINT=1
 
 clean:
 	$(MAKE) -C cpufreq clean
@@ -48,9 +53,10 @@ clean:
 	$(MAKE) -C scanp clean
 	$(MAKE) -C win2unix clean
 	$(MAKE) -C xoror clean
+	$(MAKE) -C btun clean
 	$(MAKE) -C sudoku-solver clean
 
 mrproper: clean
-	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror sudoku-solver/sudoku-solver
+	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror sudoku-solver/sudoku-solver btun/btund btun/btun
 
-.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror sudoku-solver install package
+.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror sudoku-solver btun install package

@@ -10,7 +10,7 @@ stty -echo
 read pass
 stty echo
 
-echo -n "$pass" > "$1"
+echo -n "$pass" | md5sum | cut -f1 -d" " > "$1"
 chmod 600 "$1"
 echo ''
 echo File created.

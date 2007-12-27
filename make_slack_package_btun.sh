@@ -51,7 +51,7 @@ chmod a+x slack/install/doinst.sh
 
 install -sm 755 btun/btun slack/usr/bin/
 install -sm 755 btun/btund slack/usr/sbin/
-install -m 644 btun/config/users slack/etc/btund/
+install -m 644 btun/config/users.sample slack/etc/btund/
 install -m 755 btun/config/rc.btund  slack/etc/rc.d/
 
 rev=$(sed -n 's/.*revision="\([^"]*\)".*/\1/gp' .svn/entries | sort -nr | head -1)

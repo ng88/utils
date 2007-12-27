@@ -39,7 +39,7 @@ install: min
 	install -sm 755 btun/btund /usr/sbin/
 	install -m 644 rsh/rsh.conf /etc/
 	install -m 644 -d /etc/btund/
-	install -m 644 btun/config/users /etc/btund/
+	install -m 644 btun/config/users.sample /etc/btund/
 
 package:
 	./make_slack_package_btun.sh DISABLE_DEBUG_PRINT=1

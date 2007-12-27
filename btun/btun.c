@@ -38,7 +38,7 @@ void usage(int ev)
           "   -v                 print version and quit\n"
 	  "   -t                 use a pseudo terminal for command execution\n"
 	  "   -f <file>          read passhrase from 'file' (if 'file' is -, stdout is used)\n"
-	  "                      (max passphrase size is " MXSTR(USER_MAX_PASS_SIZE) "b)\n"
+	  "                      the file must only contains the md5 hash of the user passphrase\n"
 	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
 	  "   -m                 request to be the master of the channel\n"
 	  "   -u                 create an unrestricted channel\n"
@@ -176,7 +176,7 @@ int main(int argc, char ** argv)
     /*         PASSPHRASE       */
     if(fpass)
     {
-	if(!fgets(pass, USER_MAX_PASS_SIZE, fpass))
+	if(!fgets(pass, MD5_SIZE * 2 + 1, fpass))
 	{
 	    fputs(CLIENT_NAME ": unable to read passphrase from pass file/stdin!\n", stderr);
 	    return EXIT_FAILURE;
@@ -191,18 +191,17 @@ int main(int argc, char ** argv)
 	    return EXIT_FAILURE;
 	}
 
+	MD5_CTX_ppp m;
+	MD5Init_ppp(&m);
+	MD5Update_ppp( &m, pass, strlen(pass) );
+	MD5Final_ppp(&m);
+	
+	MD5ToSring(&m, pass);
+
+	memset(&m, '*', sizeof(m));
     }
 
     flush_std();
-
-    MD5_CTX_ppp m;
-    MD5Init_ppp(&m);
-    MD5Update_ppp( &m, pass, strlen(pass) );
-    MD5Final_ppp(&m);
-
-    MD5ToSring(&m, pass);
-
-    memset(&m, '*', sizeof(m));
 
     struct sigaction nv, old;
     memset(&nv, 0, sizeof(nv));

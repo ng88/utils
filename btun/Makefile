@@ -41,8 +41,8 @@ EXE2=btun
 
 all: $(EXE1) $(EXE2)
 
-btun.o: assert.h bool.h client.h version.h
-btund.o: server.h user.h version.h
+btun.o: assert.h bool.h client.h version.h protocol.h misc.h
+btund.o: server.h user.h version.h protocol.h misc.h bool.h assert.h
 channel.o: vector.h user.h bool.h channel.h server.h assert.h
 client.o: bool.h common.h client.h assert.h misc.h
 common.o: protocol.h md5.h common.h bool.h assert.h
@@ -51,7 +51,6 @@ misc.o: bool.h misc.h
 server.o: user.h channel.h common.h server.h assert.h vector.h
 user.o: vector.h bool.h protocol.h user.h assert.h
 vector.o: vector.h assert.h
-
 
 $(EXE1): svnrev $(OBJS1)
 	$(CC) $(OBJS1) -o $@ $(LDFLAGS)

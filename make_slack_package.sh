@@ -28,7 +28,8 @@ cp -f daemon/daemon max_uptime/max_uptime range/range xoror/xoror slack/usr/bin/
 cp -f rsh/rsh slack/bin/
 cp -f rsh/rsh.conf slack/etc/
 
-name="ng-utils-revXX-$(uname -m).tgz"
+rev=$(sed -n 's/.*revision="\([^"]*\)".*/\1/gp' .svn/entries | sort -nr | head -1)
+name="ng-utils-rev$rev-$(uname -m).tgz"
 
 cd slack
 tar fcz "$name" *

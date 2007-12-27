@@ -43,6 +43,7 @@ fi
 user="$1"
 channel="$2"
 pass="$3"
+x_port_start=1
 shift 3
 
 i=0
@@ -58,7 +59,7 @@ btun "$user" -f "$pass" "${channel}_X_sync" -- $0 SYNC $i
 sleep 1
 pids=''
 
-i=0
+i=$(( ${x_port_start} - 1 ))
 for c in "$@"
 do
   (( i++ ))

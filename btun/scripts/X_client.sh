@@ -29,6 +29,7 @@ then
     exit 2
 fi
 
+xdisp=$(echo $DISPLAY | sed 's/[^:]*:\([0-9][0-9]*\).*/\1/g')
 user="$1"
 channel="$2"
 pass="$3"
@@ -55,7 +56,7 @@ pids=''
 
 for (( i=1; i <= $nb; i++ ))
 do
-  btun "$user" -f "$pass" "${channel}_X_n$i" -- nc localhost 6000   &
+  btun "$user" -f "$pass" "${channel}_X_n$i" -- nc localhost $(( $xdisp + 6000 ))  &
   pids="$! $pids"
 done
 

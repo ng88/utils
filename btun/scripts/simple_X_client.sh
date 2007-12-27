@@ -40,4 +40,7 @@ option="$3"
 
 xhost +localhost
 
-btun "$user" "$3" "${channel}_X_1" -- nc localhost 6000
+xdisp=$(echo $DISPLAY | sed 's/[^:]*:\([0-9][0-9]*\).*/\1/g')
+
+btun "$user" "$3" "${channel}_X_1" -- nc localhost $(( 6000 + $xdisp ))
+

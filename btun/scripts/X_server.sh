@@ -56,7 +56,6 @@ done
 btun "$user" -f "$pass" "${channel}_X_sync" -- $0 SYNC $i
 
 
-sleep 1
 pids=''
 
 i=$(( ${x_port_start} - 1 ))

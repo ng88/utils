@@ -331,23 +331,6 @@ void run_cmd_pty(int sockfd, char ** args)
 
 }
 
-int writeall(int fd, void * src, size_t s)
-{
-    while(s)
-    {
-	int lu = write(fd, src, s);
-
-	if(lu <= 0)
-	    return -1;
-
-	src += lu;
-	s -= lu;
-    }
-
-    return 0;
-}
-
-
 
 char * read_passphrase(char * buff, size_t size)
 {

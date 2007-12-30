@@ -105,3 +105,20 @@ void challenge_answer(char * ch, char * pass, MD5_CTX_ppp * m)
     MD5Final_ppp(m);
 }
 
+int writeall(int fd, void * src, size_t s)
+{
+    while(s)
+    {
+	int lu = write(fd, src, s);
+
+	if(lu <= 0)
+	    return -1;
+
+	src += lu;
+	s -= lu;
+    }
+
+    return 0;
+}
+
+

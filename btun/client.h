@@ -43,8 +43,6 @@ void run_cmd(int sockfd, char ** args);
 
 void run_cmd_pty(int sockfd, char ** args);
 
-int writeall(int fd, void * src, size_t s);
-
 char * read_passphrase(char * buff, size_t size);
 
 void flush_std();

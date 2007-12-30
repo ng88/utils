@@ -12,7 +12,7 @@
    inkscape:export-filename="/tmp/1.png"
    inkscape:export-xdpi="72.000000"
    inkscape:export-ydpi="72.000000"
-   sodipodi:docbase="/home/ng/svg"
+   sodipodi:docbase="/home/ng/dev/svn-local/utils/btun/doc"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:cc="http://web.resource.org/cc/"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -1148,8 +1148,8 @@
      inkscape:pageopacity="0.0000000"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
-     inkscape:cx="363.05451"
-     inkscape:cy="238.05118"
+     inkscape:cx="318.19948"
+     inkscape:cy="240.64866"
      inkscape:window-width="1272"
      inkscape:window-height="968"
      inkscape:window-x="0"
@@ -2450,7 +2450,7 @@ Mauro BIEG
        id="tspan1553">(my_host)</tspan></text>
   <g
      id="g1560"
-     transform="translate(-84.85343,-28.97971)">
+     transform="translate(-84.85346,-28.97971)">
     <path
        sodipodi:type="star"
        style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#000000;stroke-width:12.125000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
@@ -2503,12 +2503,7 @@ Mauro BIEG
        transform="matrix(-1.251691e-17,1.000000,-1.000000,-1.534158e-17,0.000000,0.000000)" />
   </g>
   <g
-     id="g5078"
-     transform="translate(-54.80078,-47.72971)">
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:2.5000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:5.0000000 2.5000000 ;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;marker-start:none;marker-mid:none;marker-end:none;"
-       d="M 243.12500,430.00000 C 280.85928,431.33454 318.73242,433.39294 356.44138,430.55891 C 380.35047,427.05213 405.06349,424.69284 426.78458,413.19058 C 443.80977,405.61884 456.52329,390.52086 462.52869,373.01987 C 469.98668,351.49453 477.33899,329.86876 483.14110,307.82837 C 492.45994,271.29664 487.66307,233.47945 487.33545,196.30527 C 487.17760,190.03695 487.02359,183.76854 486.87500,177.50000"
-       id="path2966" />
+     id="g2296">
     <path
        sodipodi:type="star"
        style="fill:#0000ad;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:12.125000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
@@ -2523,7 +2518,7 @@ Mauro BIEG
        inkscape:flatsided="true"
        inkscape:rounded="0.0000000"
        d="M 123.10052,200.76498 L 160.83255,135.41118 L 198.56458,200.76498 L 123.10052,200.76498 z "
-       transform="matrix(0.143729,4.547339e-18,-4.547339e-18,0.143729,463.7587,154.2784)" />
+       transform="matrix(0.143729,4.547339e-18,-4.547339e-18,0.143729,408.2950,106.5487)" />
     <path
        sodipodi:type="star"
        style="fill:#0000ad;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:12.125000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
@@ -2538,6 +2533,10 @@ Mauro BIEG
        inkscape:flatsided="true"
        inkscape:rounded="0.0000000"
        d="M 123.10052,200.76498 L 160.83255,135.41118 L 198.56458,200.76498 L 123.10052,200.76498 z "
-       transform="matrix(5.926446e-18,-0.143729,0.143729,5.926446e-18,219.2784,453.1163)" />
+       transform="matrix(5.926446e-18,-0.143729,0.143729,5.926446e-18,164.4776,404.9447)" />
+    <path
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:2.5625000;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;stroke-miterlimit:4.0000000;stroke-dasharray:2.5625000,2.5625000;stroke-dashoffset:0.0000000;marker-start:none;"
+       d="M 194.47664,381.66975 C 194.47664,381.66975 295.97368,394.87106 349.92256,380.72679 C 403.87145,366.58252 422.15920,324.14973 427.64553,292.08939 C 433.13186,260.02905 431.30308,134.61655 431.30308,134.61655"
+       id="path1572" />
   </g>
 </svg>

@@ -9,10 +9,9 @@
    width="525.00000pt"
    height="440.00000pt"
    sodipodi:docname="schema_btun2.svg"
-   inkscape:export-filename="/tmp/1.png"
+   inkscape:export-filename="/home/ng/tmp/schema_with_btun.png"
    inkscape:export-xdpi="72.000000"
    inkscape:export-ydpi="72.000000"
-   sodipodi:docbase="/home/ng/dev/svn-local/utils/btun/doc"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:cc="http://web.resource.org/cc/"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -20,7 +19,8 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:xml="http://www.w3.org/XML/1998/namespace"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:xlink="http://www.w3.org/1999/xlink">
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   sodipodi:docbase="/home/ng/dev/svn-local/utils/btun/doc">
   <defs
      id="defs3">
     <marker

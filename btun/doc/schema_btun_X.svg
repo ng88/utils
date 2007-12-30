@@ -9,7 +9,7 @@
    width="550.00000pt"
    height="415.00000pt"
    sodipodi:docname="schema_btun_X.svg"
-   inkscape:export-filename="/tmp/1.png"
+   inkscape:export-filename="/home/ng/tmp/schema_btun_X.svg"
    inkscape:export-xdpi="72.000000"
    inkscape:export-ydpi="72.000000"
    xmlns="http://www.w3.org/2000/svg"
@@ -3891,41 +3891,61 @@
     </g>
   </g>
   <g
-     id="g2672"
-     transform="translate(-41.98446,0.441942)">
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:2.5000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:5.0000000 10.000000 ;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;"
-       d="M 94.893704,430.77905 C 94.893704,430.77905 72.668644,501.48973 267.13792,502.37361 C 461.60719,503.25750 437.15961,433.43070 437.15961,433.43070"
-       id="path1951" />
-    <path
-       sodipodi:type="star"
-       style="fill:#0000ad;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:12.125000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
-       id="path10861"
-       sodipodi:sides="3"
-       sodipodi:cx="160.83255"
-       sodipodi:cy="178.98038"
-       sodipodi:r1="43.569199"
-       sodipodi:r2="21.784599"
-       sodipodi:arg1="2.6179939"
-       sodipodi:arg2="3.6651914"
-       inkscape:flatsided="true"
-       inkscape:rounded="0.0000000"
-       d="M 123.10052,200.76498 L 160.83255,135.41118 L 198.56458,200.76498 L 123.10052,200.76498 z "
-       transform="matrix(-7.257972e-2,0.124056,-0.124056,-7.257972e-2,127.4374,425.3638)" />
-    <path
-       sodipodi:type="star"
-       style="fill:#0000ad;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:12.125000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
-       id="path1556"
-       sodipodi:sides="3"
-       sodipodi:cx="160.83255"
-       sodipodi:cy="178.98038"
-       sodipodi:r1="43.569199"
-       sodipodi:r2="21.784599"
-       sodipodi:arg1="2.6179939"
-       sodipodi:arg2="3.6651914"
-       inkscape:flatsided="true"
-       inkscape:rounded="0.0000000"
-       d="M 123.10052,200.76498 L 160.83255,135.41118 L 198.56458,200.76498 L 123.10052,200.76498 z "
-       transform="matrix(-6.559481e-2,-0.127887,0.127887,-6.559481e-2,425.4158,466.0370)" />
+     id="g2316">
+    <g
+       id="g2672"
+       transform="translate(-41.98446,0.441942)">
+      <path
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:2.5000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:5.0000000 10.000000 ;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;"
+         d="M 94.893704,430.77905 C 94.893704,430.77905 72.668644,501.48973 267.13792,502.37361 C 461.60719,503.25750 437.15961,433.43070 437.15961,433.43070"
+         id="path1951" />
+      <path
+         sodipodi:type="star"
+         style="fill:#0000ad;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:12.125000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
+         id="path10861"
+         sodipodi:sides="3"
+         sodipodi:cx="160.83255"
+         sodipodi:cy="178.98038"
+         sodipodi:r1="43.569199"
+         sodipodi:r2="21.784599"
+         sodipodi:arg1="2.6179939"
+         sodipodi:arg2="3.6651914"
+         inkscape:flatsided="true"
+         inkscape:rounded="0.0000000"
+         d="M 123.10052,200.76498 L 160.83255,135.41118 L 198.56458,200.76498 L 123.10052,200.76498 z "
+         transform="matrix(-7.257972e-2,0.124056,-0.124056,-7.257972e-2,127.4374,425.3638)" />
+      <path
+         sodipodi:type="star"
+         style="fill:#0000ad;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#0000ad;stroke-width:12.125000;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000;"
+         id="path1556"
+         sodipodi:sides="3"
+         sodipodi:cx="160.83255"
+         sodipodi:cy="178.98038"
+         sodipodi:r1="43.569199"
+         sodipodi:r2="21.784599"
+         sodipodi:arg1="2.6179939"
+         sodipodi:arg2="3.6651914"
+         inkscape:flatsided="true"
+         inkscape:rounded="0.0000000"
+         d="M 123.10052,200.76498 L 160.83255,135.41118 L 198.56458,200.76498 L 123.10052,200.76498 z "
+         transform="matrix(-6.559481e-2,-0.127887,0.127887,-6.559481e-2,425.4158,466.0370)" />
+    </g>
+    <g
+       id="g2309">
+      <text
+         xml:space="preserve"
+         style="font-size:12.000000;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;"
+         x="136.11806"
+         y="477.20749"
+         id="text2301"><tspan
+           id="tspan2302">Remote emacs is displayed on</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:12.000000;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;"
+         x="185.51845"
+         y="492.81409"
+         id="text2306"><tspan
+           id="tspan2307">local X server.</tspan></text>
+    </g>
   </g>
 </svg>

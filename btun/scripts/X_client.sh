@@ -21,11 +21,6 @@ then
     exit 0
 fi
 
-if [ "$1" = SYNC2 ]
-then
-    echo OK
-    exit 0
-fi
 
 if [ -z "$1" -o -z "$2"  -o -z "$3" ]
 then
@@ -60,12 +55,14 @@ pids=''
 
 for (( i=1; i <= $nb; i++ ))
 do
-  btun "$user" -f "$pass" "${channel}_X_n$i" -- nc localhost $(( $xdisp + 6000 ))  &
+  btun -a "$user" -f "$pass" "${channel}_X_n$i" -- nc localhost $(( $xdisp + 6000 ))  &
   pids="$! $pids"
   sleep 0.2
 done
 
-btun "$user" -f "$pass" "${channel}_X_sync" -- $0 SYNC2
+btun "$user" -f "$pass" "${channel}_X_sync" << EOF
+OK
+EOF
 
 for (( i=1; i <= $nb; i++ ))
 do

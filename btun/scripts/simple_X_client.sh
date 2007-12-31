@@ -38,9 +38,9 @@ user="$1"
 channel="$2"
 option="$3"
 
-xhost +localhost
+xhost +localhost > /dev/null 2>&1
 
 xdisp=$(echo $DISPLAY | sed 's/[^:]*:\([0-9][0-9]*\).*/\1/g')
 
-btun "$user" "$3" "${channel}_X_1" -- nc localhost $(( 6000 + $xdisp ))
+btun -a "$user" "$3" "${channel}_X_1" -- nc localhost $(( 6000 + $xdisp ))
 

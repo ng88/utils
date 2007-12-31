@@ -2,10 +2,6 @@
 
 rm -fr slack
 mkdir -p slack/install
-mkdir -p slack/etc/btund
-mkdir -p slack/etc/rc.d
-mkdir -p slack/usr/bin
-mkdir -p slack/usr/sbin
 
 cat > slack/install/slack-desc <<EOF
 # HOW TO EDIT THIS FILE:
@@ -42,23 +38,23 @@ then
 
 fi
 
+
 EOF
+chmod a+x slack/install/doinst.sh
 
 make mrproper || exit 1
 make btun $* || exit 1
+make installbtun $* prefix=slack || exit 1
 
-chmod a+x slack/install/doinst.sh
-
-install -sm 755 btun/btun slack/usr/bin/
-install -sm 755 btun/btund slack/usr/sbin/
-install -m 644 btun/config/users.sample slack/etc/btund/
-install -m 755 btun/config/rc.btund  slack/etc/rc.d/
+install -m 755 -d slack/etc/rc.d/
+install -m 644 btun/config/rc.btund slack/etc/rc.d/
+rm -f slack/etc/btund/users
 
 rev=$(sed -n 's/.*revision="\([^"]*\)".*/\1/gp' .svn/entries | sort -nr | head -1)
 name="btun-rev$rev-$(uname -m).tgz"
 
 cd slack
-tar fcz "$name" *
+makepkg -l y -p -c n  "$name"
 mv "$name" ..
 cd ..
 rm -fr slack

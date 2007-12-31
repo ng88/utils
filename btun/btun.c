@@ -42,8 +42,9 @@ void usage(int ev)
 	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
 	  "   -m                 request to be the master of the channel\n"
 	  "   -u                 create an unrestricted channel\n"
-	  "   -r                 create a restricted channel (default)\n\n"
-	  "  Note: -m and -u will ONLY work if you are the first to join the specified channel.\n"
+	  "   -r                 create a restricted channel (default)\n"
+	  "   -a                 create an autoclose channel\n\n"
+	  "  Note: -m, -u and -a will ONLY work if you are the first to join the specified channel.\n"
 	  "\n"
 	  , stderr);
     exit(ev);
@@ -84,7 +85,7 @@ int main(int argc, char ** argv)
 
 
 
-    while( (optch = getopt(argc, argv, "hvmurtf:p:")) != EOF )
+    while( (optch = getopt(argc, argv, "ahvmurtf:p:")) != EOF )
     {
 	switch(optch)
 	{
@@ -106,6 +107,9 @@ int main(int argc, char ** argv)
 	    break;
 	case 't':
 	    mode = M_EXEC_CMD_PTY;
+	    break;
+	case 'a':
+	    opts |= OPT_AUTOCLOSE;
 	    break;
 	case 'm':
 	    opts |= OPT_MASTER;

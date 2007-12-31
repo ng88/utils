@@ -122,6 +122,9 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
 	if(c->master)
 	    fprintf(f, " - master is %s:%d", c->master->user->login, c->master->fd);
 
+	if( (c->opts & OPT_AUTOCLOSE) )
+	    fputs(" - autoclose", f);
+
 	if( (c->opts & OPT_UNRESTRICTED) )
 	    fputs(" - unrestricted:\n", f);
 	else
@@ -194,6 +197,9 @@ unsigned char channel_add_user(channel_t * c, channel_entry_t * e, option_t opt)
 		return CA_CANT_BE_MASTER;
 
 	    if( (opt & OPT_UNRESTRICTED) )
+		return CA_CANT_CHPERM;
+
+	    if( (opt & OPT_AUTOCLOSE) )
 		return CA_CANT_CHPERM;
 
 	    if( !(c->opts & OPT_UNRESTRICTED) && channel_get_user_at(c, 0)->user != e->user )

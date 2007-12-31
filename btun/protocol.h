@@ -34,6 +34,7 @@ enum
 {
     OPT_MASTER = 1,
     OPT_UNRESTRICTED = 2,
+    OPT_AUTOCLOSE = 4,
 };
 
 typedef unsigned char option_t;

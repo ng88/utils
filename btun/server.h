@@ -29,11 +29,14 @@
 
 int start_server(user_pool_t * existing_users, port_t port);
 
-void remove_user(channel_entry_t * e);
+/** remove e & return the next entry to delete */
+channel_entry_t * remove_user(channel_entry_t * e);
 
 bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs);
 
 int get_highest_fd(vector_t * u, int fdlist);
+
+size_t index_from_entry(vector_t * u, channel_entry_t * e);
 
 void stop_server();
 

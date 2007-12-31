@@ -179,19 +179,31 @@ int start_server(user_pool_t * eu, port_t port)
 
 		if(closeit)
 		{
-		    dbg_printf("socket %d closed\n", e->fd);
 
-		    close(e->fd);
-		    FD_CLR(e->fd, &master);
+		    channel_entry_t * next = e;
+		    while(next)
+		    {
+			dbg_printf("socket %d closed\n", next->fd);
 
-		    vector_del_element_at(users, i);
-		    i--; s--;
+			close(next->fd);
+			FD_CLR(next->fd, &master);
 
-		    /* si on est le max il faut trouver le nouveau max */
-		    if(e->fd == fdmax)
-			get_highest_fd(users, fdlisten);
+			size_t next_index = index_from_entry(users, next);
 
-		    remove_user(e);
+			if(next_index != (size_t)-1)
+			{
+			    vector_del_element_at(users, next_index);
+			    s--;
+			    if(next_index <= i)
+				i--;
+			}
+
+			next = remove_user(next);
+
+		    }
+
+		    fdmax = get_highest_fd(users, fdlisten);
+
 		}
 
 
@@ -225,7 +237,7 @@ int start_server(user_pool_t * eu, port_t port)
     return EXIT_SUCCESS;
 }
 
-void remove_user(channel_entry_t * e)
+channel_entry_t * remove_user(channel_entry_t * e)
 {
     channel_t * c = e->channel;
 
@@ -236,12 +248,20 @@ void remove_user(channel_entry_t * e)
 
 	channel_del_user_from_channel(c, e); /* free e also*/
 
-	if(channel_user_count(c) == 0) /*nobody left */
+	size_t count = channel_user_count(c);
+
+	if(count == 0) /*nobody left */
 	    del_channel_from_pool(channels, c); /* free c also*/
+	else if(count == 1 && (c->opts & OPT_AUTOCLOSE) ) /* 1 person left & we'have 
+							     an autoclose channel */
+	    return  channel_get_user_at(c, 0);
+
 
     }
     else
 	free_channel_entry(e);
+
+    return NULL;
 
 }
 
@@ -467,6 +487,19 @@ int get_highest_fd(vector_t * u, int fdlist)
     return r;
 }
 
+size_t index_from_entry(vector_t * u, channel_entry_t * e)
+{
+    size_t s = vector_size(u);
+    size_t i;
+    for(i = 0; i < s; i++)
+    {
+	if( get_entry_at(u, i) == e )
+	    return i;
+    }
+
+    return (size_t)-1;
+
+}
 
 void stop_server()
 {

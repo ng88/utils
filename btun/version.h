@@ -18,16 +18,16 @@
 #define VERSION_H
 
 #define CLIENT_NAME      "btun"
-#define CLIENT_VERSION   "0.4"
+#define CLIENT_VERSION   "0.5"
 #define CLIENT_REVISION  __SVN_HEAD__
 #define CLIENT_DATE      __DATE__
 
 #define SERVER_NAME      "btund"
-#define SERVER_VERSION   "0.4"
+#define SERVER_VERSION   "0.5"
 #define SERVER_REVISION  __SVN_HEAD__
 #define SERVER_DATE      __DATE__
 
-#define PROTOCOL_VERSION "0.3"
+#define PROTOCOL_VERSION "0.4"
 
 
 #define SC_COPYRIGHT  "Copyright (C) 2006, 2008 by Nicolas GUILLAUME. All rights reserved.\n" \

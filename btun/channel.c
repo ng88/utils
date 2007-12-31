@@ -183,6 +183,8 @@ unsigned char channel_add_user(channel_t * c, channel_entry_t * e, option_t opt)
 {
     c_assert(c);
 
+    e->channel = NULL;
+
     size_t cc = channel_user_count(c);
 
     if(cc >= SERVER_MAX_USER_PER_CHANNEL)

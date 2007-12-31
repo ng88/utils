@@ -131,7 +131,7 @@ int connect_to_server(char * server, port_t port,
 	fprintf(stderr, "channel `%s' already exists, can't be the master.\n", channel);
 	return EXIT_FAILURE;
     case CA_CANT_CHPERM:
-	fprintf(stderr, "channel `%s' already exists, can't change permissions.\n", channel);
+	fprintf(stderr, "channel `%s' already exists, can't change permissions/options.\n", channel);
 	return EXIT_FAILURE;
     case CA_TOO_MUCH_CHANNEL:
 	fprintf(stderr, "can't create channel `%s', too much channels!\n", channel);

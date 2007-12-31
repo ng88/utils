@@ -43,6 +43,5 @@ btun "$user" "$3" "${channel}_X_1" -- nc -l -p $(( ${x_port_start} + 6000 )) &
 
 export DISPLAY=localhost:${x_port_start}.0
 
-echo Type
 emacs
 

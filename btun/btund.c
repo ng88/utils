@@ -136,7 +136,7 @@ int main(int argc, char ** argv)
     if(exe_daemon)
     {
 	dbg_printf("daemonisation...\n");
-	if(daemon(0, 0) != 0)
+	if(daemon(0, 1) != 0)
 	{
 	    perror("daemon");
 	    return EXIT_FAILURE;

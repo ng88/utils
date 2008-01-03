@@ -113,12 +113,13 @@ int start_server(user_pool_t * eu, port_t port)
 		dbg_printf("select interrupted\n");
 		if(server_run)
 		{
-		    puts("\n\nAccount list:");
+		    puts("Btund status:\n\nAccount list:");
 		    print_user_pool(existing_users, stdout);
 		    puts("\n\nConnected users:");
 		    print_entry_vector(users, stdout, true);
 		    puts("\n\nChannel list:");
 		    print_channel_pool(channels, stdout);
+		    fflush(stdout);
 		    continue;
 		}
 		break;

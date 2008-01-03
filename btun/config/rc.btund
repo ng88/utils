@@ -1,13 +1,22 @@
 #!/bin/sh
 
+tmp=/tmp/.btund.tmp___.output
+
 function start_btund()
 {
-  /usr/sbin/btund -d
+   btund -d > $tmp
 }
 
 function stop_btund()
 {
+  clearoutput
+  chmod 600 $tmp
   killall -TERM btund
+}
+
+function clearoutput()
+{
+  echo -n > $tmp
 }
 
 case "$1" in
@@ -20,7 +29,14 @@ case "$1" in
    'status')
       if ps aux | grep btund | grep -v $0 | grep -v grep > /dev/null 2>&1
       then
+	  clearoutput
           killall -HUP btund 2> /dev/null
+	  while ! [ -s $tmp ]
+	  do
+	    sleep 0.01
+	  done
+	  cat $tmp
+	  clearoutput
       else
           echo btund is not running.
       fi ;;

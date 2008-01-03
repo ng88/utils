@@ -41,7 +41,7 @@
 #ifndef DISABLE_DEBUG_PRINT
 
 #define dbg_printf(args ...) \
-          { fprintf(stderr, "debug> line %d: in %s::%s(): ", __LINE__, __FILE__, ___FUNCTION); fprintf(stderr, args); }
+          do {fprintf(stderr, "debug> line %d: in %s::%s(): ", __LINE__, __FILE__, ___FUNCTION); fprintf(stderr, args);} while(0)
 
 #else
 
@@ -54,9 +54,9 @@
 
 
 #define __assert(cond, line, file, fn, str, cond_str) \
-          { if(!cond) { fprintf(stderr, "assertion error on `" cond_str "' in "  file "::%s() at line %d: %s\n", fn, line, str); abort(); } }
+          do { if(!cond) { fprintf(stderr, "assertion error on `" cond_str "' in "  file "::%s() at line %d: %s\n", fn, line, str); abort(); } } while(0)
 #define __warning(cond, line, file, fn, str, cond_str) \
-          { if(!cond) { fprintf(stderr, "warning on `" cond_str "' in " file "::%s() at line %d: %s\n", fn, line, str) ; } }
+          do { if(!cond) { fprintf(stderr, "warning on `" cond_str "' in " file "::%s() at line %d: %s\n", fn, line, str) ; } } while(0)
 
 #else
 

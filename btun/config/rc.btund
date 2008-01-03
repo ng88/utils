@@ -4,14 +4,16 @@ tmp=/tmp/.btund.tmp___.output
 
 function start_btund()
 {
-   btund -d > $tmp
+    clearoutput
+    chmod 600 $tmp
+    /usr/sbin/btund -d > $tmp
 }
 
 function stop_btund()
 {
-  clearoutput
-  chmod 600 $tmp
-  killall -TERM btund
+    killall -TERM btund
+    sleep 0.1
+    clearoutput
 }
 
 function clearoutput()
@@ -31,10 +33,7 @@ case "$1" in
       then
 	  clearoutput
           killall -HUP btund 2> /dev/null
-	  while ! [ -s $tmp ]
-	  do
-	    sleep 0.01
-	  done
+	  sleep 0.1
 	  cat $tmp
 	  clearoutput
       else
@@ -43,9 +42,7 @@ case "$1" in
    'restart')
       echo Restarting btund...
       stop_btund
-      sleep 0.1
-      start_btund
-      sleep 0.1 ;;
+      start_btund ;;
    *)
       echo "usage $0 start|stop|restart|status" ;;
 esac

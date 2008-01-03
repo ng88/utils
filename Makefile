@@ -47,6 +47,8 @@ installbtun:
 	install -m 755 -d $(prefix)/etc/btund/
 	install -sm 755 btun/btun $(prefix)/usr/bin/
 	install -sm 755 btun/btund $(prefix)/usr/sbin/
+	install -m 755 btun/scripts/X_client.sh btun/scripts/X_server.sh $(prefix)/usr/bin/
+	install -m 755 btun/scripts/btund_add_user.sh btun/scripts/create_passfile.sh $(prefix)/usr/sbin/
 	install -m 644 btun/config/users.sample $(prefix)/etc/btund/
 
 install: installbtun installnobtun

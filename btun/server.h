@@ -23,8 +23,8 @@
 
 #define SERVER_BACKLOG 5
 
-#define SERVER_MAX_CHANNEL 50
-#define SERVER_MAX_USER_PER_CHANNEL 5
+#define SERVER_MAX_CHANNEL 100
+#define SERVER_MAX_USER_PER_CHANNEL 10
 
 
 int start_server(user_pool_t * existing_users, port_t port);
@@ -34,9 +34,9 @@ channel_entry_t * remove_user(channel_entry_t * e);
 
 bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs);
 
-int get_highest_fd(vector_t * u, int fdlist);
+int get_highest_fd(int fdlist);
 
-size_t index_from_entry(vector_t * u, channel_entry_t * e);
+size_t index_from_entry(channel_entry_t * e);
 
 void stop_server();
 

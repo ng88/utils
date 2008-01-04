@@ -32,8 +32,11 @@ typedef uint16_t port_t;
 /* channel options */
 enum
 {
+    /** master/slave channel */
     OPT_MASTER = 1,
+    /** unrestricted channel */
     OPT_UNRESTRICTED = 2,
+    /** autoclose channel */
     OPT_AUTOCLOSE = 4,
 };
 

@@ -40,8 +40,8 @@
 #define RECV_BUFF_SIZE 256
 
 
-bool run;
-pid_t ch_pid;
+static bool run;
+static pid_t ch_pid;
 
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,

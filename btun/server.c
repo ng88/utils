@@ -37,10 +37,10 @@
 
 #define RECV_BUFF_SIZE 256
 
-int server_run;
-user_pool_t * existing_users;
-channel_pool_t * channels;
-vector_t * users; /* connected users */
+static int server_run;
+static user_pool_t * existing_users;
+static channel_pool_t * channels;
+static vector_t * users; /* connected users */
 
 int start_server(user_pool_t * eu, port_t port)
 {
@@ -184,7 +184,7 @@ int start_server(user_pool_t * eu, port_t port)
 			close(next->fd);
 			FD_CLR(next->fd, &master);
 
-			size_t next_index = index_from_entry(users, next);
+			size_t next_index = index_from_entry(next);
 
 			if(next_index != (size_t)-1)
 			{
@@ -198,7 +198,7 @@ int start_server(user_pool_t * eu, port_t port)
 
 		    }
 
-		    fdmax = get_highest_fd(users, fdlisten);
+		    fdmax = get_highest_fd(fdlisten);
 
 		}
 
@@ -251,6 +251,11 @@ channel_entry_t * remove_user(channel_entry_t * e)
 	else if(count == 1 && (c->opts & OPT_AUTOCLOSE) ) /* 1 person left & we'have 
 							     an autoclose channel */
 	    return  channel_get_user_at(c, 0);
+
+	else if( (c->opts & OPT_MASTER) && !c->master) /* This was a master/slave channel
+							  but master is gone
+							*/
+	    return  channel_get_user_at(c, count - 1);
 
 
     }
@@ -470,16 +475,16 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
     return true;
 }
 
-int get_highest_fd(vector_t * u, int fdlist)
+int get_highest_fd(int fdlist)
 {
-    size_t s = vector_size(u);
+    size_t s = vector_size(users);
     size_t i;
 
     int r = fdlist;
 
     for(i = 0; i < s; i++)
     {
-	channel_entry_t * e = get_entry_at(u, i);
+	channel_entry_t * e = get_entry_at(users, i);
 	if(e->fd > r)
 	    r = e->fd;
     }
@@ -487,13 +492,13 @@ int get_highest_fd(vector_t * u, int fdlist)
     return r;
 }
 
-size_t index_from_entry(vector_t * u, channel_entry_t * e)
+size_t index_from_entry(channel_entry_t * e)
 {
-    size_t s = vector_size(u);
+    size_t s = vector_size(users);
     size_t i;
     for(i = 0; i < s; i++)
     {
-	if( get_entry_at(u, i) == e )
+	if( get_entry_at(users, i) == e )
 	    return i;
     }
 

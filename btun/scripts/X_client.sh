@@ -34,6 +34,15 @@ channel="$2"
 pass="$3"
 tmp=/tmp/XC.$$.$RANDOM
 
+function ctrlc_handler()
+{
+    echo Exiting...
+    kill -TERM $pids > /dev/null 2>&1
+    exit 5
+}
+
+trap ctrlc_handler 2
+
 # synchro avec le server et recuperation du nombre d'appli
 echo -n >$tmp
 btun "$user" -f "$pass" "${channel}_X_sync" -- $0 SYNC $tmp
@@ -64,12 +73,5 @@ btun "$user" -f "$pass" "${channel}_X_sync" << EOF
 OK
 EOF
 
-for (( i=1; i <= $nb; i++ ))
-do
-  fg > /dev/null 2>&1
-done
-
-echo Press enter to stop
-read
-kill -TERM $pids > /dev/null 2>&1
-
+echo Hit Ctrl+C to exit.
+wait

@@ -46,6 +46,15 @@ pass="$3"
 x_port_start=1
 shift 3
 
+function ctrlc_handler()
+{
+    echo Exiting...
+    kill -TERM $pids > /dev/null 2>&1
+    exit 5
+}
+
+trap ctrlc_handler 2
+
 i=0
 for c in "$@"
 do
@@ -82,8 +91,8 @@ do
   fg > /dev/null 2>&1
 done
 
-echo Press enter to stop
-read
-kill -TERM $pids > /dev/null 2>&1
+echo Hit Ctrl+C to exit.
+wait
+
 
 

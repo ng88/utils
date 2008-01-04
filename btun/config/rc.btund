@@ -14,6 +14,7 @@ function stop_btund()
     killall -TERM btund
     sleep 0.1
     clearoutput
+    rm -f $tmp
 }
 
 function clearoutput()
@@ -31,11 +32,17 @@ case "$1" in
    'status')
       if ps aux | grep btund | grep -v $0 | grep -v grep > /dev/null 2>&1
       then
+          i=0
 	  clearoutput
-          killall -HUP btund 2> /dev/null
-	  sleep 0.1
-	  cat $tmp
-	  clearoutput
+          while [ $i -lt 10 ] && ! grep 'btund status end' $tmp > /dev/null 2>&1
+          do
+            clearoutput
+            killall -HUP btund 2> /dev/null
+	    [ $i -gt 0 ] && sleep 0.1
+            (( i++ ))
+          done
+          cat $tmp
+          clearoutput
       else
           echo btund is not running.
       fi ;;

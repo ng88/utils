@@ -40,4 +40,6 @@ size_t index_from_entry(vector_t * u, channel_entry_t * e);
 
 void stop_server();
 
+void print_server_status();
+
 #endif

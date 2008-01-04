@@ -40,6 +40,7 @@
 int server_run;
 user_pool_t * existing_users;
 channel_pool_t * channels;
+vector_t * users; /* connected users */
 
 int start_server(user_pool_t * eu, port_t port)
 {
@@ -47,7 +48,7 @@ int start_server(user_pool_t * eu, port_t port)
 
     existing_users = eu;
     channels = create_channel_pool();
-    vector_t * users = create_vector(16);
+    users = create_vector(16);
 
     fd_set master;
     fd_set read_fds;
@@ -113,13 +114,7 @@ int start_server(user_pool_t * eu, port_t port)
 		dbg_printf("select interrupted\n");
 		if(server_run)
 		{
-		    puts("Btund status:\n\nAccount list:");
-		    print_user_pool(existing_users, stdout);
-		    puts("\n\nConnected users:");
-		    print_entry_vector(users, stdout, true);
-		    puts("\n\nChannel list:");
-		    print_channel_pool(channels, stdout);
-		    fflush(stdout);
+		    print_server_status();
 		    continue;
 		}
 		break;
@@ -426,6 +421,8 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 
 	dbg_printf("socket `%d' want to dispatch some data...\n", e->fd);
 
+	e->recv += (size_t)n;
+
 	k = channel_user_count(c);
 
 	if(c->master == NULL || c->master == e) 
@@ -437,6 +434,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 		{
 		    count = n;
 		    dbg_printf("socket `%d': sending data to `%d'...\n", e->fd, ce->fd);
+		    ce->sent += count;
 		    if(sendall(ce->fd, buf, &count) == -1)
 		    {
 			perror("send");
@@ -453,6 +451,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	    if(FD_ISSET(c->master->fd, fs))
 	    {
 		dbg_printf("socket `%d': sending data to master `%d'...\n", e->fd, c->master->fd);
+		c->master->sent += count;
 		if(sendall(c->master->fd, buf, &count) == -1)
 		{
 		    perror("send");
@@ -505,4 +504,17 @@ size_t index_from_entry(vector_t * u, channel_entry_t * e)
 void stop_server()
 {
     server_run = 0;
+}
+
+
+void print_server_status()
+{
+    puts("btund status:\n\nAccount list:");
+    print_user_pool(existing_users, stdout);
+    puts("\n\nConnected users:");
+    print_entry_vector(users, stdout, true);
+    puts("\n\nChannel list:");
+    print_channel_pool(channels, stdout);
+    puts("\nbtund status end");
+    fflush(stdout);
 }

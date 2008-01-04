@@ -23,7 +23,7 @@
 #define CLIENT_DATE      __DATE__
 
 #define SERVER_NAME      "btund"
-#define SERVER_VERSION   "0.5"
+#define SERVER_VERSION   "0.6"
 #define SERVER_REVISION  __SVN_HEAD__
 #define SERVER_DATE      __DATE__
 

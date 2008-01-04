@@ -257,11 +257,23 @@ void print_entry_vector(vector_t * v, FILE * f, bool showsep)
     for(i = 0; i < s; ++i)
     {
 	channel_entry_t * e = get_entry_at(v, i);
-	fprintf(f, "%s:%d (%s)\n",
+	fprintf(f, "%s:%d (",
 		e->user ? e->user->login : "unknown",
-		e->fd,
-		e->channel ? e->channel->name : "unknown"
+		e->fd
 		);
+
+	if(showsep)
+	    fprintf(f, "%s",
+		    e->channel ? e->channel->name : "unknown"
+		  );
+	else
+	    fprintf(f, "sent=%ub, recv=%ub",
+		    e->recv, e->sent
+		    /* what user sent is what server received
+		       and vice versa */
+		   );
+
+	puts(")");
     }
 
     if(showsep)
@@ -284,6 +296,8 @@ channel_entry_t * create_channel_entry(int fd)
     r->step = S_WAIT_LOGIN;
     r->channel = NULL;
     r->challenge = NULL;
+    r->sent = 0;
+    r->recv = 0;
     return r;
 }
 

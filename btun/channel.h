@@ -34,11 +34,20 @@ struct _channel_t;
 
 typedef struct
 {
+    /** Socket fd */
     int fd;
+    /** Auth step */
     step_t step;
+    /** User information */
     user_t * user;
+    /** Channel where the user is */
     struct _channel_t * channel;
+    /** The challenged proposed by server */
     char * challenge;
+    /** Amount of byte sent to this user */
+    size_t sent;
+    /** Amount of byte received from this user */
+    size_t recv;
 } channel_entry_t;
 
 

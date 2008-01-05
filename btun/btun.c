@@ -94,6 +94,7 @@ int main(int argc, char ** argv)
 		fpass = stdin;
 	    else
 	    {
+		if(fpass) fclose(fpass);
 		fpass = fopen(optarg, "rb");
 		if(!fpass)
 		{

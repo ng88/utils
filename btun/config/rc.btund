@@ -1,12 +1,14 @@
 #!/bin/sh
 
 tmp=/tmp/.btund.tmp___.output
+log=/var/log/btund
 
 function start_btund()
 {
+    [ -r $log ] || ( touch $log; chmod 600 $log )
     clearoutput
     chmod 600 $tmp
-    /usr/sbin/btund -d > $tmp
+    /usr/sbin/btund -d -l $log > $tmp
 }
 
 function stop_btund()

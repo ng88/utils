@@ -83,6 +83,7 @@ int main(int argc, char ** argv)
 	switch(optch)
 	{
 	case 'u':
+	    if(fusers) fclose(fusers);
 	    fusers = fopen(optarg, "r");
 	    if(!fusers)
 	    {
@@ -91,6 +92,7 @@ int main(int argc, char ** argv)
 	    }
 	    break;
 	case 'l':
+	    if(flog) fclose(flog);
 	    flog = fopen(optarg, "a");
 	    if(!flog)
 	    {

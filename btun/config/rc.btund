@@ -8,7 +8,7 @@ function start_btund()
     [ -r $log ] || ( touch $log; chmod 600 $log )
     clearoutput
     chmod 600 $tmp
-    /usr/sbin/btund -d -l $log > $tmp
+    /usr/sbin/btund -d -l $log > $tmp 2> /dev/null
 }
 
 function stop_btund()

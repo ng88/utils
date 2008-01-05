@@ -5,6 +5,12 @@ else
     DDPFLAGS=
 endif
 
+ifdef DONT_USE_LL
+    DULL=
+else
+    DULL=-DUSE_LL=1
+endif
+
 ifdef DEBUG
     DEBUGFLAGS=-g -ggdb -dH -D_DEBUG_=1 -DDEBUG=1
     STRIP=@echo
@@ -26,10 +32,10 @@ else
 endif
 
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS)
+CFLAGS=-W -Wall -Wno-unused $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DULL)
 LDFLAGS=
 
-SRC=common.c channel.c vector.c user.c  md5.c misc.c
+SRC=common.c channel.c vector.c user.c  md5.c misc.c stats.c
 
 SRC1=btund.c server.c $(SRC)
 OBJS1=$(SRC1:.c=.o)
@@ -48,7 +54,8 @@ client.o: bool.h common.h client.h assert.h misc.h
 common.o: protocol.h md5.h common.h bool.h assert.h
 md5.o: md5.h assert.h
 misc.o: bool.h misc.h
-server.o: user.h channel.h common.h server.h assert.h vector.h
+server.o: user.h channel.h common.h server.h assert.h vector.h stats.h
+stats.o: bool.h stats.h assert.h
 user.o: vector.h bool.h protocol.h user.h assert.h
 vector.o: vector.h assert.h
 

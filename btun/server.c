@@ -34,6 +34,7 @@
 
 #include "assert.h"
 #include "vector.h"
+#include "stats.h"
 
 #define RECV_BUFF_SIZE 256
 
@@ -41,10 +42,13 @@ static int server_run;
 static user_pool_t * existing_users;
 static channel_pool_t * channels;
 static vector_t * users; /* connected users */
+static stats_t stats;
 
 int start_server(user_pool_t * eu, port_t port)
 {
     server_run = 1;
+
+    init_stats(&stats);
 
     existing_users = eu;
     channels = create_channel_pool();
@@ -137,6 +141,8 @@ int start_server(user_pool_t * eu, port_t port)
 		perror("accept");
 	    else
 	    {
+		stats.conn_attempt++;
+
 		FD_SET(fd, &master);
 		
 		if (fd > fdmax)
@@ -412,6 +418,9 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 
 	dbg_printf("channel connection/creation for `%d':%d\n", e->fd, rep);
 
+	if(rep == CA_GRANTED)
+	    stats.conn_success++;
+
 	return (rep == CA_GRANTED);
 
     case S_AFFECTED:
@@ -427,6 +436,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	dbg_printf("socket `%d' want to dispatch some data...\n", e->fd);
 
 	e->recv += (size_t)n;
+	stats.recv += (size_t)n;
 
 	k = channel_user_count(c);
 
@@ -440,6 +450,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 		    count = n;
 		    dbg_printf("socket `%d': sending data to `%d'...\n", e->fd, ce->fd);
 		    ce->sent += count;
+		    stats.sent += count;
 		    if(sendall(ce->fd, buf, &count) == -1)
 		    {
 			perror("send");
@@ -457,6 +468,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	    {
 		dbg_printf("socket `%d': sending data to master `%d'...\n", e->fd, c->master->fd);
 		c->master->sent += count;
+		stats.sent += count;
 		if(sendall(c->master->fd, buf, &count) == -1)
 		{
 		    perror("send");
@@ -520,6 +532,8 @@ void print_server_status()
     print_entry_vector(users, stdout, true);
     puts("\n\nChannel list:");
     print_channel_pool(channels, stdout);
+    puts("\n\nServer statistics:");
+    print_stats(&stats, stdout);
     puts("\nbtund status end");
     fflush(stdout);
 }

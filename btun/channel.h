@@ -20,7 +20,7 @@
 #include "vector.h"
 #include "user.h"
 #include "bool.h"
-
+#include <netinet/in.h>
 
 typedef enum
 {
@@ -48,6 +48,8 @@ typedef struct
     size_t sent;
     /** Amount of byte received from this user */
     size_t recv;
+    /** User IP*/
+    struct in_addr ip;
 } channel_entry_t;
 
 
@@ -116,7 +118,7 @@ void print_entry_vector(vector_t * v, FILE * f, bool showsep);
 
 /*********  CHANNEL ENTRY  **********/
 
-channel_entry_t * create_channel_entry(int fd);
+channel_entry_t * create_channel_entry(int fd, struct in_addr ip);
 
 void free_channel_entry(channel_entry_t * e);
 

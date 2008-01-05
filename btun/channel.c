@@ -19,6 +19,7 @@
 #include "server.h"
 #include "assert.h"
 
+#include <arpa/inet.h>
 #include <string.h>
 
 
@@ -257,9 +258,9 @@ void print_entry_vector(vector_t * v, FILE * f, bool showsep)
     for(i = 0; i < s; ++i)
     {
 	channel_entry_t * e = get_entry_at(v, i);
-	fprintf(f, "%s:%d (",
+	fprintf(f, "%s:%d@%s (",
 		e->user ? e->user->login : "unknown",
-		e->fd
+		e->fd, inet_ntoa(e->ip)
 		);
 
 	if(showsep)
@@ -284,7 +285,7 @@ void print_entry_vector(vector_t * v, FILE * f, bool showsep)
 
 /*********  CHANNEL ENTRY  **********/
 
-channel_entry_t * create_channel_entry(int fd)
+channel_entry_t * create_channel_entry(int fd, struct in_addr ip)
 {
    channel_entry_t * r = 
 	(channel_entry_t *)malloc(sizeof(channel_entry_t));
@@ -298,6 +299,7 @@ channel_entry_t * create_channel_entry(int fd)
     r->challenge = NULL;
     r->sent = 0;
     r->recv = 0;
+    r->ip = ip;
     return r;
 }
 

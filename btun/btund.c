@@ -39,7 +39,8 @@ void usage(int ev)
           "   -h                 print this help and quit\n"
           "   -v                 print version and quit\n"
 	  "   -d                 execute server as a system daemon\n"
-	  "   -u <file>          specify the user definition file\n"
+	  "   -l <file>          log information into file\n"
+	  "   -u <file>          specify the user configuration file\n"
 	  "                      (default is " DEFAULT_USER_FILE  ")\n"
 	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
 	  "\n"
@@ -75,8 +76,9 @@ int main(int argc, char ** argv)
     port_t port = SERVER_DEFAULT_PORT;
 
     FILE * fusers = NULL;
+    FILE * flog = NULL;
 
-    while( (optch = getopt(argc, argv, "hvdp:u:")) != EOF )
+    while( (optch = getopt(argc, argv, "l:hvdp:u:")) != EOF )
     {
 	switch(optch)
 	{
@@ -85,6 +87,14 @@ int main(int argc, char ** argv)
 	    if(!fusers)
 	    {
 		fprintf(stderr, SERVER_NAME ": unable to open `%s' for reading\n", optarg);
+		return EXIT_FAILURE;
+	    }
+	    break;
+	case 'l':
+	    flog = fopen(optarg, "a");
+	    if(!flog)
+	    {
+		fprintf(stderr, SERVER_NAME ": unable to open `%s' for writing\n", optarg);
 		return EXIT_FAILURE;
 	    }
 	    break;
@@ -143,9 +153,12 @@ int main(int argc, char ** argv)
 	}
     }
 
-    int r = start_server(pool, port);
+    int r = start_server(pool, port, flog);
 
     free_user_pool(pool);
+
+    if(flog)
+	fclose(flog);
 
     return r;
 }

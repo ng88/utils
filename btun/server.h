@@ -26,8 +26,15 @@
 #define SERVER_MAX_CHANNEL 100
 #define SERVER_MAX_USER_PER_CHANNEL 10
 
+typedef enum
+{
+    LE_CONNECTION,
+    LE_USER_LOGIN,
+    LE_USER_LOGOUT,
+} log_event_t;
 
-int start_server(user_pool_t * existing_users, port_t port);
+
+int start_server(user_pool_t * existing_users, port_t port, FILE * logfile);
 
 /** remove e & return the next entry to delete */
 channel_entry_t * remove_user(channel_entry_t * e);
@@ -41,5 +48,8 @@ size_t index_from_entry(channel_entry_t * e);
 void stop_server();
 
 void print_server_status();
+
+void log_write(log_event_t le, channel_entry_t * e);
+
 
 #endif

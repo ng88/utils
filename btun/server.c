@@ -30,7 +30,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
-
+#include <time.h>
 
 #include "assert.h"
 #include "vector.h"
@@ -43,13 +43,15 @@ static user_pool_t * existing_users;
 static channel_pool_t * channels;
 static vector_t * users; /* connected users */
 static stats_t stats;
+static FILE * logfile;
 
-int start_server(user_pool_t * eu, port_t port)
+int start_server(user_pool_t * eu, port_t port, FILE * flog)
 {
     server_run = 1;
 
     init_stats(&stats);
 
+    logfile = flog;
     existing_users = eu;
     channels = create_channel_pool();
     users = create_vector(16);
@@ -147,10 +149,12 @@ int start_server(user_pool_t * eu, port_t port)
 		
 		if (fd > fdmax)
 		    fdmax = fd;
+
+		channel_entry_t * ne = create_channel_entry(fd, rmaddr.sin_addr);
+		vector_add_element(users, ne);
 		
-		vector_add_element(users,
-				   create_channel_entry(fd));
-		
+		log_write(LE_CONNECTION, ne);
+
 		dbg_printf("incoming connection from %s on socket %d\n",
 			   inet_ntoa(rmaddr.sin_addr), fd);
 	    }
@@ -241,6 +245,9 @@ int start_server(user_pool_t * eu, port_t port)
 
 channel_entry_t * remove_user(channel_entry_t * e)
 {
+
+    log_write(LE_USER_LOGOUT, e);
+
     channel_t * c = e->channel;
 
     if(c)
@@ -419,7 +426,10 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	dbg_printf("channel connection/creation for `%d':%d\n", e->fd, rep);
 
 	if(rep == CA_GRANTED)
+	{
 	    stats.conn_success++;
+	    log_write(LE_USER_LOGIN, e);
+	}
 
 	return (rep == CA_GRANTED);
 
@@ -536,4 +546,47 @@ void print_server_status()
     print_stats(&stats, stdout);
     puts("\nbtund status end");
     fflush(stdout);
+}
+
+
+void log_write(log_event_t le, channel_entry_t * e)
+{
+    c_assert(e);
+
+    if(!logfile) return;
+
+
+
+    time_t t = time(NULL);
+    struct tm * date =  localtime(&t);
+
+    fprintf(logfile, "[%02d:%02d:%02d %02d/%02d/%4d] user %s%s%s (%d) ",
+	    date->tm_hour,
+	    date->tm_min,
+	    date->tm_sec,
+	    date->tm_mday,
+	    date->tm_mon + 1,
+	    date->tm_year + 1900,
+	    e->user ? e->user->login : "",
+	    e->user ? "@" : "",
+	    inet_ntoa(e->ip), e->fd
+	);
+
+    switch(le)
+    {
+    case LE_CONNECTION:
+	fputs("connected.\n", logfile);
+	break;
+    case LE_USER_LOGIN:
+	fprintf(logfile, "logged in and has joined channel `%s'.\n", 
+		e->channel ? e->channel->name : "???"
+	    );
+	break;
+    case LE_USER_LOGOUT:
+	fputs("gone.\n", logfile);
+	break;
+    }
+
+
+    fflush(logfile);
 }

@@ -38,6 +38,6 @@ int writeall(int fd, void * src, size_t s);
 
 
 #define HANDLE_ERR(v, str) \
-    { if( (v) == -1 ) { perror(str); return EXIT_FAILURE; } }
+    do { if( (v) == -1 ) { perror(str); return EXIT_FAILURE; } } while(0)
 
 #endif

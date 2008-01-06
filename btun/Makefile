@@ -35,9 +35,9 @@ CC=gcc
 CFLAGS=-W -Wall -Wno-unused $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DULL)
 LDFLAGS=
 
-SRC=common.c channel.c vector.c user.c  md5.c misc.c stats.c
+SRC=common.c vector.c md5.c misc.c
 
-SRC1=btund.c server.c $(SRC)
+SRC1=btund.c server.c stats.c channel.c user.c $(SRC)
 OBJS1=$(SRC1:.c=.o)
 EXE1=btund
 

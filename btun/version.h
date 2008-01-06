@@ -18,12 +18,12 @@
 #define VERSION_H
 
 #define CLIENT_NAME      "btun"
-#define CLIENT_VERSION   "0.5.0"
+#define CLIENT_VERSION   "0.5.1"
 #define CLIENT_REVISION  __SVN_HEAD__
 #define CLIENT_DATE      __DATE__
 
 #define SERVER_NAME      "btund"
-#define SERVER_VERSION   "0.6.3"
+#define SERVER_VERSION   "0.6.4"
 #define SERVER_REVISION  __SVN_HEAD__
 #define SERVER_DATE      __DATE__
 

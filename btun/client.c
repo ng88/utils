@@ -48,7 +48,6 @@ int connect_to_server(char * server, port_t port,
 		      char * channel, option_t options,
 		      mode_t mode, char ** cmd_args)
 {
-
     int sockfd;
     struct sockaddr_in dest_addr;
 
@@ -78,13 +77,23 @@ int connect_to_server(char * server, port_t port,
 
     /*     SEND LOGIN    */
     int n = min_u(strlen(login) + 1, (size_t)USER_MAX_LOGIN_SIZE);
-    HANDLE_ERR(sendall(sockfd, login, &n), "sendall");
+    if(sendall(sockfd, login, &n) == -1)
+    {
+	perror("login");
+	close(sockfd);
+	return EXIT_FAILURE;
+    }
 
 
     /*    RECEIVE CHALLENGE   */
     char ch[  MMAX(CHALLENGE_SIZE, USER_MAX_CHANNEL_SIZE + 1)  ];
     n = CHALLENGE_SIZE;
-    HANDLE_ERR(recvall(sockfd, ch, &n), "recvall");
+    if(recvall(sockfd, ch, &n) == -1)
+    {
+	perror("rchallenge");
+	close(sockfd);
+	return EXIT_FAILURE;
+    }
 
     dbg_printf("challenge received, answering...\n");
 
@@ -93,15 +102,27 @@ int connect_to_server(char * server, port_t port,
     challenge_answer(ch, pass, &m);
     memset(pass, '*', strlen(pass));
     n = MD5_SIZE;
-    HANDLE_ERR(sendall(sockfd, m.digest, &n), "sendall");
+    if(sendall(sockfd, m.digest, &n) == -1)
+    {
+	perror("achallenge");
+	close(sockfd);
+	return EXIT_FAILURE;
+    }
 
     /*  RECEIVE AGREEMENT  */
     n = 1;
-    HANDLE_ERR(recvall(sockfd, ch, &n), "recvall");
+    if(recvall(sockfd, ch, &n) == -1)
+    {
+	perror("challenge agreement");
+	close(sockfd);
+	return EXIT_FAILURE;
+    }
+
     if(ch[0] != UA_GRANTED)
     {
 	fputs("login failed\n", stderr);
 	dbg_printf("login failed, error %d\n", ch[0]);
+        close(sockfd);
 	return EXIT_FAILURE;
     }
 
@@ -112,12 +133,22 @@ int connect_to_server(char * server, port_t port,
     n = min_u(strlen(channel) + 1, (size_t)USER_MAX_CHANNEL_SIZE - 1);
     strncpy(ch, channel, n);
     ch[n++] = (char)options;
-    HANDLE_ERR(sendall(sockfd, ch, &n), "sendall");
+    if(sendall(sockfd, ch, &n) == -1)
+    {
+	perror("channel");
+	close(sockfd);
+	return EXIT_FAILURE;
+    }
 
 
     /*  RECEIVE AGREEMENT  */
     n = 1;
-    HANDLE_ERR(recvall(sockfd, ch, &n), "recvall");
+    if(recvall(sockfd, ch, &n) == -1)
+    {
+	perror("channel agreement");
+	close(sockfd);
+	return EXIT_FAILURE;
+    }
 
     switch(ch[0])
     {
@@ -126,21 +157,27 @@ int connect_to_server(char * server, port_t port,
 	break;
     case CA_DENIED:
 	fprintf(stderr, "can't join channel `%s': permission denied\n", channel);
+        close(sockfd);
 	return EXIT_FAILURE;
     case CA_CANT_BE_MASTER:
 	fprintf(stderr, "channel `%s' already exists, can't be the master.\n", channel);
+        close(sockfd);
 	return EXIT_FAILURE;
     case CA_CANT_CHPERM:
 	fprintf(stderr, "channel `%s' already exists, can't change permissions/options.\n", channel);
+        close(sockfd);
 	return EXIT_FAILURE;
     case CA_TOO_MUCH_CHANNEL:
 	fprintf(stderr, "can't create channel `%s', too much channels!\n", channel);
+        close(sockfd);
 	return EXIT_FAILURE;
     case CA_TOO_MUCH_USER:
 	fprintf(stderr, "can't join channel `%s', too much users!\n", channel);
+        close(sockfd);
 	return EXIT_FAILURE;
     default:
 	fprintf(stderr, "can't join channel `%s', error %d\n", channel, ch[0]);
+        close(sockfd);
 	return EXIT_FAILURE;
     }
 
@@ -161,6 +198,7 @@ int connect_to_server(char * server, port_t port,
 	break;
     }
 
+    close(sockfd);
     dbg_printf("client halted.\n");
 
     return EXIT_SUCCESS;

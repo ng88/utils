@@ -233,6 +233,7 @@ int start_server(user_pool_t * eu, port_t port, FILE * flog)
     for(i = 0; i < s; ++i)
     {
 	channel_entry_t * e = get_entry_at(users, i);
+	close(e->fd);
 	if(!e->channel)
 	    free_channel_entry(e);
     }

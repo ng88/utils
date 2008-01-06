@@ -85,11 +85,6 @@ do
 done
 
 
-for c in "$@"
-do
-  fg > /dev/null 2>&1
-  fg > /dev/null 2>&1
-done
 
 echo Hit Ctrl+C to exit.
 wait

@@ -28,7 +28,7 @@ make mrproper || exit 1
 make daemon max_uptime range rsh xoror $* || exit 1
 make installnobtun $* prefix=slack || exit 1
 
-rev=$(sed -n 's/.*revision="\([^"]*\)".*/\1/gp' .svn/entries | sort -nr | head -1)
+rev=$(common/get_svn_rev.sh)
 name="ng-utils-rev$rev-$(uname -m).tgz"
 
 cd slack

@@ -70,7 +70,7 @@ $(EXE2): svnrev $(OBJS2)
 .PHONY: clean mrproper svnrev
 
 svnrev:
-	@sed -n 's/.*revision="\([^"]*\)".*/\1/gp' .svn/entries | sort -nr | head -1 > last_svn_rev~
+	@../common/get_svn_rev.sh > last_svn_rev~
 
 clean:
 	@rm -f *.o */*.o *~ core *.core core.* *.tmp

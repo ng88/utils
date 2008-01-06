@@ -50,7 +50,7 @@ install -m 755 -d slack/etc/rc.d/
 install -m 644 btun/config/rc.btund slack/etc/rc.d/
 rm -f slack/etc/btund/users
 
-rev=$(sed -n 's/.*revision="\([^"]*\)".*/\1/gp' .svn/entries | sort -nr | head -1)
+rev=$(common/get_svn_rev.sh)
 name="btun-rev$rev-$(uname -m).tgz"
 
 cd slack

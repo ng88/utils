@@ -27,8 +27,10 @@ endif
 
 ifdef REV
     REVFLAGS=-D__SVN_HEAD__=\"$(REV)\"
+    REVCMD=true
 else
     REVFLAGS=-D__SVN_HEAD__=\"`cat last_svn_rev~`\"
+    REVCMD=../common/get_svn_rev.sh
 endif
 
 CC=gcc
@@ -70,7 +72,7 @@ $(EXE2): svnrev $(OBJS2)
 .PHONY: clean mrproper svnrev
 
 svnrev:
-	@../common/get_svn_rev.sh > last_svn_rev~
+	@$(REVCMD) > last_svn_rev~
 
 clean:
 	@rm -f *.o */*.o *~ core *.core core.* *.tmp

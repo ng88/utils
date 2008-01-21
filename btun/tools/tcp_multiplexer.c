@@ -1,3 +1,19 @@
+/***************************************************************************
+ *   This file is part of the 'utils' projects                             *
+ *                                                                         *
+ *   'utils' projects                                                      *
+ *                                                                         *
+ *   Copyright (C) 2006, 2008 by GUILLAUME Nicolas                         *
+ *   ng@ngsoft-fr.com                                                      *
+ *                                                                         *
+ *   http://svn.ngsoft-fr.com/trac/utils/                                  *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; version 2 of the License only.          *
+ *   See the COPYING file.                                                 *
+ ***************************************************************************/                                                                
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,6 +29,50 @@
 
 
 #include <netinet/in.h>
+
+/**
+
+      L'idée est d'avoir d'implémenter un multpilexeur TCP
+
+      C'est à dire un genre de nc capable de transmettre plusieurs
+      connexions à travers l'entrée et la sortie standard
+
+
+      Exemple d'utilisation désirée :
+
+        client http / ssh
+
+              /\
+              ||
+              \/
+
+
+      tcp_multiplexer -l 80 -l 22 # ecoute sur les ports 22/80
+                
+              /\
+             /||\
+              ||
+
+         stdin/stdout # pourra etre remplacé par un tunnel btun
+
+              ||
+             \||/
+              \/
+
+      tcp_multiplexer localhost # connecte les ports 22/80 sur localhost
+
+              /\
+              ||
+              \/
+
+         httpd / sshd
+
+	
+      Cela permettra de faire des tunnels TCP avec btun (entre autre)
+      Car nc ne fait passer qu'une connexion à la fois.
+
+
+*/
 
 enum
 {

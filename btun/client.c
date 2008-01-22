@@ -372,6 +372,8 @@ void run_cmd_pty(int sockfd, char ** args)
 
 char * read_passphrase(char * buff, size_t size)
 {
+    c_assert(buff);
+
     fputs("Enter passphrase: ", stdout);
     fflush(stdout);
 

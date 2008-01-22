@@ -34,6 +34,8 @@ user_pool_t * create_user_pool()
 
 bool read_delim_string(char* s, int max, char sep, FILE * f)
 {
+    c_assert(s && f);
+
     int i;
     int c;
     for(i = 0; i < max; ++i)
@@ -58,6 +60,8 @@ bool read_delim_string(char* s, int max, char sep, FILE * f)
 
 void read_users_from_file(user_pool_t * p, FILE * f)
 {
+    c_assert(p && f);
+
     enum { BSIZE = 2 };
     char login[USER_MAX_LOGIN_SIZE + 1];
     char pass[USER_MAX_PASS_SIZE + 1];
@@ -106,7 +110,7 @@ void read_users_from_file(user_pool_t * p, FILE * f)
 
 user_t * get_user_from_name(user_pool_t * p, char * login)
 {
-    c_assert(p);
+    c_assert(p && login);
 
     size_t s = user_count(p);
     size_t i;
@@ -122,7 +126,7 @@ user_t * get_user_from_name(user_pool_t * p, char * login)
 
 void print_user_pool(user_pool_t * p, FILE * f)
 {
-    c_assert(p);
+    c_assert(p && f);
 
     size_t s = user_count(p);
     size_t i;
@@ -155,6 +159,8 @@ void free_user_pool(user_pool_t * p)
 
 user_t * create_user(char * login, char * pass)
 {
+    c_assert(login && pass);
+
     user_t * r = 
 	(user_t *)malloc(sizeof(user_t));
 
@@ -168,7 +174,7 @@ user_t * create_user(char * login, char * pass)
 
 void print_user(user_t * u, FILE * f)
 {
-    c_assert(u);
+    c_assert(u && f);
 
     fprintf(f, "%s\n", u->login);
 }

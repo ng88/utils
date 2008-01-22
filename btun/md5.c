@@ -103,6 +103,8 @@ static unsigned char PADDING[64] = {
 void MD5Init_ppp (mdContext)
 MD5_CTX_ppp *mdContext;
 {
+    c_assert(mdContext);
+
   mdContext->i[0] = mdContext->i[1] = (UINT4)0;
 
   /* Load magic initialization constants.
@@ -122,6 +124,8 @@ MD5_CTX_ppp *mdContext;
 unsigned char *inBuf;
 unsigned int inLen;
 {
+    c_assert(mdContext && inBuf);
+
   UINT4 in[16];
   int mdi;
   unsigned int i, ii;
@@ -158,6 +162,9 @@ unsigned int inLen;
 void MD5Final_ppp (mdContext)
 MD5_CTX_ppp *mdContext;
 {
+
+    c_assert(mdContext);
+
   UINT4 in[16];
   int mdi;
   unsigned int i, ii;
@@ -300,7 +307,7 @@ UINT4 *in;
 
 void MD5Print(MD5_CTX_ppp * m, FILE * f)
 {
-    c_assert(m);
+    c_assert(m && f);
 
     int i;
 

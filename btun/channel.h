@@ -118,7 +118,7 @@ void print_entry_vector(vector_t * v, FILE * f, bool showsep);
 
 /*********  CHANNEL ENTRY  **********/
 
-channel_entry_t * create_channel_entry(int fd, struct in_addr ip);
+channel_entry_t * create_channel_entry(int fd, struct in_addr * ip);
 
 void free_channel_entry(channel_entry_t * e);
 

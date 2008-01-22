@@ -14,11 +14,6 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
-/* TODO
-   option -d (lancement en demon)
-   option pty
-   option master (celui qui demarre en master envoir a tout le monde)
- */
 
 #include "server.h"
 
@@ -150,7 +145,7 @@ int start_server(user_pool_t * eu, port_t port, FILE * flog)
 		if (fd > fdmax)
 		    fdmax = fd;
 
-		channel_entry_t * ne = create_channel_entry(fd, rmaddr.sin_addr);
+		channel_entry_t * ne = create_channel_entry(fd, &rmaddr.sin_addr);
 		vector_add_element(users, ne);
 		
 		log_write(LE_CONNECTION, ne);
@@ -292,6 +287,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
     switch(e->step)
     {
     case S_WAIT_LOGIN:
+
 	str = NULL;
 
 	if(n >= USER_MAX_LOGIN_SIZE) /* login full or too long*/
@@ -329,6 +325,9 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	break;
 
     case S_WAIT_CHALLENGE:
+
+	if(!e->challenge) /* protocol violation */
+	    return false;
 
 	rep = UA_GRANTED;
 
@@ -390,7 +389,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 		return false;
 	}
 
-	c_assert(str);
+	c_assert(str); /* should never fail */
 
 	dbg_printf("user on socket `%d' want to join the channel named `%s' (%d)\n",
 		   e->fd, str, opt);

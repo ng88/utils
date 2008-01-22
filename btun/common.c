@@ -28,6 +28,8 @@
 
 int sendall(int fd, char * buff, int * size)
 {
+    c_assert(buff && size);
+
     int total = 0;
     int bytesleft = *size;
     int n;
@@ -51,6 +53,8 @@ int sendall(int fd, char * buff, int * size)
 
 int recvall(int fd, char * buff, int * size)
 {
+    c_assert(buff && size);
+
     int total = 0;
     int bytesleft = *size;
     int n;
@@ -97,6 +101,8 @@ char * create_challenge()
 
 void challenge_answer(char * ch, char * pass, MD5_CTX_ppp * m)
 {
+    c_assert(ch && pass && m);
+
     MD5Init_ppp(m);
 
     MD5Update_ppp(m, ch, CHALLENGE_SIZE);
@@ -108,6 +114,8 @@ void challenge_answer(char * ch, char * pass, MD5_CTX_ppp * m)
 
 int writeall(int fd, void * src, size_t s)
 {
+    c_assert(s == 0 || (s && src));
+
     while(s)
     {
 	int lu = write(fd, src, s);

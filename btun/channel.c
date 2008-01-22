@@ -110,6 +110,8 @@ void free_channel_pool(channel_pool_t * p)
 
 void print_channel_pool(channel_pool_t * p, FILE * f)
 {
+    c_assert(p && f);
+
     size_t i;
     size_t s = channel_count(p);
 
@@ -143,6 +145,8 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
 
 channel_t * create_channel(char * name)
 {
+    c_assert(name);
+
    channel_t * r = 
 	(channel_t *)malloc(sizeof(channel_t));
 
@@ -182,7 +186,7 @@ void channel_del_user_from_channel(channel_t * c, channel_entry_t * e)
 
 unsigned char channel_add_user(channel_t * c, channel_entry_t * e, option_t opt)
 {
-    c_assert(c);
+    c_assert(c && c);
 
     e->channel = NULL;
 
@@ -247,7 +251,7 @@ void free_channel(channel_t * c)
 
 void print_entry_vector(vector_t * v, FILE * f, bool showsep)
 {
-    c_assert(v);
+    c_assert(v && f);
 
     size_t i;
     size_t s = vector_size(v);
@@ -285,8 +289,10 @@ void print_entry_vector(vector_t * v, FILE * f, bool showsep)
 
 /*********  CHANNEL ENTRY  **********/
 
-channel_entry_t * create_channel_entry(int fd, struct in_addr ip)
+channel_entry_t * create_channel_entry(int fd, struct in_addr * ip)
 {
+    c_assert(ip);
+
    channel_entry_t * r = 
 	(channel_entry_t *)malloc(sizeof(channel_entry_t));
 
@@ -299,7 +305,7 @@ channel_entry_t * create_channel_entry(int fd, struct in_addr ip)
     r->challenge = NULL;
     r->sent = 0;
     r->recv = 0;
-    r->ip = ip;
+    r->ip = *ip;
     return r;
 }
 

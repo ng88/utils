@@ -26,15 +26,30 @@
 #include <string.h>
 
 
+/*
+  NOTE : en fait, faire ca avec dynamique seulement, ca sera plus simple
+
+
+
+*/
+
+
 static char * static_plug_name = 
                      {
+#ifdef STP_COMPRESS		      
 			 "compress",
+#endif
+#ifdef STP_XOROR
 			 "xoror",
+#endif
+#ifdef STP_SSL
 			 "aes128",
 			 "aes256",
+#endif
 		     };
 
 #define PLUG_STATIC_COUNT (sizeof(static_plug_name) / sizeof(char*))
+
 
 plugin_info_t * plugin_for_index(size_t s)
 {
@@ -43,6 +58,10 @@ plugin_info_t * plugin_for_index(size_t s)
     /* static */
     if(s < PLUG_STATIC_COUNT)
     {
+	size_t i = 0;
+#ifdef STP_COMPRESS
+#endif
+
 	switch(s)
 	{
 	case 0: return compress_plugin_init()
@@ -59,6 +78,9 @@ plugin_info_t * plugin_for_index(size_t s)
     return NULL;
 
 }
+
+
+
 
 plugin_info_t * plugin_for_name(char * name)
 {

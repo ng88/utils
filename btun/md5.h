@@ -2,7 +2,7 @@
  *   btun/btund is a powerful backward tunnel creator                         *
  *                                                                            *
  *   An user guide is available on:                                           *
- *    http://abygaelle.guillaume-fr.net/trac/utils/wiki/BtunUserGuideEnglish  *
+ *    http://svn.ngsoft-fr.com/trac/utils/wiki/BtunUserGuideEnglish           *
  *                                                                            *
  ******************************************************************************/
  

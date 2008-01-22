@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -z "$1" ] || touch "$1" > /dev/null 2>&1
+
 if [ -z "$1" -o ! -w "$1" ]
 then
     echo "usage: $0 user_file" >&2

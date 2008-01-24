@@ -40,8 +40,11 @@ void plugin_system_free(plugin_system_t * e);
 
 void plugin_system_add(plugin_system_t * e, plugin_info_t * plug);
 
-void plugin_system_encode(plugin_system_t * e, char * in, char * out);
-void plugin_system_decode(plugin_system_t * e, char * in, char * out);
+size_t plugin_system_encode(plugin_system_t * e, char * in,
+			     size_t s, char ** out);
+
+size_t plugin_system_decode(plugin_system_t * e, char * in,
+			     size_t s, char ** out);
 
 plugin_info_t * plugin_for_name(char * name);
 
@@ -49,13 +52,6 @@ void plugin_free(plugin_info_t * p);
 
 const char * plugin_error();
 
-#define plugin_encode(p, in, out) \
-     do { c_assert((p) && (p)->encoder && (in) && (out)); \
-          (*p->encoder)((p), (in), (out)); } while(0)
-
-#define plugin_decode(p, in, out) \
-     do { c_assert((p) && (p)->encoder && (in) && (out)); \
-          (*p->decoder)((p), (in), (out)); } while(0)
 
 #define plugin_system_count(e) vector_size((e)->list)
 

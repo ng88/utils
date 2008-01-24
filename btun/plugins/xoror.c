@@ -41,30 +41,31 @@ void bt_plugin_init(plugin_info_t * p)
 void bt_plugin_destroy(plugin_info_t * p)
 {
     cryptor_free((cryptor*)p->data);
+
+    if(p->buffer)
+	free(p->buffer);
 }
 
 size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
-    static char * buff = NULL;
-    static size_t old_size = 0;
 
-    if(!buff) /* first time */
+    if(!p->buffer) /* first time */
     {
-	old_size = s;
-	buff = (char*)malloc(s);
+	p->buffer_size = s;
+	p->buffer = (char*)malloc(s);
     }
-    else if(s > old_size) /* damn! we need a larger buffer */
+    else if(s > p->buffer_size) /* damn! we need a larger buffer */
     {
-	old_size = s;
-	buff = (char*)realloc(buff, s);
+	p->buffer_size = s;
+	p->buffer = (char*)realloc(p->buffer, s);
     }
 
-    if(!buff)
+    if(!p->buffer)
 	return BT_ERROR;
 
-    encrypt_data(in, buff, (cryptor*)p->data, s);
+    encrypt_data(in, p->buffer, (cryptor*)p->data, s);
 
-    *out = buff;
+    *out = p->buffer;
 
     return s;
 

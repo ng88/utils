@@ -5,14 +5,6 @@ else
     DDPFLAGS=
 endif
 
-ifdef DISABLE_PLUGIN
-    PLUGFLAGS=
-    PLUGLIB=
-else
-    PLUGFLAGS=-DBTUN_DL_PLUGIN=1
-    PLUGLIB=-rdynamic -ldl
-endif
-
 ifdef DONT_USE_LL
     DULL=
 else
@@ -75,9 +67,10 @@ $(EXE1): svnrev $(OBJS1)
 	$(STRIP) $@ > /dev/null
 
 $(EXE2): svnrev $(OBJS2)
-	$(CC) $(OBJS2) -o $@ $(LDFLAGS) $(PLUGLIB)
+	$(CC) $(OBJS2) -o $@ $(LDFLAGS) -rdynamic -ldl
 	$(STRIP) $@ > /dev/null
-	@if [ -n "$(PLUGFLAGS)" ]; then echo Making plugins...; $(MAKE) -C plugins; fi
+	@echo Making plugins...
+	@$(MAKE) -C plugins
 
 .PHONY: clean mrproper svnrev
 

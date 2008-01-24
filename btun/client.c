@@ -50,12 +50,18 @@
 
 static bool run;
 static pid_t ch_pid;
+static plugin_system_t * plugins;
 
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
 		      char * channel, option_t options,
-		      mode_t mode, char ** cmd_args)
+		      mode_t mode, char ** cmd_args,
+		      plugin_system_t * plug)
 {
+    c_assert(server && pass && login && channel);
+
+    plugins = plug;
+
     int sockfd;
     struct sockaddr_in dest_addr;
 
@@ -229,6 +235,7 @@ void run_normal(int sockfd, int in, int out)
     fd_set fds;
 
     char buf[RECV_BUFF_SIZE];
+    char * plugbuf;
     int n;
 
     int fdmax = max_s(sockfd, in);
@@ -245,9 +252,22 @@ void run_normal(int sockfd, int in, int out)
 	{
 	    if(FD_ISSET(in, &fds)) /* stdin */
 	    {
+
 		n = read(in, buf, RECV_BUFF_SIZE);
-		if(n <= 0 || sendall(sockfd, buf, &n) == -1)
+		if(n > 0)
+		{
+		    plugbuf = buf;
+
+		    if(plugins)
+			n = (int)plugin_system_encode(plugins, buf,
+						       (size_t)n, &plugbuf);
+
+		    if(n == -1 || sendall(sockfd, plugbuf, &n) == -1)
+			run = false;
+		}
+		else
 		    run = false;
+
 	    }
 
 	    if(run && FD_ISSET(sockfd, &fds))

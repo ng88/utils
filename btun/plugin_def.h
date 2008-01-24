@@ -37,7 +37,6 @@ typedef void (*fn_plug_free_t)(struct splugin_info_t * p);
 typedef size_t (*fn_plug_inout_t)(struct splugin_info_t * p, char * in,
 				  size_t s, char ** out);
 
-
 typedef struct splugin_info_t
 {
     /** Plugin name */
@@ -52,6 +51,8 @@ typedef struct splugin_info_t
     /** Can be used by plugin to store 
 	its satus or some needed data */
     void * data;
+    char * buffer;
+    size_t buffer_size;
 
     fn_plug_free_t destructor;
     fn_plug_inout_t encoder;

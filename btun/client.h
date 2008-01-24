@@ -28,6 +28,7 @@
 
 #include "bool.h"
 #include "common.h"
+#include "plugin.h"
 
 typedef enum
 {
@@ -41,7 +42,8 @@ typedef enum
 int connect_to_server(char * server, port_t port,
 		      char * login, char * pass,
 		      char * channel, option_t options,
-		      mode_t m,  char ** cmd_args);
+		      mode_t m,  char ** cmd_args,
+		      plugin_system_t * plug);
 
 void stop_client();
 

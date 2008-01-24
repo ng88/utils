@@ -45,7 +45,7 @@
 #include "assert.h"
 #include "misc.h"
 
-#define RECV_BUFF_SIZE 256
+#define RECV_BUFF_SIZE 768
 
 
 static bool run;
@@ -273,7 +273,18 @@ void run_normal(int sockfd, int in, int out)
 	    if(run && FD_ISSET(sockfd, &fds))
 	    {
 		n = recv(sockfd, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
-		if(n <= 0 || writeall(out, buf, n) == -1)
+		if(n > 0)
+		{
+		    plugbuf = buf;
+
+		    if(plugins)
+			n = (int)plugin_system_decode(plugins, buf,
+						       (size_t)n, &plugbuf);
+
+		    if(n == -1 || writeall(out, plugbuf, n) == -1)
+			run = false;
+		}
+		else
 		    run = false;
 	    }
 
@@ -282,9 +293,7 @@ void run_normal(int sockfd, int in, int out)
     }
 }
 
-
-
-void run_cmd(int sockfd, char ** args)
+void run_cmd2(int sockfd, char ** args)
 {
 
     c_assert(args && args[0]);
@@ -306,6 +315,50 @@ void run_cmd(int sockfd, char ** args)
     }
     else if(ch_pid > 0) /* pere */
     {
+	wait(NULL);
+    }
+    else
+	perror("fork");
+
+}
+
+void run_cmd(int sockfd, char ** args)
+{
+
+    c_assert(args && args[0]);
+
+    int p_in[2];
+    int p_out[2];
+
+    if(pipe(p_in) == -1 || pipe(p_out) == -1)
+	perror("pipe");
+
+    ch_pid = fork();
+
+    if(ch_pid == 0) /* fils */
+    {
+	close(0);
+	close(1);
+	close(2);
+	dup(p_in[0]);
+	dup(p_out[1]);
+	dup(p_out[1]);
+
+	//close(p_in[1]);
+	//close(p_out[0]);
+	close(sockfd);
+
+	execvp(args[0], args);
+	perror("exec");
+	_exit(1);
+    }
+    else if(ch_pid > 0) /* pere */
+    {
+
+	//close(p_in[1]);
+	//close(p_out[0]);
+
+	run_normal(sockfd, p_out[0], p_in[1]);
 	wait(NULL);
     }
     else
@@ -385,6 +438,9 @@ void run_cmd_pty(int sockfd, char ** args)
     }
     else if(ch_pid > 0) /* pere */
     {
+	close(0);
+	close(1);
+	close(2);
 
 	close(fds);
 

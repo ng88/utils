@@ -39,7 +39,7 @@
 #include "vector.h"
 #include "stats.h"
 
-#define RECV_BUFF_SIZE 256
+#define RECV_BUFF_SIZE 512
 
 static int server_run;
 static user_pool_t * existing_users;

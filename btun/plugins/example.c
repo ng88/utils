@@ -22,41 +22,76 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/
 
-//include path
+
 #include "../plugin_def.h"
-#include "../../xoror/xoror.h"
+#include <stdio.h>
+#include <ctype.h>
 
+/* This is a plugin example
+   It simply put the input in upper case.
 
+   It does not decode.
+ */
+
+/** We have to fill some field...
+ */
 void bt_plugin_init(plugin_info_t * p)
 {
-    p->name = "xoror";
-    p->desc = "xor encryptor plugin";
-    p->author = "Nicolas GUILLAUME";
-    p->version = LAST_ALGO_VERSION;
-
-    p->data = cryptor_new("xoror test key", 815);
+    p->name = "uppercase";
+    p->desc = "a WONDERFUL plugin :)";
+    p->author = "me";
+    p->version = 1;
 }
 
-
+/** Free resources
+ */
 void bt_plugin_destroy(plugin_info_t * p)
 {
-    cryptor_free((cryptor*)p->data);
+    /* Free the buffer, if it has been used */
+    if(p->buffer)
+	free(p->buffer);
 }
 
+/** Encode the output stream (sent to server)
+ *   p contains the plugin information
+ *   in is the input buffer
+ *   s is the length of the data in the input buffer
+ *   out must be set to our output buffer
+ * And we have to return the size of the data it contains.
+ */
 size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
 
-    encrypt_data(in, in, (cryptor*)p->data, s);
+   /* We dont need an output buffer larger that the input buffer
+    and the transformation is easy.
+
+    So we just change the input buffer and return it.
+
+    For an example with an ouput buffer, see the compress plugin.
+   */
+
+
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+	in[i] = toupper(in[i]);
+
+
+    /* set the output buffer */
+    *out = in;
+
+    return s;
+}
+
+/** Same thing as encode, but decode input stream (received from server)
+ */
+size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
+{
+    /* our plugin does not decode */
 
     *out = in;
 
     return s;
-
-}
-
-size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
-{
-    return bt_plugin_encode(p, in, s, out);
 }
 
 

@@ -293,6 +293,7 @@ void run_normal(int sockfd, int in, int out)
     }
 }
 
+/* old version, without run_normal()
 void run_cmd2(int sockfd, char ** args)
 {
 
@@ -300,7 +301,7 @@ void run_cmd2(int sockfd, char ** args)
 
     ch_pid = fork();
 
-    if(ch_pid == 0) /* fils */
+    if(ch_pid == 0)
     {
 	close(0);
 	close(1);
@@ -313,14 +314,15 @@ void run_cmd2(int sockfd, char ** args)
 	perror("exec");
 	_exit(1);
     }
-    else if(ch_pid > 0) /* pere */
+    else if(ch_pid > 0)
     {
 	wait(NULL);
     }
     else
 	perror("fork");
 
-}
+}*/
+
 
 void run_cmd(int sockfd, char ** args)
 {

@@ -1,18 +1,21 @@
 
 CC=gcc
 CFLAGS=-W -Wall -Wno-unused -O3
-LDFLAGS=
+LDFLAGS=-shared -fPIC
 
 LIBEXT=so
 
-all: xoror.$(LIBEXT)
+all: xoror.$(LIBEXT) compress.$(LIBEXT)
 
 
 xoror.$(LIBEXT): xoror.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -fPIC -o xoror.so xoror.c ../../xoror/xoror.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o xoror.so xoror.c ../../xoror/xoror.c
 
 example.$(LIBEXT): example.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -fPIC -o example.so example.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o example.so example.c
+
+compress.$(LIBEXT): compress.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o compress.so compress.c
 
 
 

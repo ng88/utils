@@ -132,6 +132,8 @@ plugin_info_t * plugin_for_name(char * name)
 	r->decoder = (fn_plug_inout_t *)lt_dlsym(r->m, "bt_plugin_decode");
     }
 
+    dbg_printf("%p %p %p\n", init,& plugin_for_name, r->destructor);
+
     if(init) (*init)(r);
 
     if(!r->m || !r->name || !r->destructor

@@ -40,7 +40,7 @@ int sendall(int fd, char * buff, int * size)
 
     int total = 0;
     int bytesleft = *size;
-    int n;
+    int n = -1;
 
     while(total < *size)
     {
@@ -65,7 +65,7 @@ int recvall(int fd, char * buff, int * size)
 
     int total = 0;
     int bytesleft = *size;
-    int n;
+    int n = -1;
 
     while(total < *size)
     {

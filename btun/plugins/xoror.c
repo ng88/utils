@@ -20,73 +20,59 @@
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; version 2 of the License only.          *
  *   See the COPYING file.                                                 *
- ***************************************************************************/                                                                
+ ***************************************************************************/
 
-#ifndef PLUGIN_DEF_H
-#define PLUGIN_DEF_H
-
-#include <stdlib.h>
-
-#ifdef BTUN_DL_PLUGIN
-#include <ltdl.h>
-#endif
-
-#define BT_ERROR ((size_t)-1)
-
-struct splugin_info_t;
-
-typedef void (*fn_plug_init_t)(struct splugin_info_t * p);
-typedef void (*fn_plug_free_t)(struct splugin_info_t * p);
-typedef size_t (*fn_plug_inout_t)(struct splugin_info_t * p, char * in,
-				  size_t s, char ** out);
+//include path
+#include "../plugin_def.h"
+#include "../../xoror/xoror.h"
 
 
-typedef struct splugin_info_t
+void xoror_LTX_bt_plugin_init(plugin_info_t * p)
 {
-    /** Plugin name */
-    char * name;
-    /** Plugin short description */
-    char * desc;
-    /** Plugin's author name */
-    char * author;
-    /** Plugin version */
-    unsigned short version;
-    
-    /** Can be used by plugin to store 
-	its satus or some needed data */
-    void * data;
+    p->name = "xoror";
+    p->desc = "xor encryptor plugin";
+    p->author = "Nicolas GUILLAUME";
+    p->version = LAST_ALGO_VERSION;
 
-    fn_plug_free_t * destructor;
-    fn_plug_inout_t * encoder;
-    fn_plug_inout_t * decoder;
-
-#ifdef BTUN_DL_PLUGIN
-    lt_dlhandle  m;
-#endif
-
-} plugin_info_t;
+    p->data = cryptor_new("xoror test key", 815);
+}
 
 
+void xoror_LTX_bt_plugin_destroy(plugin_info_t * p)
+{
+    cryptor_free((cryptor*)p->data);
+}
+
+size_t xoror_LTX_bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
+{
+    static char * buff = NULL;
+    static size_t old_size = 0;
+
+    if(!buff) /* first time */
+    {
+	old_size = s;
+	buff = (char*)malloc(s);
+    }
+    else if(s > old_size) /* damn! we need a larger buffer */
+    {
+	old_size = s;
+	buff = (char*)realloc(buff, s);
+    }
+
+    if(!buff)
+	return BT_ERROR;
+
+    encrypt_data(in, buff, (cryptor*)p->data, s);
+
+    *out = buff;
+
+    return s;
+
+}
+
+size_t xoror_LTX_bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
+{
+    return xoror_LTX_bt_plugin_encode(p, in, s, out);
+}
 
 
-/*
-
-// init plugin & return its information
-void bt_plugin_init(plugin_info_t * p);
-
-// destroy plugin
-void bt_plugin_destroy(plugin_info_t * p);
-
-// request plugin to encode/decode data, buffer size of in & out is PLUGIN_BUFF_SIZE
-// s is the number of byte to process
-// return the number of byte that we must transfer from out or BT_ERROR on error
-// plugin MUST have it's own output buffer on set out to it
-size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out);
-size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out);
-
-
-
-*/
-
-
-#endif

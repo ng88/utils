@@ -42,7 +42,7 @@ else
 endif
 
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DULL) $(PLUGFLAGS)
+CFLAGS=-W -Wall -Wno-unused -O3 $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DULL) $(PLUGFLAGS)
 LDFLAGS=
 
 SRC=common.c vector.c md5.c misc.c
@@ -77,6 +77,7 @@ $(EXE1): svnrev $(OBJS1)
 $(EXE2): svnrev $(OBJS2)
 	$(CC) $(OBJS2) -o $@ $(LDFLAGS) $(PLUGLIB)
 	$(STRIP) $@ > /dev/null
+	@if [ -n "$(PLUGFLAGS)" ]; then echo Making plugins...; $(MAKE) -C plugins; fi
 
 .PHONY: clean mrproper svnrev
 
@@ -85,9 +86,11 @@ svnrev:
 
 clean:
 	@rm -f *.o */*.o *~ core *.core core.* *.tmp
+	$(MAKE) -C plugins clean
 
 mrproper: clean
 	@rm -f $(EXE1) $(EXE2)
+	$(MAKE) -C plugins mrproper
 
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)

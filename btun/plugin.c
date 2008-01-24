@@ -147,9 +147,8 @@ plugin_info_t * plugin_for_name(char * name)
     return r;
 }
 
-const char * plugin_error(plugin_system_t * e)
+const char * plugin_error()
 {
-    (void)e;
     return lt_dlerror();
 }
 
@@ -167,7 +166,11 @@ void plugin_system_encode(plugin_system_t * e, char * in, char * out) {}
 void plugin_system_decode(plugin_system_t * e, char * in, char * out) {}
 plugin_info_t * plugin_for_name(char * name) { return NULL; }
 void plugin_free(plugin_info_t * p) {}
-const char * plugin_error(plugin_system_t * e) { return NULL; }
+const char * plugin_error()
+{
+    return "plugin system has been disbaled in your version of btun."
+	   "Try to compile it again with make ENABLE_PLUGIN=1.";
+}
 
 #endif
 

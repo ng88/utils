@@ -36,6 +36,8 @@
 #include "protocol.h"
 #include "misc.h"
 
+#include "plugin.h"
+
 
 void usage(int ev)
 {
@@ -74,6 +76,39 @@ void stop_client_handler(int s)
     stop_client();
 }
 
+
+plugin_system_t * load_plugin(plugin_system_t * e, char * n)
+{
+    plugin_system_t * plugins = e;
+
+    if(!plugins)
+    {
+	plugins = plugin_system_create();
+	if(!plugins)
+	{
+	    fprintf(stderr, 
+		    CLIENT_NAME
+		    ": unable to load the plugin system: %s\n",
+		    plugin_error());
+	    exit(EXIT_FAILURE);
+	}
+    }
+    plugin_info_t * plug = plugin_for_name(n);
+
+    if(!plug)
+    {
+	fprintf(stderr, 
+		CLIENT_NAME
+		": unable to load plugin `%s': %s\n",
+		n, plugin_error());
+	exit(EXIT_FAILURE);
+    }
+
+    plugin_system_add(plugins, plug);
+
+    return plugins;
+}
+
 int main(int argc, char ** argv)
 {
 
@@ -91,9 +126,10 @@ int main(int argc, char ** argv)
 
     char ** cmd_args = NULL;
 
+    plugin_system_t * plugins = NULL;
 
 
-    while( (optch = getopt(argc, argv, "ahvmurtf:p:")) != EOF )
+    while( (optch = getopt(argc, argv, "s:ahvmurtf:p:")) != EOF )
     {
 	switch(optch)
 	{
@@ -110,6 +146,9 @@ int main(int argc, char ** argv)
 		    return EXIT_FAILURE;
 		}
 	    }
+	    break;
+	case 's':
+	    plugins = load_plugin(plugins, optarg);
 	    break;
 	case 'p':
 	    port = atoi(optarg);

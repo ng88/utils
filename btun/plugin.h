@@ -47,7 +47,7 @@ plugin_info_t * plugin_for_name(char * name);
 
 void plugin_free(plugin_info_t * p);
 
-const char * plugin_error(plugin_system_t * e);
+const char * plugin_error();
 
 #define plugin_encode(p, in, out) \
      do { c_assert((p) && (p)->encoder && (in) && (out)); \

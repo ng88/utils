@@ -32,18 +32,14 @@
 struct splugin_info_t;
 
 
-typedef enum
-{
-    PS_ERROR = -1,
-    PS_FATAL_ERROR = 0,
-    PS_SUCESS = 1,
-} ps_t;
+
 
 
 
 typedef void (*fn_plug_init_t)(struct splugin_info_t * p);
 typedef void (*fn_plug_free_t)(struct splugin_info_t * p);
-typedef ps_t (*fn_plug_inout_t)(struct splugin_info_t * p, char * in, char * out);
+typedef size_t (*fn_plug_inout_t)(struct splugin_info_t * p, char * in,
+				  size_t s, char ** out);
 
 
 typedef struct splugin_info_t
@@ -72,8 +68,6 @@ typedef struct splugin_info_t
 } plugin_info_t;
 
 
-/** Size of the buffer that btun allow for the plugins */
-#define PLUGIN_BUFF_SIZE 256
 
 
 /*
@@ -85,8 +79,11 @@ void bt_plugin_init(plugin_info_t * p);
 void bt_plugin_destroy(plugin_info_t * p);
 
 // request plugin to encode/decode data, buffer size of in & out is PLUGIN_BUFF_SIZE
-ps_t bt_plugin_encode(plugin_info_t * p, char * in, char * out);
-ps_t bt_plugin_decode(plugin_info_t * p, char * in, char * out);
+// s is the number of byte to process
+// return the number of byte that we must transfer from out or -1 on error
+// plugin MUST have it's own output buffer on set out to it
+size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out);
+size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out);
 
 
 

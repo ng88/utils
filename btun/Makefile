@@ -5,6 +5,14 @@ else
     DDPFLAGS=
 endif
 
+ifdef ENABLE_PLUGIN
+    PLUGFLAGS=-DBTUN_DL_PLUGIN=1
+    PLUGLIB=-lltdl
+else
+    PLUGFLAGS=
+    PLUGLIB=
+endif
+
 ifdef DONT_USE_LL
     DULL=
 else
@@ -34,7 +42,7 @@ else
 endif
 
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DULL)
+CFLAGS=-W -Wall -Wno-unused $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DULL) $(PLUGFLAGS)
 LDFLAGS=
 
 SRC=common.c vector.c md5.c misc.c
@@ -43,7 +51,7 @@ SRC1=btund.c server.c stats.c channel.c user.c $(SRC)
 OBJS1=$(SRC1:.c=.o)
 EXE1=btund
 
-SRC2=btun.c client.c $(SRC)
+SRC2=btun.c client.c plugin.c $(SRC)
 OBJS2=$(SRC2:.c=.o)
 EXE2=btun
 
@@ -60,13 +68,14 @@ server.o: user.h channel.h common.h server.h assert.h vector.h stats.h
 stats.o: bool.h stats.h assert.h
 user.o: vector.h bool.h protocol.h user.h assert.h
 vector.o: vector.h assert.h
+plugin.o: plugin.h plugin_def.h
 
 $(EXE1): svnrev $(OBJS1)
 	$(CC) $(OBJS1) -o $@ $(LDFLAGS)
 	$(STRIP) $@ > /dev/null
 
 $(EXE2): svnrev $(OBJS2)
-	$(CC) $(OBJS2) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS2) -o $@ $(LDFLAGS) $(PLUGLIB)
 	$(STRIP) $@ > /dev/null
 
 .PHONY: clean mrproper svnrev

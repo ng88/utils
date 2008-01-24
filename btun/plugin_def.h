@@ -25,14 +25,28 @@
 #ifndef PLUGIN_DEF_H
 #define PLUGIN_DEF_H
 
+#ifdef BTUN_DL_PLUGIN
+#include <ltdl.h>
+#endif
+
+struct splugin_info_t;
 
 
-typedef plugin_info_t * (*fn_plug_init_t)();
-typedef void (*fn_plug_free_t)(plugin_info_t * p);
-typedef ps_t (*fn_plug_inout_t)(plugin_info_t * p, char * in, char * out);
+typedef enum
+{
+    PS_ERROR = -1,
+    PS_FATAL_ERROR = 0,
+    PS_SUCESS = 1,
+} ps_t;
 
 
-typedef struct
+
+typedef void (*fn_plug_init_t)(struct splugin_info_t * p);
+typedef void (*fn_plug_free_t)(struct splugin_info_t * p);
+typedef ps_t (*fn_plug_inout_t)(struct splugin_info_t * p, char * in, char * out);
+
+
+typedef struct splugin_info_t
 {
     /** Plugin name */
     char * name;
@@ -51,14 +65,11 @@ typedef struct
     fn_plug_inout_t * encoder;
     fn_plug_inout_t * decoder;
 
-} plugin_info_t;
+#ifdef BTUN_DL_PLUGIN
+    lt_dlhandle  m;
+#endif
 
-typedef enum
-{
-    PS_ERROR = -1,
-    PS_FATAL_ERROR = 0,
-    PS_SUCESS = 1,
-} ps_t;
+} plugin_info_t;
 
 
 /** Size of the buffer that btun allow for the plugins */
@@ -68,14 +79,14 @@ typedef enum
 /*
 
 // init plugin & return its information
-plugin_info_t * my_plugin_init();
+void bt_plugin_init(plugin_info_t * p);
 
 // destroy plugin
-void my_plugin_destroy(plugin_info_t * p);
+void bt_plugin_destroy(plugin_info_t * p);
 
 // request plugin to encode/decode data, buffer size of in & out is PLUGIN_BUFF_SIZE
-ps_t my_plugin_encode(plugin_info_t * p, char * in, char * out);
-ps_t my_plugin_decode(plugin_info_t * p, char * in, char * out);
+ps_t bt_plugin_encode(plugin_info_t * p, char * in, char * out);
+ps_t bt_plugin_decode(plugin_info_t * p, char * in, char * out);
 
 
 

@@ -267,7 +267,7 @@ int main(int argc, char ** argv)
 
 
     if(plugins)
-	fprintf(stderr, "WARNING: the plugin feature is experimental!\n");
+	fprintf(stderr, "WARNING: the plugin feature and the provided plugins are experimental!\n");
 
     int ret = connect_to_server(host, port, login, pass, channel,
 			     opts, mode, cmd_args, plugins);

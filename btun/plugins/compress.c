@@ -23,12 +23,13 @@
  ***************************************************************************/
 
 #include "../plugin_def.h"
+#include <zlib.h>
 
 
 void bt_plugin_init(plugin_info_t * p)
 {
     p->name = "compress";
-    p->desc = "compression plugin";
+    p->desc = "zlib compression plugin";
     p->author = "Nicolas GUILLAUME";
     p->version = 1;
 }
@@ -57,37 +58,53 @@ void ensure_buffer_size(plugin_info_t * p, size_t s)
 
 size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
-
-    ensure_buffer_size(p, s);
+    /*
+      Normaly, output buffer must be at least input * 1.001 + 12.
+      We take input * 1.01 + 12 to avoid any risk of buffer overflow.
+     */
+    ensure_buffer_size(p, (int)(((float)s) * 1.01 + 12.00) + 1);
     if(!p->buffer)
 	return BT_ERROR;
 
 
-/* TODO -- TODO -- TODO COMPRESS HERE
- */
-
+    uLongf ns = p->buffer_size;
+    if(compress2(p->buffer, &ns, in, s, 9) != Z_OK)
+	return BT_ERROR;
 
     *out = p->buffer;
 
-    return s;
+    return ns;
 
 }
+
+/* It remains a bug that get the client crash sometime...
+ */
 
 size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
 
-    ensure_buffer_size(p, s);
+    ensure_buffer_size(p, s * 2);
     if(!p->buffer)
 	return BT_ERROR;
 
 
-/* TODO -- TODO -- TODO UNCOMPRESS HERE
- */
+    uLongf ns = p->buffer_size;
+    int ret;
 
+    do
+    {/* I think there is someting wrong here... to be checked */
+	ret = uncompress(p->buffer, &ns, in, s);
+	ensure_buffer_size(p, p->buffer_size * 2);
+    }
+    while(ret == Z_BUF_ERROR);
+
+
+    if(ret != Z_OK)
+	return BT_ERROR;
 
     *out = p->buffer;
 
-    return s;
+    return ns;
 }
 
 

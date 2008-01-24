@@ -15,7 +15,7 @@ example.$(LIBEXT): example.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o example.so example.c
 
 compress.$(LIBEXT): compress.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o compress.so compress.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -lz -o compress.so compress.c
 
 
 

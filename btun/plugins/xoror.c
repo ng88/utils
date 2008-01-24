@@ -27,7 +27,7 @@
 #include "../../xoror/xoror.h"
 
 
-void xoror_LTX_bt_plugin_init(plugin_info_t * p)
+void bt_plugin_init(plugin_info_t * p)
 {
     p->name = "xoror";
     p->desc = "xor encryptor plugin";
@@ -38,12 +38,12 @@ void xoror_LTX_bt_plugin_init(plugin_info_t * p)
 }
 
 
-void xoror_LTX_bt_plugin_destroy(plugin_info_t * p)
+void bt_plugin_destroy(plugin_info_t * p)
 {
     cryptor_free((cryptor*)p->data);
 }
 
-size_t xoror_LTX_bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
+size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
     static char * buff = NULL;
     static size_t old_size = 0;
@@ -70,9 +70,9 @@ size_t xoror_LTX_bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char *
 
 }
 
-size_t xoror_LTX_bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
+size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
-    return xoror_LTX_bt_plugin_encode(p, in, s, out);
+    return bt_plugin_encode(p, in, s, out);
 }
 
 

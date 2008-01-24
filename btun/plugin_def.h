@@ -27,9 +27,6 @@
 
 #include <stdlib.h>
 
-#ifdef BTUN_DL_PLUGIN
-#include <ltdl.h>
-#endif
 
 #define BT_ERROR ((size_t)-1)
 
@@ -56,13 +53,11 @@ typedef struct splugin_info_t
 	its satus or some needed data */
     void * data;
 
-    fn_plug_free_t * destructor;
-    fn_plug_inout_t * encoder;
-    fn_plug_inout_t * decoder;
+    fn_plug_free_t destructor;
+    fn_plug_inout_t encoder;
+    fn_plug_inout_t decoder;
 
-#ifdef BTUN_DL_PLUGIN
-    lt_dlhandle  m;
-#endif
+    void * module;
 
 } plugin_info_t;
 

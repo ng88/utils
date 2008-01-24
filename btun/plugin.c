@@ -28,29 +28,15 @@
 
 #ifdef BTUN_DL_PLUGIN
 
-#include <ltdl.h>
-
-static short int bdl_count = 0;
+#include <dlfcn.h>
 
 plugin_system_t * plugin_system_create()
 {
-
-    if(bdl_count == 0)
-    {
-	if(lt_dlinit())
-	    return NULL;
-	else
-	    lt_dladdsearchdir("plugins");
-    }
-
-    bdl_count++;
-
     plugin_system_t * r = (plugin_system_t *)malloc(sizeof(plugin_system_t));
     c_assert2(r, "malloc failed");
 
     r->list = create_vector(2);
 
-    bdl_count++;
     return r;
 }
 
@@ -72,18 +58,13 @@ void plugin_system_free(plugin_system_t * e)
     free_vector(e->list, 0);
     free(e);
 
-    bdl_count--;
-
-    if(bdl_count == 0)
-	lt_dlexit();
-
 }
 void plugin_free(plugin_info_t * p)
 {
     c_assert(p && p->destructor);
 
     (*p->destructor)(p);
-    lt_dlclose(p->m);
+    dlclose(p->module);
     free(p);
 }
 
@@ -91,7 +72,7 @@ void plugin_system_add(plugin_system_t * e, plugin_info_t * p)
 {
     c_assert(p && e);
 
-    dbg_printf("inserting plugin `%s'...\n", p->name);
+    dbg_printf("inserting plugin `%s' version %u...\n", p->name, p->version);
 
     vector_add_element(e->list, p);
 }
@@ -122,21 +103,21 @@ plugin_info_t * plugin_for_name(char * name)
     r->version = 0;
     r->data = NULL;
 
-    fn_plug_init_t * init = NULL;
+    fn_plug_init_t init = NULL;
 
-    if( (r->m = lt_dlopenext(name)) )
+    if( (r->module = dlopen(name, RTLD_NOW)) )
     {
-	init = (fn_plug_init_t *)lt_dlsym(r->m, "bt_plugin_init");
-	r->destructor = (fn_plug_free_t *)lt_dlsym(r->m, "bt_plugin_destroy");
-	r->encoder = (fn_plug_inout_t *)lt_dlsym(r->m, "bt_plugin_encode");
-	r->decoder = (fn_plug_inout_t *)lt_dlsym(r->m, "bt_plugin_decode");
+	init = (fn_plug_init_t)dlsym(r->module, "bt_plugin_init");
+	r->destructor = (fn_plug_free_t)dlsym(r->module, "bt_plugin_destroy");
+	r->encoder = (fn_plug_inout_t)dlsym(r->module, "bt_plugin_encode");
+	r->decoder = (fn_plug_inout_t)dlsym(r->module, "bt_plugin_decode");
     }
 
     dbg_printf("%p %p %p\n", init,& plugin_for_name, r->destructor);
 
     if(init) (*init)(r);
 
-    if(!r->m || !r->name || !r->destructor
+    if(!r->module || !r->name || !r->destructor
        || !r->encoder || !r->decoder || !init)
     {
 	dbg_printf("plugin `%s' cannot be loaded .\n", name);
@@ -151,7 +132,7 @@ plugin_info_t * plugin_for_name(char * name)
 
 const char * plugin_error()
 {
-    return lt_dlerror();
+    return dlerror();
 }
 
 #else

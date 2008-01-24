@@ -5,12 +5,12 @@ else
     DDPFLAGS=
 endif
 
-ifdef ENABLE_PLUGIN
-    PLUGFLAGS=-DBTUN_DL_PLUGIN=1
-    PLUGLIB=-lltdl
-else
+ifdef DISABLE_PLUGIN
     PLUGFLAGS=
     PLUGLIB=
+else
+    PLUGFLAGS=-DBTUN_DL_PLUGIN=1
+    PLUGLIB=-rdynamic -ldl
 endif
 
 ifdef DONT_USE_LL

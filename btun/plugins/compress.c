@@ -23,7 +23,10 @@
  ***************************************************************************/
 
 #include "../plugin_def.h"
+#include "../assert.h"
 #include <zlib.h>
+
+#define MIN_BUF_SIZE 256
 
 
 void bt_plugin_init(plugin_info_t * p)
@@ -32,6 +35,10 @@ void bt_plugin_init(plugin_info_t * p)
     p->desc = "zlib compression plugin";
     p->author = "ng";
     p->version = 1;
+
+    p->buffer_size = MIN_BUF_SIZE;
+    p->buffer = (char*)malloc(MIN_BUF_SIZE);
+
 }
 
 
@@ -41,23 +48,44 @@ void bt_plugin_destroy(plugin_info_t * p)
 	free(p->buffer);
 }
 
+size_t next_power_of_two(size_t k)
+{
+    size_t i;
+    k--;
+    for (i = 1;  i < sizeof(k) * 8; i *= 2)
+	k = k | k >> i;
+
+    return k + 1;
+}
+
 /* ensure that the buffer is big enough */
 void ensure_buffer_size(plugin_info_t * p, size_t s)
 {
+    dbg_printf("begin ensure_buffer_size(%p, %u)\n", p, s);
+
+    s = next_power_of_two(s);
+
+    dbg_printf(" -> next pow of 2 %u\n", s);
+
     if(!p->buffer) /* first time */
     {
 	p->buffer_size = s;
 	p->buffer = (char*)malloc(s);
+	dbg_printf(" -> new, sized to %u\n", s);
     }
     else if(s > p->buffer_size) /* damn! we need a larger buffer */
     {
 	p->buffer_size = s;
 	p->buffer = (char*)realloc(p->buffer, s);
+	dbg_printf(" -> resized to %u\n", s);
     }
+
+    dbg_printf("end ensure_buffer_size(%p, %u)\n", p, s);
 }
 
 size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
+    dbg_printf("encode(%p, %p, %u, ?)\n", p, in, s);
     /*
       Normaly, output buffer must be at least input * 1.001 + 12.
       We take input * 1.01 + 12 to avoid any risk of buffer overflow.
@@ -66,10 +94,13 @@ size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
     if(!p->buffer)
 	return BT_ERROR;
 
-
+    int st;
     uLongf ns = p->buffer_size;
-    if(compress2(p->buffer, &ns, in, s, 9) != Z_OK)
+    if( (st=compress2(p->buffer, &ns, in, s, 9)) != Z_OK)
+    {
+	dbg_printf("compress2 error %d\n", st);
 	return BT_ERROR;
+    }
 
     *out = p->buffer;
 
@@ -82,25 +113,32 @@ size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 
 size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
+    dbg_printf("decode(%p, %p, %u, ?)\n", p, in, s);
 
-    ensure_buffer_size(p, s * 2);
-    if(!p->buffer)
-	return BT_ERROR;
-
-
-    uLongf ns = p->buffer_size;
+    uLongf ns = s;
     int ret;
 
     do
     {/* I think there is someting wrong here... to be checked */
+	ensure_buffer_size(p, ns * 2);
+
+	if(!p->buffer)
+	    return BT_ERROR;
+	else
+	    ns = p->buffer_size;
+
 	ret = uncompress(p->buffer, &ns, in, s);
-	ensure_buffer_size(p, p->buffer_size * 2);
+
+
+	dbg_printf("pass1 %lu\n", ns);
     }
     while(ret == Z_BUF_ERROR);
 
-
     if(ret != Z_OK)
+    {
+	dbg_printf("uncompress error %d\n", ret);
 	return BT_ERROR;
+    }
 
     *out = p->buffer;
 

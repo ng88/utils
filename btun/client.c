@@ -45,7 +45,7 @@
 #include "assert.h"
 #include "misc.h"
 
-#define RECV_BUFF_SIZE 768
+#define RECV_BUFF_SIZE 640
 
 
 static bool run;

@@ -31,9 +31,10 @@ void bt_plugin_init(plugin_info_t * p)
 {
     p->name = "xoror";
     p->desc = "xor encryptor plugin";
-    p->author = "Nicolas GUILLAUME";
+    p->author = "ng";
     p->version = LAST_ALGO_VERSION;
 
+   /* may depend on user passphrase */
     p->data = cryptor_new("xoror test key", 815);
 }
 

@@ -183,4 +183,16 @@ const char * plugin_error()
 }
 
 
+void print_plugin_info(plugin_info_t * p, FILE * f)
+{
+    c_assert(p);
+
+    fprintf(f, "Plugin %s v%u: %s (%s)\n",
+	    (p->name ? p->name : "???"),
+	    p->version,
+	    (p->desc ? p->desc : "???"),
+	    (p->author ? p->author : "???")   
+	);
+
+}
 

@@ -52,6 +52,8 @@ void plugin_free(plugin_info_t * p);
 
 const char * plugin_error();
 
+void print_plugin_info(plugin_info_t * p, FILE * f);
+
 
 #define plugin_system_count(e) vector_size((e)->list)
 

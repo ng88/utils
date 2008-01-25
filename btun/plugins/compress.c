@@ -30,7 +30,7 @@ void bt_plugin_init(plugin_info_t * p)
 {
     p->name = "compress";
     p->desc = "zlib compression plugin";
-    p->author = "Nicolas GUILLAUME";
+    p->author = "ng";
     p->version = 1;
 }
 
@@ -62,7 +62,7 @@ size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
       Normaly, output buffer must be at least input * 1.001 + 12.
       We take input * 1.01 + 12 to avoid any risk of buffer overflow.
      */
-    ensure_buffer_size(p, (int)(((float)s) * 1.01 + 12.00) + 1);
+    ensure_buffer_size(p, (size_t)(((float)s) * 1.01 + 12.00) + 1);
     if(!p->buffer)
 	return BT_ERROR;
 

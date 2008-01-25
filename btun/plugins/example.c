@@ -39,7 +39,7 @@ void bt_plugin_init(plugin_info_t * p)
 {
     p->name = "uppercase";
     p->desc = "a WONDERFUL plugin :)";
-    p->author = "me";
+    p->author = "ng";
     p->version = 1;
 }
 

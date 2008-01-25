@@ -63,13 +63,24 @@ void usage(int ev)
     exit(ev);
 }
 
-void print_version()
+void print_version(plugin_system_t * e)
 {
     puts(CLIENT_NAME " version " CLIENT_VERSION " (r" CLIENT_REVISION ")"
 	 " - protocol version " PROTOCOL_VERSION "\n"
 	 "   compiled " CLIENT_DATE "\n\n"
 	 SC_COPYRIGHT
 	);
+
+    if(e)
+    {
+	size_t i;
+	size_t n = plugin_system_count(e);
+  
+	for(i = 0; i < n; ++i)
+	    print_plugin_info(plugin_system_at(e, i), stdout);
+
+	putchar('\n');
+    }
 
     exit(EXIT_SUCCESS);
 }
@@ -172,7 +183,7 @@ int main(int argc, char ** argv)
 	    opts |= OPT_UNRESTRICTED;
 	    break;
 	case 'v':
-	    print_version();
+	    print_version(plugins);
 	    break;
 	case 'h':
 	    usage(EXIT_SUCCESS);

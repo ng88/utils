@@ -32,7 +32,7 @@
 
 struct splugin_info_t;
 
-typedef void (*fn_plug_init_t)(struct splugin_info_t * p);
+typedef int (*fn_plug_init_t)(struct splugin_info_t * p);
 typedef void (*fn_plug_free_t)(struct splugin_info_t * p);
 typedef size_t (*fn_plug_inout_t)(struct splugin_info_t * p, char * in,
 				  size_t s, char ** out);
@@ -60,6 +60,9 @@ typedef struct splugin_info_t
 
     void * module;
 
+    int argc;
+    char ** argv;
+
 } plugin_info_t;
 
 
@@ -68,7 +71,8 @@ typedef struct splugin_info_t
 /*
 
 // init plugin & return its information
-void bt_plugin_init(plugin_info_t * p);
+// return 0 on failure
+int bt_plugin_init(plugin_info_t * p);
 
 // destroy plugin
 void bt_plugin_destroy(plugin_info_t * p);

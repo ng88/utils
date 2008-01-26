@@ -35,6 +35,7 @@
 #include "version.h"
 #include "protocol.h"
 #include "misc.h"
+#include "vector.h"
 
 #include "plugin.h"
 
@@ -91,7 +92,7 @@ void stop_client_handler(int s)
 }
 
 
-plugin_system_t * load_plugin(plugin_system_t * e, char * n)
+plugin_system_t * load_plugin(plugin_system_t * e, vector_t * v, char * n)
 {
     plugin_system_t * plugins = e;
 
@@ -107,7 +108,8 @@ plugin_system_t * load_plugin(plugin_system_t * e, char * n)
 	    exit(EXIT_FAILURE);
 	}
     }
-    plugin_info_t * plug = plugin_for_name(n);
+    plugin_info_t * plug = plugin_for_namev(n, v);
+    vector_clear(v, 0);
 
     if(!plug)
     {
@@ -141,9 +143,10 @@ int main(int argc, char ** argv)
     char ** cmd_args = NULL;
 
     plugin_system_t * plugins = NULL;
+    vector_t * plugins_args = create_vector(1);
+    char * plugins_name = NULL;
 
-
-    while( (optch = getopt(argc, argv, "s:ahvmurtf:p:")) != EOF )
+    while( (optch = getopt(argc, argv, "o:s:ahvmurtf:p:")) != EOF )
     {
 	switch(optch)
 	{
@@ -162,7 +165,21 @@ int main(int argc, char ** argv)
 	    }
 	    break;
 	case 's':
-	    plugins = load_plugin(plugins, optarg);
+	    if(plugins_name)
+	    {
+		plugins = load_plugin(plugins, plugins_args, plugins_name);
+		free(plugins_name);
+	    }
+
+	    plugins_name = strdup(optarg);
+	    break;
+	case 'o':
+	    if(!plugins_name)
+	    {
+		fputs(CLIENT_NAME ": -o option can't be used without -s.\n", stderr);
+		return EXIT_FAILURE;
+	    }
+	    vector_add_element(plugins_args, strdup(optarg));
 	    break;
 	case 'p':
 	    port = atoi(optarg);
@@ -192,6 +209,12 @@ int main(int argc, char ** argv)
 	    usage(EXIT_FAILURE);
 	    break;
 	}
+    }
+
+    if(plugins_name)
+    {
+	plugins = load_plugin(plugins, plugins_args, plugins_name);
+	free(plugins_name);
     }
 
     /*         LOGIN AND HOST       */
@@ -286,6 +309,7 @@ int main(int argc, char ** argv)
     if(plugins)
 	plugin_system_free(plugins);
 
+    free_vector(plugins_args, 1);
 
     return ret;
 }

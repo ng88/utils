@@ -62,6 +62,16 @@ void plugin_free(plugin_info_t * p)
     c_assert(p && p->destructor);
 
     (*p->destructor)(p);
+
+    if(p->argv)
+    {
+	int i;
+	for(i = 0; i < p->argc; ++i)
+	    free(p->argv[i]);
+
+	free(p->argv);
+    }
+
     dlclose(p->module);
     free(p);
 }
@@ -135,9 +145,10 @@ size_t plugin_system_decode(plugin_system_t * e, char * in,
 }
 
 
-plugin_info_t * plugin_for_name(char * name)
+plugin_info_t * plugin_for_name(char * name, int argc, char ** argv)
 {
     c_assert(name);
+    c_assert( argc == 0 || (argc && argv) );
 
     plugin_info_t * r = (plugin_info_t *)malloc(sizeof(plugin_info_t));
     c_assert2(r, "malloc failed");
@@ -149,6 +160,8 @@ plugin_info_t * plugin_for_name(char * name)
     r->data = NULL;
     r->buffer = NULL;
     r->buffer_size = 0;
+    r->argc = argc;
+    r->argv = argv;
 
     fn_plug_init_t init = NULL;
 
@@ -162,7 +175,12 @@ plugin_info_t * plugin_for_name(char * name)
 	r->decoder = (fn_plug_inout_t)dlsym(r->module, "bt_plugin_decode");
     }
 
-    if(init) (*init)(r);
+    if(init)
+    {
+	if( !(*init)(r) )
+          /* plugin init failed */
+	    return NULL;
+    }
 
     if(!r->module || !r->name || !r->destructor
        || !r->encoder || !r->decoder || !init)
@@ -175,6 +193,26 @@ plugin_info_t * plugin_for_name(char * name)
     dbg_printf("plugin `%s' loaded .\n", name);
 
     return r;
+}
+
+plugin_info_t * plugin_for_namev(char * name, vector_t * v)
+{
+    c_assert(v && name);
+
+    int argc = (int)vector_size(v);
+    char ** argv = NULL;
+
+    if(argc)
+    {
+	argv = (char**)malloc(sizeof(char*) * argc);
+	c_assert2(argv, "malloc failed");
+
+	int i;
+	for(i = 0; i < argc; ++i)
+	    argv[i] = vector_get_element_at(v, (size_t)i);
+    }
+
+    return plugin_for_name(name, argc, argv);
 }
 
 const char * plugin_error()

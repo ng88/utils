@@ -46,7 +46,16 @@ size_t plugin_system_encode(plugin_system_t * e, char * in,
 size_t plugin_system_decode(plugin_system_t * e, char * in,
 			     size_t s, char ** out);
 
-plugin_info_t * plugin_for_name(char * name);
+/** Load plugin named 'name' and initialize it.
+    argc && argv are the plugin arguments, if argc == 0 then
+    argv can be NULL.
+    Return NULL on error.
+  */
+plugin_info_t * plugin_for_name(char * name, int argc, char ** argv);
+
+/** Same as above execpt it read arguments from a vector.
+ */
+plugin_info_t * plugin_for_namev(char * name, vector_t * v);
 
 void plugin_free(plugin_info_t * p);
 

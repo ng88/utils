@@ -48,6 +48,7 @@ void vector_add_element(vector_t * v, vector_elt_t e);
 size_t vector_size(vector_t * v);
 size_t vector_capacity(vector_t * v);
 
+void vector_clear(vector_t * v, int free_elt);
 
 void free_vector(vector_t * v, int free_elt);
 

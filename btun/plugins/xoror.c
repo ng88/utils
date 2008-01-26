@@ -22,12 +22,11 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/
 
-//include path
 #include "../plugin_def.h"
 #include "../../xoror/xoror.h"
 
 
-void bt_plugin_init(plugin_info_t * p)
+int bt_plugin_init(plugin_info_t * p)
 {
     p->name = "xoror";
     p->desc = "xor encryptor plugin";
@@ -36,6 +35,8 @@ void bt_plugin_init(plugin_info_t * p)
 
    /* may depend on user passphrase */
     p->data = cryptor_new("xoror test key", 815);
+
+    return (p->data != NULL);
 }
 
 

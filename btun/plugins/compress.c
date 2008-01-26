@@ -29,7 +29,7 @@
 #define MIN_BUF_SIZE 256
 
 
-void bt_plugin_init(plugin_info_t * p)
+int bt_plugin_init(plugin_info_t * p)
 {
     p->name = "compress";
     p->desc = "zlib compression plugin";
@@ -39,13 +39,14 @@ void bt_plugin_init(plugin_info_t * p)
     p->buffer_size = MIN_BUF_SIZE;
     p->buffer = (char*)malloc(MIN_BUF_SIZE);
 
+    return (p->buffer != NULL);
+
 }
 
 
 void bt_plugin_destroy(plugin_info_t * p)
 {
-    if(p->buffer)
-	free(p->buffer);
+    free(p->buffer);
 }
 
 size_t next_power_of_two(size_t k)

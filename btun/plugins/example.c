@@ -35,12 +35,24 @@
 
 /** We have to fill some field...
  */
-void bt_plugin_init(plugin_info_t * p)
+int bt_plugin_init(plugin_info_t * p)
 {
     p->name = "uppercase";
     p->desc = "a WONDERFUL plugin :)";
     p->author = "ng";
     p->version = 1;
+
+    /* plugin can have argument
+       they are stored in p->argc & p->argv
+ 
+    int i;
+    for(i = 0; i < p->argc;  ++i)
+	printf("  plugin argv[%d] = `%s'\n", i, p->argv[i]);
+
+    */
+
+   /* init success */
+    return 1;
 }
 
 /** Free resources
@@ -69,7 +81,6 @@ size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 
     For an example with an ouput buffer, see the compress plugin.
    */
-
 
     size_t i;
 

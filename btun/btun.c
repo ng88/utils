@@ -134,6 +134,7 @@ int main(int argc, char ** argv)
     port_t port = SERVER_DEFAULT_PORT;
     FILE * fpass = NULL;
     option_t opts = 0;
+    bool show_version = false;
 
     char * channel;
     char * host;
@@ -200,7 +201,7 @@ int main(int argc, char ** argv)
 	    opts |= OPT_UNRESTRICTED;
 	    break;
 	case 'v':
-	    print_version(plugins);
+	    show_version = true;
 	    break;
 	case 'h':
 	    usage(EXIT_SUCCESS);
@@ -216,6 +217,9 @@ int main(int argc, char ** argv)
 	plugins = load_plugin(plugins, plugins_args, plugins_name);
 	free(plugins_name);
     }
+
+    if(show_version)
+	print_version(plugins);
 
     /*         LOGIN AND HOST       */
     if(argc - optind < 2)

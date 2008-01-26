@@ -22,11 +22,10 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/
 
-#include "../plugin_def.h"
-#include "../assert.h"
+
+#include "common.h"
 #include <zlib.h>
 
-#define MIN_BUF_SIZE 256
 
 
 int bt_plugin_init(plugin_info_t * p)
@@ -47,41 +46,6 @@ int bt_plugin_init(plugin_info_t * p)
 void bt_plugin_destroy(plugin_info_t * p)
 {
     free(p->buffer);
-}
-
-size_t next_power_of_two(size_t k)
-{
-    size_t i;
-    k--;
-    for (i = 1;  i < sizeof(k) * 8; i *= 2)
-	k = k | k >> i;
-
-    return k + 1;
-}
-
-/* ensure that the buffer is big enough */
-void ensure_buffer_size(plugin_info_t * p, size_t s)
-{
-    dbg_printf("begin ensure_buffer_size(%p, %u)\n", p, s);
-
-    s = next_power_of_two(s);
-
-    dbg_printf(" -> next pow of 2 %u\n", s);
-
-    if(!p->buffer) /* first time */
-    {
-	p->buffer_size = s;
-	p->buffer = (char*)malloc(s);
-	dbg_printf(" -> new, sized to %u\n", s);
-    }
-    else if(s > p->buffer_size) /* damn! we need a larger buffer */
-    {
-	p->buffer_size = s;
-	p->buffer = (char*)realloc(p->buffer, s);
-	dbg_printf(" -> resized to %u\n", s);
-    }
-
-    dbg_printf("end ensure_buffer_size(%p, %u)\n", p, s);
 }
 
 size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)

@@ -23,7 +23,7 @@
  ***************************************************************************/
 
 
-#include "../plugin_def.h"
+#include "common.h"
 #include <stdio.h>
 #include <ctype.h>
 

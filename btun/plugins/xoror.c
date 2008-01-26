@@ -22,7 +22,7 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/
 
-#include "../plugin_def.h"
+#include "common.h"
 #include "../../xoror/xoror.h"
 
 

@@ -103,8 +103,6 @@ int bt_plugin_init(plugin_info_t * p)
     return 1;
 }
 
-/** Free resources
- */
 void bt_plugin_destroy(plugin_info_t * p)
 {
     if(p->buffer)
@@ -113,6 +111,8 @@ void bt_plugin_destroy(plugin_info_t * p)
     free( ((hd_t*)p->data)->header );
     free(p->data);
 }
+
+
 size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
 
@@ -147,7 +147,6 @@ size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
 
     /* we look for the first \r\n\r\n sequence */
 
-    char * res = NULL;
     size_t i;
     for(i = 0; i < s - 3; ++i)
     {

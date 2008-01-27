@@ -16,7 +16,9 @@ void ensure_buffer_size(plugin_info_t * p, size_t s)
 {
     size_t old = s;
     s = next_power_of_two(s);
-    dbg_printf("new needed size %u (%u)\n", s, old);
+
+    if(s < MIN_BUF_SIZE)
+	s = MIN_BUF_SIZE;
 
     if(!p->buffer) /* first time */
     {
@@ -28,7 +30,6 @@ void ensure_buffer_size(plugin_info_t * p, size_t s)
 	p->buffer_size = s;
 	p->buffer = (char*)realloc(p->buffer, s);
     }
-    if(!p->buffer) dbg_printf("buffer error ! ! ! !");
-    dbg_printf("current size = %u\n", p->buffer_size);
+
 }
 

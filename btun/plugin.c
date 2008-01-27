@@ -172,7 +172,7 @@ plugin_info_t * plugin_for_name(char * name, int argc, char ** argv)
 
     size_t len = strlen(name);
 
-    if(len > 3 && !strchr(name, '.'))
+    if(!strchr(name, '.'))
     {
 	lname = (char*)malloc(len + sizeof(LIB_EXT) + 1);
 	c_assert2(lname, "malloc failed");

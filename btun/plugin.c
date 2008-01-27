@@ -105,7 +105,10 @@ size_t plugin_system_encode(plugin_system_t * e, char * in,
 	size_t bs = (*p->encoder)(p, buffer, buffer_size, &plugin_buffer);
 
 	if(bs == BT_ERROR)
+	{
+	    dbg_printf("plugin error\n");
 	    return BT_ERROR;
+	}
 
 	buffer = plugin_buffer;
 	buffer_size = bs;

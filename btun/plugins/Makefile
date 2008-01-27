@@ -5,7 +5,7 @@ LDFLAGS=-shared -fPIC
 
 LIBEXT=so
 
-all: xoror.$(LIBEXT) compress.$(LIBEXT) http.$(LIBEXT) tee.$(LIBEXT)
+all: xoror.$(LIBEXT) compress.$(LIBEXT) tee.$(LIBEXT)
 
 
 xoror.$(LIBEXT): xoror.c
@@ -17,10 +17,10 @@ example.$(LIBEXT): example.c
 tee.$(LIBEXT): tee.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o tee.so tee.c
 
-compress.$(LIBEXT): compress.c
+compress.$(LIBEXT): compress.c common.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -lz -o compress.so compress.c common.c
 
-http.$(LIBEXT): http.c
+http.$(LIBEXT): http.c common.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o http.so http.c common.c
 
 

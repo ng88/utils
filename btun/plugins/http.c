@@ -135,6 +135,8 @@ size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
     return s + hd->size;
 }
 
+
+/** buggy, need packet defragmentation, by using a 'Content_Length:' field for example */
 size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
     /* Here we have to remove the HTTP header

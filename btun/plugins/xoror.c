@@ -33,8 +33,20 @@ int bt_plugin_init(plugin_info_t * p)
     p->author = "ng";
     p->version = LAST_ALGO_VERSION;
 
-   /* may depend on user passphrase */
-    p->data = cryptor_new("xoror test key", 815);
+    char * pass = "xoror test key";
+    int key = 815;
+
+    if(p->argc > 0)
+    {
+	pass = p->argv[0];
+
+	if(p->argc > 1)
+	    key = atoi(p->argv[1]);
+	else if(pass[0] && pass[1])
+	    key = pass[0] * pass[1];
+    }
+
+    p->data = cryptor_new(pass, key);
 
     return (p->data != NULL);
 }
@@ -47,18 +59,20 @@ void bt_plugin_destroy(plugin_info_t * p)
 
 size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
-
     encrypt_data(in, in, (cryptor*)p->data, s);
 
     *out = in;
 
     return s;
-
 }
 
 size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
-    return bt_plugin_encode(p, in, s, out);
+    encrypt_data(in, in, (cryptor*)p->data, s);
+
+    *out = in;
+
+    return s;
 }
 
 

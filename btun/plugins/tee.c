@@ -33,16 +33,10 @@ int bt_plugin_init(plugin_info_t * p)
     p->author = "ng";
     p->version = 1;
 
-    if(p->argc == 0)
-    {
-	fputs("tee: missing file argument.\n", stderr);
-	return 0;
-    }
-
-    p->data = (!strcmp(p->argv[0], "-")) ? stdout : fopen(p->argv[0], "wb");
+    p->data = p->argc == 0 ? stdout : fopen(p->argv[0], "wb");
     if(!p->data)
     {
-	fprintf(stderr, "tee: unable to open `%s'!\n", p->argv[0]);
+	fprintf(stderr, "tee: unable to open `%s'!\n", p->argc == 0 ? "stdout" : p->argv[0]);
 	return 0;
     }
 

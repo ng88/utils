@@ -25,8 +25,9 @@
 #include "plugin.h"
 #include <string.h>
 
-
 #include <dlfcn.h>
+
+#define LIB_EXT "so"
 
 plugin_system_t * plugin_system_create()
 {
@@ -166,9 +167,19 @@ plugin_info_t * plugin_for_name(char * name, int argc, char ** argv)
     r->argc = argc;
     r->argv = argv;
 
+    char * lname = NULL;
     fn_plug_init_t init = NULL;
 
-    if( (r->module = dlopen(name, RTLD_NOW)) )
+    size_t len = strlen(name);
+
+    if(len > 3 && !strchr(name, '.'))
+    {
+	lname = (char*)malloc(len + sizeof(LIB_EXT) + 1);
+	c_assert2(lname, "malloc failed");
+	sprintf(lname, "%s." LIB_EXT, name);
+    }
+
+    if( (r->module = dlopen(lname ? lname : name, RTLD_NOW)) )
     {
 	init = (fn_plug_init_t)dlsym(r->module, "bt_plugin_init");
 	r->destructor = (fn_plug_free_t)dlsym(r->module, "bt_plugin_destroy");
@@ -177,6 +188,9 @@ plugin_info_t * plugin_for_name(char * name, int argc, char ** argv)
 
 	r->decoder = (fn_plug_inout_t)dlsym(r->module, "bt_plugin_decode");
     }
+
+    if(lname)
+	free(lname);
 
     if(init)
     {

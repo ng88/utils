@@ -71,6 +71,8 @@ void encrypt_file(FILE * in, FILE * out, cryptor * c);
 /* Encrypt a string with c */
 void encrypt_string(char * in, char * out, cryptor * c);
 
+/* Encrypt a data with c */
+void encrypt_data(char * in, char * out, cryptor * c, size_t s);
 
 
 

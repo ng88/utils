@@ -92,3 +92,10 @@ void encrypt_string(char * in, char * out, cryptor * c)
     }
 }
 
+void encrypt_data(char * in, char * out, cryptor * c, size_t s)
+{
+    size_t i;
+
+    for(i = 0; i < s; ++i)
+	out[i] = cryptor_next(c, in[i]);
+}

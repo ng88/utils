@@ -81,8 +81,10 @@ void bt_plugin_destroy(plugin_info_t * p)
 {
     nioz_stream_t * st = (nioz_stream_t*)p->data;
 
-    printf("GAIN CPR=%ld\n", st->cpr.total_in - st->cpr.total_out);
-    printf("GAIN UNCPR=%ld\n", st->uncpr.total_out - st->uncpr.total_in);
+    /*
+      fprintf(stderr, "GAIN CPR=%ld\n", st->cpr.total_in - st->cpr.total_out);
+      fprintf(stderr, "GAIN UNCPR=%ld\n", st->uncpr.total_out - st->uncpr.total_in);
+    */
     free(p->buffer);
 
 

@@ -544,8 +544,11 @@ void stop_server()
 
 void print_server_status()
 {
-    puts("btund status:\n\nAccount list:");
-    print_user_pool(existing_users, stdout);
+    puts("btund status:");
+    /*
+      puts("\n\nAccount list:");
+      print_user_pool(existing_users, stdout);
+    */
     puts("\n\nConnected users:");
     print_entry_vector(users, stdout, true);
     puts("\n\nChannel list:");

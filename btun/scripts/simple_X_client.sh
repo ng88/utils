@@ -1,6 +1,13 @@
 #!/bin/bash
 
 #
+#  WARNING:
+#
+#   This script is obsolete. Although it still works, you should consider
+#   the use of tcpmux that is much more powerful and convenient.
+#
+
+#
 #  Author: Nicolas GUILLAUME <ng@ngsoft-fr.com>
 #
 # btun_X_tunnel_client.sh & btun_X_tunnel_server.sh enable you to execute

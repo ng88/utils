@@ -1,6 +1,14 @@
 #!/bin/bash
 
 #
+#  WARNING:
+#
+#   This script is obsolete. Although it still works, you should consider
+#   the use of tcpmux that is much more powerful and convenient.
+#
+
+
+#
 #  Author: Nicolas GUILLAUME <ng@ngsoft-fr.com>
 #
 # Generalization of simple_X_client/server

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PATH="/sbin/:$PATH"
+
 rm -fr slack
 mkdir -p slack/install
 

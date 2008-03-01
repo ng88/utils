@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PATH="/sbin/:$PATH"
+
 rm -fr slack
 mkdir -p slack/install
 
@@ -44,6 +46,7 @@ chmod a+x slack/install/doinst.sh
 
 make mrproper || exit 1
 make btun $* || exit 1
+make tcpmux $* || exit 1
 make installbtun $* prefix=slack || exit 1
 
 install -m 755 -d slack/etc/rc.d/

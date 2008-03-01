@@ -269,32 +269,8 @@ int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t d
 
     /* DATA */
     if(data_len)
-    {
 	return writeall(fdout, sdata, data_len);
-	/*to_send += data_len;
-
-	int i;
-	for(i = 0; i < data_len; ++i)
-	{
-	    data[i + REQ_HEADER_SIZE] = sdata[i];
-	    dbg_printf("data[%d] = %c\n", i, sdata[i]);
-	    }*/
-
-	/*int i;
-	int r = REQ_HEADER_SIZE;
-	for(i = REQ_HEADER_SIZE; r < data_len; ++i, ++r)
-	{
-	    if(sdata[r] == RT_MAGIC)
-	    {
-		data[i] = RT_MAGIC;
-		data[++i] = RT_MAGIC;
-		to_send++;
-	    }
-	    else
-		data[i] = sdata[r];
-		}*/
-    }
-
+	
     return 0;
 }
 

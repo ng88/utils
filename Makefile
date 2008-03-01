@@ -49,8 +49,8 @@ installbtun:
 	install -m 755 -d $(prefix)/usr/bin/
 	install -m 755 -d $(prefix)/etc/btund/
 	install -sm 755 btun/btun $(prefix)/usr/bin/
+	install -sm 755 tcp_multiplexer/tcpmux $(prefix)/usr/bin/
 	install -sm 755 btun/btund $(prefix)/usr/sbin/
-	install -m 755 btun/scripts/X_client.sh btun/scripts/X_server.sh $(prefix)/usr/bin/
 	install -m 755 btun/scripts/btund_add_user.sh btun/scripts/create_passfile.sh $(prefix)/usr/sbin/
 	install -m 644 btun/config/users.sample $(prefix)/etc/btund/
 
@@ -70,8 +70,9 @@ clean:
 	$(MAKE) -C xoror clean
 	$(MAKE) -C btun clean
 	$(MAKE) -C sudoku-solver clean
+	$(MAKE) -C tcp_multiplexer clean
 
 mrproper: clean
-	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror sudoku-solver/sudoku-solver btun/btund btun/btun
+	rm -f cpufreq/cpufreq2 daemon/daemon max_uptime/max_uptime range/range rsh/rsh scanp/scanp win2unix/win2unix xoror/xoror sudoku-solver/sudoku-solver btun/btund btun/btun tcp_multiplexer/tcpmux
 
-.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror sudoku-solver btun install package installbtun installnobtun
+.PHONY: clean mrproper all min cpufreq daemon max_uptime range rsh scanp win2unix xoror sudoku-solver btun install package installbtun installnobtun tcp_multiplexer

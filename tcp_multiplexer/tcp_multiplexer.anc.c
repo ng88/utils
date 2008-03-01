@@ -14,12 +14,12 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                        
 
-#include "tcp_multiplexer.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
-
+#include <unistd.h>
 
 #include "assert.h"
 
@@ -27,11 +27,63 @@
 #include "misc.h"
 #include "version.h"
 
-#include <unistd.h>
+
+#include <netinet/in.h>
+
+/**
+
+      L'idée est d'avoir d'implémenter un multpilexeur TCP
+
+      C'est à dire un genre de nc capable de transmettre plusieurs
+      connexions à travers l'entrée et la sortie standard
 
 
-#include <arpa/inet.h>
+      Exemple d'utilisation désirée :
 
+        client http / ssh
+
+              /\
+              ||
+              \/
+
+
+      tcp_multiplexer -l 80 -l 22 # ecoute sur les ports 22/80
+                
+              /\
+             /||\
+              ||
+
+         stdin/stdout # pourra etre remplacé par un tunnel btun
+
+              ||
+             \||/
+              \/
+
+      tcp_multiplexer localhost # connecte les ports 22/80 sur localhost
+
+              /\
+              ||
+              \/
+
+         httpd / sshd
+
+
+      Cela permettra de faire des tunnels TCP avec btun (entre autre)
+      Car nc ne fait passer qu'une connexion à la fois.
+
+
+*/
+
+enum
+{
+    RT_CONNECT = 0,
+    RT_CLOSE = 1,
+    RT_DATA = 2,
+};
+
+enum { RT_MAGIC = 0xAA, RT_BUFF = 512, RT_SAFE_SIZE = 500 };
+
+#define REQ_HEADER_SIZE (sizeof(uint16_t) * 2 + sizeof(unsigned char) * 2)
 
 int send_request(int fd, unsigned char type, uint16_t id, uint16_t data_len, char * sdata)
 {
@@ -43,8 +95,8 @@ int send_request(int fd, unsigned char type, uint16_t id, uint16_t data_len, cha
     /* HEADER*/
     data[0] = RT_MAGIC;
     data[1] = type;
-    *((uint16_t*)(data + 2)) = htons(id);
-    *((uint16_t*)(data + 4)) = htons(data_len);
+    (uint16_t)data[2] = htons(id);
+    (uint16_t)data[4] = htons(data_len);
 
     /* DATA */
     size_t to_send = REQ_HEADER_SIZE;
@@ -54,7 +106,7 @@ int send_request(int fd, unsigned char type, uint16_t id, uint16_t data_len, cha
 	to_send += data_len;
 
 	int i;
-	int s  = REQ_HEADER_SIZE + data_len;
+	int s  = REQ_HEADER_SIZE + data_len:
 
 	for(i = REQ_HEADER_SIZE; i < s; ++i)
 	    data[i] = sdata[i];
@@ -91,11 +143,7 @@ int recv_request(int fd)
 	return -1;
     }
 
-//NOT DONE
-    return 0;
 }
-
-
 int start_tcp_tunnel_server(port_t port)
 {
     fd_set master;

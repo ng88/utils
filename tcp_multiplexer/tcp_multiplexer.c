@@ -395,7 +395,7 @@ int recv_request(int fd)
 	return -1;
     }
 
-    return 0;
+    return 1;
 }
 
 void set_addr(char * a, port_t p)

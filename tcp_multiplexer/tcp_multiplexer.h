@@ -79,7 +79,7 @@ enum
 #define RT_MAGIC ((char)0xAA)
 
 //enum { RT_BUFF = 768, RT_SAFE_SIZE = 512 };
-enum { RT_BUFF = 10 };
+enum { RT_BUFF = 600 };
 
 typedef struct
 {

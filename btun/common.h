@@ -43,7 +43,7 @@ void challenge_answer(char * challenge, char * userpwd, MD5_CTX_ppp * m);
 
 
 int writeall(int fd, void * src, size_t s);
-
+int readall(int fd, void * src, size_t s);
 
 #define HANDLE_ERR(v, str) \
     do { if( (v) == -1 ) { perror(str); return EXIT_FAILURE; } } while(0)

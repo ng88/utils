@@ -129,7 +129,7 @@ int writeall(int fd, void * src, size_t s)
 	int lu = write(fd, src, s);
 
 	if(lu <= 0)
-	    return -1;
+	    return lu;
 
 	src += lu;
 	s -= lu;
@@ -139,3 +139,19 @@ int writeall(int fd, void * src, size_t s)
 }
 
 
+int readall(int fd, void * dest, size_t s)
+{
+    while(s)
+    {
+
+	int lu = read(fd, dest, s);
+
+	if(lu <= 0)
+	    return lu;
+
+	dest += lu;
+	s -= lu;
+    }
+
+    return 1;
+}

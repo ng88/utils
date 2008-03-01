@@ -70,7 +70,7 @@ int tcp_mux(int fdin, int fdout)
     struct sockaddr_in myaddr;
     struct sockaddr_in rmaddr;
 
-    int fdlisten;
+    int fdlisten = -1;
 
     size_t s;
     size_t i;

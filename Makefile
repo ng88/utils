@@ -1,5 +1,5 @@
 
-min: daemon max_uptime range rsh xoror btun
+min: daemon max_uptime range rsh xoror btun tcpmux
 
 all: min cpufreq scanp win2unix sudoku-solver
 
@@ -32,6 +32,9 @@ sudoku-solver:
 
 btun:
 	$(MAKE) -C $@
+
+tcpmux: btun
+	$(MAKE) -C tcp_multiplexer
 
 installnobtun:
 	install -m 755 -d $(prefix)/usr/bin/

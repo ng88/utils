@@ -78,12 +78,21 @@ enum
 
 #define RT_MAGIC ((char)0xAA)
 
-enum { RT_BUFF = 512, RT_SAFE_SIZE = 500 };
+//enum { RT_BUFF = 768, RT_SAFE_SIZE = 512 };
+enum { RT_BUFF = 10 };
 
-#define REQ_HEADER_SIZE (sizeof(uint16_t) * 2 + sizeof(unsigned char) * 2)
+typedef struct
+{
+    char magic;
+    char type;
+    uint16_t id;
+    uint16_t len;
+} header_t;
+
+#define REQ_HEADER_SIZE (sizeof(header_t))
 
 int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t data_len, char * sdata);
-int recv_request(uint16_t data_len, char * sdata);
+int recv_request(int fd);
 
 void set_addr(char * addr, port_t port);
 int tcp_mux(int fdin, int fdout);

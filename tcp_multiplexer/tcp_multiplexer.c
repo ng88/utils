@@ -35,7 +35,6 @@
 
 
 #define SERVER_BACKLOG 5
-#define RECV_BUFF_SIZE  RT_SAFE_SIZE
 
 static volatile bool run = false;
 static vector_t * connections = NULL;
@@ -138,8 +137,6 @@ int tcp_mux(int fdin, int fdout)
 
     dbg_printf("server started\n");
 
-    char buf[RECV_BUFF_SIZE];
-
     while(run)
     {
         read_fds = master;
@@ -151,7 +148,7 @@ int tcp_mux(int fdin, int fdout)
 
 	if(FD_ISSET(fdin, &read_fds))
 	{
-	    int n = read(fdin, buf, RECV_BUFF_SIZE);
+	    int n = recv_request(fdin);
 
 	    if(n <= 0)
 	    {
@@ -159,11 +156,6 @@ int tcp_mux(int fdin, int fdout)
 		run = false;
 		dbg_printf("input closed\n");
 		break;
-	    }
-	    else
-	    {
-		dbg_printf("input data...\n");
-		recv_request(n, buf);
 	    }
 	}
 	
@@ -210,7 +202,9 @@ int tcp_mux(int fdin, int fdout)
 
             if(FD_ISSET(e->fd, &read_fds))
 	    {
-		int n = recv(e->fd, buf, RECV_BUFF_SIZE, MSG_NOSIGNAL);
+
+		char buf[RT_BUFF];
+		int n = recv(e->fd, buf, RT_BUFF, MSG_NOSIGNAL);
 
 		if(n <= 0)
 		{
@@ -257,29 +251,34 @@ int tcp_mux(int fdin, int fdout)
 
 int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t data_len, char * sdata)
 {
-
-    c_assert(e && data_len <= RT_SAFE_SIZE && sizeof(uint16_t) == 2);
-
-    char data[RT_BUFF];
+    c_assert(e && sizeof(uint16_t) == 2);
 
     uint16_t id = (uint16_t)(listen_mode ? e->fd : e->id);
 
+    dbg_printf("send packet type=%d, id=%d, len=%d\n", type, id, data_len);
+
     /* HEADER*/
-    data[0] = RT_MAGIC;
-    data[1] = type;
-    *((uint16_t*)(data + 2)) = htons(id);
-    *((uint16_t*)(data + 4)) = htons(data_len);
+    header_t header;
+    header.magic = RT_MAGIC;
+    header.type = type;
+    header.id = htons(id);
+    header.len = htons(data_len);
+
+    if(writeall(fdout, &header, REQ_HEADER_SIZE) == -1)
+	return -1;
 
     /* DATA */
-    size_t to_send = REQ_HEADER_SIZE;
-
     if(data_len)
     {
-	to_send += data_len;
+	return writeall(fdout, sdata, data_len);
+	/*to_send += data_len;
 
 	int i;
 	for(i = 0; i < data_len; ++i)
+	{
 	    data[i + REQ_HEADER_SIZE] = sdata[i];
+	    dbg_printf("data[%d] = %c\n", i, sdata[i]);
+	    }*/
 
 	/*int i;
 	int r = REQ_HEADER_SIZE;
@@ -296,38 +295,44 @@ int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t d
 		}*/
     }
 
-    dbg_printf("send packet type=%d, id=%d\n", type, id);
-
-    return writeall(fdout, data, to_send);
-
+    return 0;
 }
 
-int recv_request(uint16_t data_len, char * data)
+int recv_request(int fd)
 {
-    c_assert(data);
+    int n;
 
-    if(data_len < REQ_HEADER_SIZE || data[0] != RT_MAGIC)
+    header_t header;
+    
+    if( (n = readall(fd, &header, REQ_HEADER_SIZE)) <= 0)
+	return n;
+
+    header.id = ntohs(header.id);
+    header.len = ntohs(header.len);
+
+    if(header.magic != RT_MAGIC)
     {
 	dbg_printf("bad packet header\n");
 	return -1;
     }
 
-    int s = data_len - REQ_HEADER_SIZE;
-    int id = (int)ntohs(*((uint16_t*)(data + 2)));
+    dbg_printf("recv packet type=%d, id=%d, len=%d\n", 
+	       header.type, header.id, header.len);
 
-    dbg_printf("recv packet type=%d, id=%d\n", data[1], id);
+    tcp_connection_t * e = NULL;
 
-    tcp_connection_t * e =
-	get_infos_from_id(connections, id);
-
-    if(data[1] != RT_CONNECT && !e)
+    if(header.type != RT_CONNECT)
     {
-	dbg_printf("bad packet id\n");
-	return -1;
+	e = get_infos_from_id(connections, header.id);
+
+	if(!e)
+	{
+	    dbg_printf("bad packet id\n");
+	    return -1;
+	}
     }
 
-
-    switch(data[1])
+    switch(header.type)
     {
     case RT_CONNECT:
         {
@@ -360,9 +365,9 @@ int recv_request(uint16_t data_len, char * data)
 	    if(sockfd > fdmax)
 		fdmax = sockfd;
 
-	    add_tcp_infos(connections, create_tcp_infos(sockfd, id));
+	    add_tcp_infos(connections, create_tcp_infos(sockfd, header.id));
 
-	    dbg_printf("new connection %d on %d\n", id, sockfd);
+	    dbg_printf("new connection %d on %d\n", header.id, sockfd);
         }
 	break;
     case RT_CLOSE:
@@ -371,7 +376,19 @@ int recv_request(uint16_t data_len, char * data)
 	close(e->fd);
 	break;
     case RT_DATA:
-	sendall(e->fd, data + REQ_HEADER_SIZE, &s);
+        if(header.len)
+	{
+	    c_assert(header.len <= RT_BUFF);
+
+	    int s;
+	    char data[RT_BUFF];
+	    if( (n = readall(fd, data, header.len)) <= 0)
+		return n;
+
+	    s = header.len;
+	    if(sendall(e->fd, data, &s) == -1)
+		return -1;
+	}
 	break;
     default:
 	dbg_printf("bad packet type\n");
@@ -392,9 +409,8 @@ void usage(int ev)
 {
     fputs("usage: tcpmux ip port\n"
 	  "           connect tunnel to ip:port\n"
-	  "usage: tcpmux port\n"
+	  "       tcpmux port\n"
 	  "           listen to port\n"
-	  "\n"
 	  , stderr);
     exit(ev);
 }

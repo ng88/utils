@@ -21,6 +21,9 @@
 #include <netinet/in.h>
 #include "common.h"
 
+#include "tcp_connection.h"
+
+
 /**
 
       L'idée est d'avoir d'implémenter un multpilexeur TCP
@@ -72,16 +75,20 @@ enum
     RT_DATA = 2,
 };
 
+
 #define RT_MAGIC ((char)0xAA)
 
 enum { RT_BUFF = 512, RT_SAFE_SIZE = 500 };
 
 #define REQ_HEADER_SIZE (sizeof(uint16_t) * 2 + sizeof(unsigned char) * 2)
 
-int send_request(int fd, unsigned char type, uint16_t id, uint16_t data_len, char * sdata);
-int recv_request(int fd);
-int start_tcp_tunnel_server(port_t port);
+int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t data_len, char * sdata);
+int recv_request(uint16_t data_len, char * sdata);
+
+void set_addr(char * addr, port_t port);
+int tcp_mux(int fdin, int fdout);
 
 
+void stop();
 
 #endif

@@ -40,6 +40,12 @@ then
 
 fi
 
+LDP=/usr/lib/btun/plugins/
+if ! grep "\$LDP" /etc/ld.so.conf >/dev/null 2>&1
+then
+   echo "\$LDP" >> /etc/ld.so.conf
+   /sbin/ldconfig
+fi
 
 EOF
 chmod a+x slack/install/doinst.sh

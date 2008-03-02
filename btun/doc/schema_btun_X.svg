@@ -2750,7 +2750,7 @@
            sodipodi:role="line"
            id="tspan4211"
            x="110.42692"
-           y="358.40466">        my_channel  -- nc 127.0.0.1 6000</tspan></text>
+           y="358.40466">        my_channel tcpmux 127.0.0.1 6000</tspan></text>
       <g
          id="Layer_1"
          transform="matrix(0.689214,0.000000,0.000000,0.689214,53.78488,327.5630)">
@@ -3383,7 +3383,7 @@
            sodipodi:role="line"
            id="tspan4213"
            x="478.07104"
-           y="364.61038">        my_channel -- nc -l -p 6001</tspan></text>
+           y="364.61038">        my_channel tcpmux 6001</tspan></text>
       <g
          id="g3802"
          transform="matrix(0.465186,0.000000,0.000000,0.465186,345.5750,174.9016)">

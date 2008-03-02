@@ -27,7 +27,9 @@
 
 #include <dlfcn.h>
 
+#ifndef LIB_EXT
 #define LIB_EXT "so"
+#endif
 
 plugin_system_t * plugin_system_create()
 {

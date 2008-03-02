@@ -88,7 +88,11 @@ void print_version(plugin_system_t * e)
 
 void stop_client_handler(int s)
 {
-    stop_client();
+    int static st = 0;
+    st = 1 - st;
+
+    if(st == 1)
+	stop_client();
 }
 
 
@@ -302,6 +306,7 @@ int main(int argc, char ** argv)
 
     sigaction(SIGTERM, &nv, &old);
     sigaction(SIGINT, &nv, &old);
+    sigaction(SIGCHLD, &nv, &old);
 
 
     if(plugins)

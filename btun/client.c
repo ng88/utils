@@ -351,7 +351,6 @@ void run_cmd(int sockfd, char ** args)
 	close(sockfd);
 
 	execvp(args[0], args);
-	perror("exec");
 	_exit(1);
     }
     else if(ch_pid > 0) /* pere */
@@ -361,6 +360,7 @@ void run_cmd(int sockfd, char ** args)
 	//close(p_out[0]);
 
 	run_normal(sockfd, p_out[0], p_in[1]);
+	
 	wait(NULL);
     }
     else
@@ -435,7 +435,6 @@ void run_cmd_pty(int sockfd, char ** args)
 	}
 
 	execvp(args[0], args);
-	perror("exec");
 	_exit(1);
     }
     else if(ch_pid > 0) /* pere */
@@ -454,7 +453,6 @@ void run_cmd_pty(int sockfd, char ** args)
 	perror("fork");
 
 }
-
 
 char * read_passphrase(char * buff, size_t size)
 {

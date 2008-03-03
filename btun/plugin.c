@@ -31,6 +31,10 @@
 #define LIB_EXT "so"
 #endif
 
+#ifndef LIB_PREFIX
+#define LIB_PREFIX "libbtp"
+#endif
+
 plugin_system_t * plugin_system_create()
 {
     plugin_system_t * r = (plugin_system_t *)malloc(sizeof(plugin_system_t));
@@ -172,13 +176,11 @@ plugin_info_t * plugin_for_name(char * name, int argc, char ** argv)
     char * lname = NULL;
     fn_plug_init_t init = NULL;
 
-    size_t len = strlen(name);
-
     if(!strchr(name, '.'))
     {
-	lname = (char*)malloc(len + sizeof(LIB_EXT) + 1);
+	lname = (char*)malloc(strlen(name) + sizeof(LIB_EXT) + sizeof(LIB_PREFIX) + 1);
 	c_assert2(lname, "malloc failed");
-	sprintf(lname, "%s." LIB_EXT, name);
+	sprintf(lname, LIB_PREFIX "%s." LIB_EXT, name);
     }
 
     if( (r->module = dlopen(lname ? lname : name, RTLD_NOW)) )
@@ -197,8 +199,11 @@ plugin_info_t * plugin_for_name(char * name, int argc, char ** argv)
     if(init)
     {
 	if( !(*init)(r) )
+	{
           /* plugin init failed */
+	    dbg_printf("plugin `%s' init failed.\n", name);
 	    return NULL;
+	}
     }
 
     if(!r->module || !r->name || !r->destructor

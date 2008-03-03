@@ -4,28 +4,29 @@ CFLAGS=-W -Wall -Wno-unused -O3
 LDFLAGS=-shared -fPIC
 
 LIBEXT=so
+LIBPREFIX=libbtp
 
-all: xoror.$(LIBEXT) compress.$(LIBEXT) tee.$(LIBEXT)
+all: $(LIBPREFIX)xoror.$(LIBEXT) $(LIBPREFIX)compress.$(LIBEXT) $(LIBPREFIX)tee.$(LIBEXT)
 
 
-xoror.$(LIBEXT): xoror.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o xoror.so xoror.c ../../xoror/xoror.c
+$(LIBPREFIX)xoror.$(LIBEXT): xoror.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LIBPREFIX)xoror.$(LIBEXT) xoror.c ../../xoror/xoror.c
 
-example.$(LIBEXT): example.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o example.so example.c
+$(LIBPREFIX)example.$(LIBEXT): example.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LIBPREFIX)example.$(LIBEXT) example.c
 
-tee.$(LIBEXT): tee.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o tee.so tee.c
+$(LIBPREFIX)tee.$(LIBEXT): tee.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LIBPREFIX)tee.$(LIBEXT) tee.c
 
-compress.$(LIBEXT): compress.c common.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -lz -o compress.so compress.c common.c
+$(LIBPREFIX)compress.$(LIBEXT): compress.c common.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -lz -o $(LIBPREFIX)compress.$(LIBEXT) compress.c common.c
 
-http.$(LIBEXT): http.c common.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o http.so http.c common.c
+$(LIBPREFIX)http.$(LIBEXT): http.c common.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LIBPREFIX)http.$(LIBEXT) http.c common.c
 
 
 clean:
 	@rm -f *.o *.lo *.la *~
 
 mrproper: clean
-	@rm -f *.$(LIBEXT)
+	@rm -f $(LIBPREFIX)*.$(LIBEXT)

@@ -88,7 +88,7 @@ void print_version(plugin_system_t * e)
 
 void stop_client_handler(int s)
 {
-    int static st = 0;
+    static int st = 0;
     st = 1 - st;
 
     if(st == 1)

@@ -24,7 +24,7 @@ cat > slack/install/doinst.sh <<EOF
 #/bin/sh
 
 EOF
-chmod a+x slack/install/doinst.sh
+chmod a+rx slack/install/doinst.sh
 
 make mrproper || exit 1
 make daemon max_uptime range rsh xoror $* || exit 1

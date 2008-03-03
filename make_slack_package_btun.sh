@@ -26,6 +26,7 @@ btun:
 btun: 
 btun: 
 EOF
+chmod a+r slack/install/slack-desc
 
 cat > slack/install/doinst.sh <<EOF
 #/bin/sh
@@ -48,7 +49,7 @@ then
 fi
 
 EOF
-chmod a+x slack/install/doinst.sh
+chmod a+rx slack/install/doinst.sh
 
 make mrproper || exit 1
 make btun $* || exit 1

@@ -37,6 +37,7 @@ tcpmux: btun
 	$(MAKE) -C tcp_multiplexer
 
 installnobtun:
+	chmod 755 $(prefix)/
 	install -m 755 -d $(prefix)/usr/bin/
 	install -m 755 -d $(prefix)/bin/
 	install -m 755 -d $(prefix)/etc/
@@ -45,11 +46,12 @@ installnobtun:
 	install -m 644 rsh/rsh.conf $(prefix)/etc/
 
 installbtun:
+	chmod 755 $(prefix)/
 	install -m 755 -d $(prefix)/usr/sbin/
 	install -m 755 -d $(prefix)/usr/bin/
 	install -m 755 -d $(prefix)/etc/btund/
 	install -m 755 -d $(prefix)/usr/lib/btun/plugins/
-	install -m 644 btun/plugins/compress.so btun/plugins/tee.so btun/plugins/xoror.so $(prefix)/usr/lib/btun/plugins/
+	install -m 644 btun/plugins/libbtpcompress.so btun/plugins/libbtptee.so btun/plugins/libbtpxoror.so $(prefix)/usr/lib/btun/plugins/
 	install -sm 755 btun/btun $(prefix)/usr/bin/
 	install -sm 755 tcp_multiplexer/tcpmux $(prefix)/usr/bin/
 	install -sm 755 btun/btund $(prefix)/usr/sbin/

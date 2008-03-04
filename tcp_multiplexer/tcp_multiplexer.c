@@ -257,14 +257,14 @@ int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t d
 
     dbg_printf("send packet type=%d, id=%d, len=%d\n", type, id, data_len);
 
-    /* HEADER*/
-    header_t header;
-    header.magic = RT_MAGIC;
-    header.type = type;
-    header.id = htons(id);
-    header.len = htons(data_len);
+    /* prepare & send header */
+    char buff[REQ_HEADER_SIZE];
+    buff[0] = RT_MAGIC;
+    buff[1] = type;
+    *((uint16_t*)(buff + 2)) = htons(id);
+    *((uint16_t*)(buff + 4)) = htons(data_len);
 
-    if(writeall(fdout, &header, REQ_HEADER_SIZE) == -1)
+    if(writeall(fdout, buff, REQ_HEADER_SIZE) == -1)
 	return -1;
 
     /* DATA */
@@ -278,19 +278,22 @@ int recv_request(int fd)
 {
     int n;
 
-    header_t header;
+    /* retrieve header */
+    char buff[REQ_HEADER_SIZE];
     
-    if( (n = readall(fd, &header, REQ_HEADER_SIZE)) <= 0)
+    if( (n = readall(fd, buff, REQ_HEADER_SIZE)) <= 0)
 	return n;
 
-    header.id = ntohs(header.id);
-    header.len = ntohs(header.len);
-
-    if(header.magic != RT_MAGIC)
+    if(buff[0] != RT_MAGIC)
     {
 	dbg_printf("bad packet header\n");
 	return -1;
     }
+
+    header_t header;
+    header.type = buff[1];
+    header.id = ntohs(*((uint16_t*)(buff + 2)));
+    header.len = ntohs(*((uint16_t*)(buff + 4)));
 
     dbg_printf("recv packet type=%d, id=%d, len=%d\n", 
 	       header.type, header.id, header.len);

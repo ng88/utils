@@ -89,7 +89,7 @@ typedef struct
     uint16_t len;
 } header_t;
 
-#define REQ_HEADER_SIZE (sizeof(header_t))
+#define REQ_HEADER_SIZE (sizeof(char) * 2 + sizeof(uint16_t) * 2)
 
 int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t data_len, char * sdata);
 int recv_request(int fd);

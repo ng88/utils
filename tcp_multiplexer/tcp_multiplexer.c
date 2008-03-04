@@ -253,7 +253,7 @@ int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t d
 {
     c_assert(e && sizeof(uint16_t) == 2);
 
-    uint16_t id = (uint16_t)(listen_mode ? e->fd : e->id);
+    /* uint16_t id = (uint16_t)(listen_mode ? e->fd : e->id);*/
 
     dbg_printf("send packet type=%d, id=%d, len=%d\n", type, id, data_len);
 
@@ -261,7 +261,7 @@ int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t d
     char buff[REQ_HEADER_SIZE];
     buff[0] = RT_MAGIC;
     buff[1] = type;
-    *((uint16_t*)(buff + 2)) = htons(id);
+    *((uint16_t*)(buff + 2)) = htons((uint16_t)e->id);
     *((uint16_t*)(buff + 4)) = htons(data_len);
 
     if(writeall(fdout, buff, REQ_HEADER_SIZE) == -1)

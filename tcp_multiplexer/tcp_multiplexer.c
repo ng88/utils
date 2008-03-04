@@ -284,19 +284,20 @@ int recv_request(int fd)
     if( (n = readall(fd, buff, REQ_HEADER_SIZE)) <= 0)
 	return n;
 
-    if(buff[0] != RT_MAGIC)
-    {
-	dbg_printf("bad packet header\n");
-	return -1;
-    }
-
     header_t header;
+    header.magic = buff[0];
     header.type = buff[1];
     header.id = ntohs(*((uint16_t*)(buff + 2)));
     header.len = ntohs(*((uint16_t*)(buff + 4)));
 
-    dbg_printf("recv packet type=%d, id=%d, len=%d\n", 
-	       header.type, header.id, header.len);
+    dbg_printf("recv packet magic=%d type=%d, id=%d, len=%d\n", 
+	       header.magic, header.type, header.id, header.len);
+
+    if(header.magic != RT_MAGIC)
+    {
+	dbg_printf("bad packet header\n");
+	return -1;
+    }
 
     tcp_connection_t * e = NULL;
 
@@ -309,6 +310,7 @@ int recv_request(int fd)
 	    dbg_printf("bad packet id\n");
 	    return -1;
 	}
+
     }
 
     switch(header.type)
@@ -363,10 +365,11 @@ int recv_request(int fd)
 	    char data[RT_BUFF];
 	    if( (n = readall(fd, data, header.len)) <= 0)
 		return n;
-
+	    
 	    s = header.len;
 	    if(sendall(e->fd, data, &s) == -1)
 		return -1;
+	    
 	}
 	break;
     default:

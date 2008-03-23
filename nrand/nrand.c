@@ -37,8 +37,8 @@ void usage(int s)
 {
     fputs("usage: nrand [-f file] -i|-r|-s|-d [N] [M]\n\n"
 	  "      -f <file>   use file as random source\n"
-	  "      -i          generate an integer between N and M (exclusive)\n"
-	  "      -r          generate aa real between N and M (exclusive)\n"
+	  "      -i          generate an integer between N and M\n"
+	  "      -r          generate aa real between N and M\n"
 	  "      -s          generate a string with a length of N characters\n"
 	  "      -d          generate data with a length of N bytes\n"
 	  , stderr);
@@ -149,7 +149,8 @@ int generate_rand_int(int n, int m)
 {
     unsigned int r;
     fread(&r, sizeof(r), 1, rfile);
-    return n + (r % (m - n));
+    srand(r);
+    return n + (int) ((double)rand() * (m - n + 1) / (RAND_MAX + 1.0));
 }
 
 double generate_rand_double(double n, double m)
@@ -157,5 +158,5 @@ double generate_rand_double(double n, double m)
     unsigned int r;
     fread(&r, sizeof(r), 1, rfile);
     srand(r);
-    return n + ((double)rand() / (double)RAND_MAX) * (m - n);
+    return n + ((double)rand() / (RAND_MAX + 1.0)) * (m - n);
 }

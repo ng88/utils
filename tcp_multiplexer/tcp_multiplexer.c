@@ -255,7 +255,7 @@ int send_request(tcp_connection_t * e, int fdout, unsigned char type, uint16_t d
 
     /* uint16_t id = (uint16_t)(listen_mode ? e->fd : e->id);*/
 
-    dbg_printf("send packet type=%d, id=%d, len=%d\n", type, id, data_len);
+    dbg_printf("send packet type=%d, id=%d, len=%d\n", type, e->id, data_len);
 
     /* prepare & send header */
     char buff[REQ_HEADER_SIZE];

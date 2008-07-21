@@ -22,18 +22,11 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/  
 
+
 #include "plugin.h"
 #include <string.h>
+#include "dl.h"
 
-#include <dlfcn.h>
-
-#ifndef LIB_EXT
-#define LIB_EXT "so"
-#endif
-
-#ifndef LIB_PREFIX
-#define LIB_PREFIX "libbtp"
-#endif
 
 plugin_system_t * plugin_system_create()
 {

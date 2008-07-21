@@ -20,79 +20,35 @@
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; version 2 of the License only.          *
  *   See the COPYING file.                                                 *
- ***************************************************************************/
-
-#include <string.h>
-#include "common.h"
-#include "../../xoror/xoror.h"
+ ***************************************************************************/  
 
 
-typedef struct
-{
-    cryptor in;
-    cryptor out;
-    char * pass;
-} xoror_stream_t;
+#ifndef DL_H
+#define DL_H
 
-int bt_plugin_init(plugin_info_t * p)
-{
-    p->name = "xoror";
-    p->desc = "xor encryptor plugin";
-    p->author = "ng";
-    p->version = LAST_ALGO_VERSION;
+#include "version.h"
 
-    char * pass = "xoror test key";
-    int key = 815;
+#ifdef USE_DL
+# include <dlfcn.h>
+#else
 
-    if(p->argc > 0)
-    {
-	pass = p->argv[0];
+enum { RTLD_NOW = -1 };
+static char * dl_err = CLIENT_NAME " was compiled without the plugin support.";
 
-	if(p->argc > 1)
-	    key = atoi(p->argv[1]);
-	else if(pass[0] && pass[1])
-	    key = pass[0] * pass[1];
-    }
+static void dlclose(void * p) { }
+static char * dlerror() { return dl_err; }
+static void * dlopen(const char *filename, int flag) { return NULL; }
+static void * dlsym(void *handle, const char *symbol) { return NULL; }
 
-    xoror_stream_t * st = (xoror_stream_t*)malloc(sizeof(xoror_stream_t));
-    if(!st)
-	return 0;
-
-    st->pass = strdup(pass);
-
-    cryptor_init(&st->in, st->pass, key);
-    cryptor_init(&st->out, st->pass, key);
-
-    p->data = st;
-
-    return (p->data != NULL);
-}
+#endif
 
 
-void bt_plugin_destroy(plugin_info_t * p)
-{
-    xoror_stream_t * st = (xoror_stream_t*)p->data;
-    free(st->pass);
-}
+#ifndef LIB_EXT
+#define LIB_EXT "so"
+#endif
 
-size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
-{
-    xoror_stream_t * st = (xoror_stream_t*)p->data;
-    encrypt_data(in, in, &st->in, s);
+#ifndef LIB_PREFIX
+#define LIB_PREFIX "libbtp"
+#endif
 
-    *out = in;
-
-    return s;
-}
-
-size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
-{
-    xoror_stream_t * st = (xoror_stream_t*)p->data;
-    encrypt_data(in, in, &st->out, s);
-
-    *out = in;
-
-    return s;
-}
-
-
+#endif

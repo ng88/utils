@@ -5,10 +5,17 @@ else
     DDPFLAGS=
 endif
 
-ifdef DONT_USE_LL
-    DULL=
+# disable the plugin system
+ifdef DISABLE_PLUGINS
+    DONT_USE_DL=1
+endif
+
+ifdef DONT_USE_DL
+    DUDL=
+    LDDL=
 else
-    DULL=-DUSE_LL=1
+    DUDL=-DUSE_DL=1
+    LDDL=-rdynamic -ldl
 endif
 
 ifdef DEBUG
@@ -34,7 +41,7 @@ else
 endif
 
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused -O3 $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DULL) $(PLUGFLAGS)
+CFLAGS=-W -Wall -Wno-unused -O3 $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DUDL) $(PLUGFLAGS)
 LDFLAGS=
 
 SRC=common.c vector.c md5.c misc.c
@@ -67,10 +74,10 @@ $(EXE1): svnrev $(OBJS1)
 	$(STRIP) $@ > /dev/null
 
 $(EXE2): svnrev $(OBJS2)
-	$(CC) $(OBJS2) -o $@ $(LDFLAGS) -rdynamic -ldl
+	$(CC) $(OBJS2) -o $@ $(LDFLAGS) $(LDDL)
 	$(STRIP) $@ > /dev/null
-	@echo Making plugins...
-	@$(MAKE) -C plugins
+	@[ -z $(DUDL) ] || echo Making plugins...
+	@[ -z $(DUDL) ] || $(MAKE) -C plugins
 
 .PHONY: clean mrproper svnrev
 

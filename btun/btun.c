@@ -50,10 +50,12 @@ void usage(int ev)
 	  "   -f <file>          read passhrase from 'file' (if 'file' is -, stdout is used)\n"
 	  "                      the file must only contains the md5 hash of the user passphrase\n"
 	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
+#ifdef USE_DL
 	  "   -s <name>          try to load the plugin named 'name'. Any number of plugin can be\n"
           "                      loaded, the data stream is processed by each plugin, in load order\n"
           "                      (usual plugins includes compress, xoror, http, tee, ...)\n"
 	  "   -o <opt>           pass the option 'opt' to last plugin (loaded with -s)\n"
+#endif
 	  "   -m                 request to be the master of the channel\n"
 	  "   -u                 create an unrestricted channel\n"
 	  "   -r                 create a restricted channel (default)\n"

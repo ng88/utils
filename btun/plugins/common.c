@@ -31,5 +31,7 @@ void ensure_buffer_size(plugin_info_t * p, size_t s)
 	p->buffer = (char*)realloc(p->buffer, s);
     }
 
+    c_assert2(p->buffer, "unable to allocate enough memory for the plugin buffer!");
+
 }
 

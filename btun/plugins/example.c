@@ -59,9 +59,13 @@ int bt_plugin_init(plugin_info_t * p)
  */
 void bt_plugin_destroy(plugin_info_t * p)
 {
-    /* Free the buffer, if it has been used */
+    /* We can user ensure_buffer_size(p, size) from common.h
+       to get an allocated buffer (p->buffer).
+       We don't use it here so we don't have to free it.
+
     if(p->buffer)
 	free(p->buffer);
+    */
 }
 
 /** Encode the output stream (sent to server)

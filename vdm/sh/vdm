@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#
+# Author : Nicolas GUILLAUME <ng@ngsoft-fr.com>
+#
+#
+
 SERVER="http://api.babeuk.net/vdm/"
 
 
@@ -18,7 +23,7 @@ function show_help()
 
 function show_vdm()
 {
-    curl "${SERVER}?act=$1&pg=$2" 2>/dev/null
+    curl "${SERVER}?act=$1&pg=$2&t=$rnd" 2>/dev/null
     echo
 }
 

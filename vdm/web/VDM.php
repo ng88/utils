@@ -44,6 +44,12 @@ class VDM
   function setDate($v) { $this->date = $v; }
   function getDate() { return $this->date; }
 
+  function getHMDate()
+  {
+    $dt = strtotime($this->getDate());
+    return date('d/m/Y à G:i:s', $dt);
+  }
+
   function setJeValide($v) { $this->je_valide = $v; }
   function getJeValide() { return $this->je_valide; }
 
@@ -56,7 +62,7 @@ class VDM
   function toPlainText()
   {
       return $this->getTexte() . "\n" .
-           '=== Le ' . $this->getDate() . ' par ' . $this->getAuteur() . "\n" .
+           '=== Le ' . $this->getHMDate() . ' par ' . $this->getAuteur() . "\n" .
            '=== Je valide (' . $this->getJeValide() . ') / Bien mérité (' . $this->getBienMerite() .
            ') / Commentaires (' . $this->getCommCount() . ')';
   }

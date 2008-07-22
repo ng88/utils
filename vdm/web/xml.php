@@ -16,10 +16,14 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/ 
 
+require_once('VDM.php');
 
 class VDmXml
 {
    var $parser;
+   var $list;
+   var $vdm;
+   var $champs;
  
    function VDMXml()
    {
@@ -32,6 +36,8 @@ class VDmXml
  
    function parse($data)
    {
+        $this->list = new VDMList();
+        $this->vdm = NULL;
 	xml_parse($this->parser, $data);
    }
 
@@ -39,25 +45,51 @@ class VDmXml
   {
       $this->parse(file_get_contents($url));
   }
- 
-   function tag_open($parser, $tag, $attributes) {
-		echo "[TAG_OPEN] ". $tag;
-		if (!empty($attributes)) {
-			echo " => ";
-			foreach ($attributes as $key => $val) {
-				echo "$key=$val, "; 
-			}
-		}
-		echo "<br />";
+
+   function tag_open($parser, $tag, $attributes)
+   {
+        switch($tag)
+        {
+          case 'VDM':
+            $this->vdm = new VDM();
+            break;
+          case 'AUTEUR':
+          case 'CATEGORIE':
+          case 'DATE':
+          case 'JE_VALIDE':
+          case 'BIEN_MERITE':
+          case 'COMMENTAIRES':
+          case 'TEXTE':
+            $this->$champs = strtolower($tag);
+            $this->setValue($this->$champs, '');
+            break;
+        }
+   }
+
+   function setValue($c, $v)
+   {
+      $this->vdm->$c = $v;
+   }
+
+   function appendValue($c, $v)
+   {
+      $this->vdm->$c .= $v;
    }
  
-   function cdata($parser, $cdata) {
-		echo "[CDATA] $cdata<br />";
+   function cdata($parser, $cdata)
+   {
+	$this->appendValue($this->$champs, $cdata);
    }
  
-   function tag_close($parser, $tag) {
-		echo "[TAG_CLOSE] $tag<br />";
+   function tag_close($parser, $tag)
+   {
+        if($tag == 'VDM')
+        {
+          $this->list->addVDM($this->vdm);
+        }
    }
+
+    function &getResult() { return $this->list; }
  
 } 
  

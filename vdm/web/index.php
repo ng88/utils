@@ -16,52 +16,34 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/ 
 
-require_once('xml.php');
+require_once('VDMServer.php');
 
-define('SERVER_URL', 'http://api.viedemerde.fr/1.0/');
-define('SERVER_ACTION_VIEW', 'view/');
+$action = isset($_GET['act']) ? strtolower($_GET['act']) : 'random';
+$page = isset($_GET['pg']) ? (0+$_GET['pg']) : 1;
 
-class VDMServer
+$vdmserv = new VDMServer();
+
+$list = NULL;
+
+switch($action)
 {
-
-  function VDMServer()
-  {
-  }
-
-
-  function &getRandom()
-  {
-    return $this->getVDM('random');
-  }
-
-  function &getTop($page = NULL)
-  {
-    return $this->getVDM('top', $page);
-  }
-
-
-  function &getFlop($page = NULL)
-  {
-    return $this->getVDM('flop', $page);
-  }
-
-  function &getLast($page = NULL)
-  {
-    return $this->getVDM('last', $page);
-  }
-
-
-  function &getVDM($type, $page = NULL)
-  {
-    $parser = new VDmXml();
-
-    $page = (($page == NULL) ? '' : '/' . $page);
-
-    $parser->parseFromURL(SERVER_URL . SERVER_ACTION_VIEW . $type . $page);
-
-    return $parser->getResult();
-  }
-
+  case 'rnd':
+  case 'rand':
+  case 'random':
+      $list = $vdmserv->getRandom();
+      break;
+  case 'top':
+      $list = $vdmserv->getTop($page);
+      break;
+  case 'flop':
+      $list = $vdmserv->getFlop($page);
+      break;
+  case 'last':
+      $list = $vdmserv->getLast($page);
+      break;
 }
+
+if($list != NULL)
+  echo $list->toPlainText();
 
 ?>

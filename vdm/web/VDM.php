@@ -21,14 +21,19 @@
 class VDM
 {
 
+  var $id;
   var $texte;
   var $auteur;
   var $date;
   var $je_valide;
   var $bien_merite;
-  var $nb_comm;
+  var $commentaires;
   var $texte;
 
+
+
+  function setID($v) { $this->id = $v; }
+  function getID() { return $this->id; }
 
   function setAuteur($v) { $this->auteur = $v; }
   function getAuteur() { return $this->auteur; }
@@ -45,16 +50,18 @@ class VDM
   function setBienMerite($v) { $this->bien_merite = $v; }
   function getBienMerite() { return $this->bien_merite; }
 
-  function setCommCount($v) { $this->nb_comm = $v; }
-  function getCommCount() { return $this->nb_comm; }
+  function setCommCount($v) { $this->commentaires = $v; }
+  function getCommCount() { return $this->commentaires; }
 
   function toPlainText()
   {
       return $this->getTexte() . "\n" .
-           '=== Le ' . $this->getDate() . ' par ' . $this->getAuteur() . " ===\n" .
-           '=== Je valide ' . $this->getJeValide() . ' / Bien mérité ' . $this->getBienMerite() .
-           ' / Commentaires ' . $this->getCommCount() . ' ===';
+           '=== Le ' . $this->getDate() . ' par ' . $this->getAuteur() . "\n" .
+           '=== Je valide (' . $this->getJeValide() . ') / Bien mérité (' . $this->getBienMerite() .
+           ') / Commentaires (' . $this->getCommCount() . ')';
   }
+
+  
 
 
 }
@@ -69,8 +76,13 @@ class VDMList
       $this->data = array();
   }
 
+  function addVDM(&$vdm)
+  {
+    $this->data[] = $vdm;
+  }
 
-  function getVDMAt($i)
+
+  function &getVDMAt($i)
   {
       return $this->data[$i];
   }
@@ -82,7 +94,12 @@ class VDMList
 
   function toPlainText()
   {
-    return implode("\n\n", $this->data);
+    $ret = array();
+
+    foreach($this->data as $v)
+      $ret[] = $v->toPlainText();
+
+    return implode("\n\n", $ret);
   }
 
 }

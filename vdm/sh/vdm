@@ -14,7 +14,7 @@ function show_help()
     echo "      Options possibles :"
     echo "          -h        affiche l'aide"
     echo "          -r        affiche une VDM aleatoire"
-    echo "          -l        affiche les 15 derniere VDM"
+    echo "          -l        affiche les 15 dernieres VDM"
     echo "          -t        affiche le top"
     echo "          -f        affiche le flop"
     echo "          -p n      affichage la page n"

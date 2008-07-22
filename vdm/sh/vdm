@@ -1,0 +1,55 @@
+#!/bin/bash
+
+SERVER="http://api.babeuk.net/vdm/"
+
+
+function show_help()
+{
+    echo "usage : vdm [option] [-p n]"
+    echo "      Options possibles :"
+    echo "          -h        affiche l'aide"
+    echo "          -r        affiche une VDM aleatoire"
+    echo "          -l        affiche les 15 derniere VDM"
+    echo "          -t        affiche le top"
+    echo "          -f        affiche le flop"
+    echo "          -p n      affichage la page n"
+}
+
+
+function show_vdm()
+{
+    curl "${SERVER}?act=$1&pg=$2" 2>/dev/null
+    echo
+}
+
+
+act=random
+page=1
+
+while getopts "hrltfp:" opt
+do
+  case $opt in 
+      r)
+	  act=random
+	  ;;
+      l)
+	  act=last
+	  ;;
+      t)
+	  act=top
+	  ;;
+      f)
+	  act=flop
+	  ;;
+      p)
+	  page=$OPTARG
+	  ;;
+
+      * )
+	  show_help
+	  exit
+	  ;;
+        esac   
+done
+
+show_vdm $act $page

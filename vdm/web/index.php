@@ -19,7 +19,7 @@
 require_once('VDMServer.php');
 
 $action = isset($_GET['act']) ? strtolower($_GET['act']) : 'random';
-$page = isset($_GET['pg']) ? (0+$_GET['pg']) : 1;
+$page = isset($_GET['pg']) ? (0+$_GET['pg']) : 0;
 
 $vdmserv = new VDMServer();
 

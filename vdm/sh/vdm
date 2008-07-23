@@ -29,7 +29,7 @@ function show_vdm()
 
 
 act=random
-page=1
+page=0
 
 while getopts "hrltfp:" opt
 do
@@ -58,3 +58,4 @@ do
 done
 
 show_vdm $act $page
+

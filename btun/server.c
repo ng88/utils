@@ -122,10 +122,7 @@ int start_server(user_pool_t * eu, port_t port, FILE * flog)
 	    {
 		dbg_printf("select interrupted\n");
 		if(server_run)
-		{
-		    print_server_status();
 		    continue;
-		}
 		break;
 	    }
 

@@ -39,6 +39,10 @@
 
 #define DEFAULT_USER_FILE "/etc/btund/users"
 
+static char * conf_file;
+static user_pool_t * users;
+
+
 void usage(int ev)
 {
     fputs("usage: " SERVER_NAME " [options]\n"
@@ -67,13 +71,23 @@ void print_version()
     exit(EXIT_SUCCESS);
 }
 
-void do_nothing()
+void print_status_handler(int s)
 {
+    dbg_printf("signal %d\n", s);
+    print_server_status();
 }
 
 void stop_server_handler(int s)
 {
+    dbg_printf("signal %d\n", s);
     stop_server();
+}
+
+void reload_conf_handler(int s)
+{
+    dbg_printf("signal %d\n", s);
+    dbg_printf("reloading configuration...\n");
+    reload_users_from_file(users, conf_file);
 }
 
 int main(int argc, char ** argv)
@@ -85,6 +99,7 @@ int main(int argc, char ** argv)
 
     FILE * fusers = NULL;
     FILE * flog = NULL;
+    conf_file = NULL;
 
     while( (optch = getopt(argc, argv, "l:hvdp:u:")) != EOF )
     {
@@ -98,6 +113,8 @@ int main(int argc, char ** argv)
 		fprintf(stderr, SERVER_NAME ": unable to open `%s' for reading\n", optarg);
 		return EXIT_FAILURE;
 	    }
+	    else
+		conf_file = strdup(optarg);
 	    break;
 	case 'l':
 	    if(flog) fclose(flog);
@@ -135,11 +152,12 @@ int main(int argc, char ** argv)
 		stderr);
 	    return EXIT_FAILURE;
 	}
+	else
+	    conf_file = strdup(DEFAULT_USER_FILE);
     }
 
-    user_pool_t * pool = create_user_pool();
-
-    read_users_from_file(pool, fusers);
+    users = create_user_pool();
+    read_users_from_file(users, fusers);
     fclose(fusers);
 
     struct sigaction nv, old;
@@ -149,9 +167,13 @@ int main(int argc, char ** argv)
     sigaction(SIGTERM, &nv, &old);
     sigaction(SIGINT, &nv, &old);
 
-    nv.sa_handler = &do_nothing;
+    nv.sa_handler = &print_status_handler;
     sigaction(SIGUSR1, &nv, &old);
     sigaction(SIGHUP, &nv, &old);
+
+    nv.sa_handler = &reload_conf_handler;
+    sigaction(SIGUSR2, &nv, &old);
+
 
     if(exe_daemon)
     {
@@ -163,9 +185,12 @@ int main(int argc, char ** argv)
 	}
     }
 
-    int r = start_server(pool, port, flog);
+    int r = start_server(users, port, flog);
 
-    free_user_pool(pool);
+    free_user_pool(users);
+
+    if(conf_file)
+	free(conf_file);
 
     if(flog)
 	fclose(flog);

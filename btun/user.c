@@ -116,6 +116,19 @@ void read_users_from_file(user_pool_t * p, FILE * f)
     }
 }
 
+void reload_users_from_file(user_pool_t * p, char * fn)
+{
+    FILE * f = fopen(fn, "r");
+
+    if(!f)
+	return;
+
+    clear_user_pool(p);
+    read_users_from_file(p, f);
+
+    fclose(f);
+}
+
 user_t * get_user_from_name(user_pool_t * p, char * login)
 {
     c_assert(p && login);
@@ -148,7 +161,7 @@ void print_user_pool(user_pool_t * p, FILE * f)
 
 }
 
-void free_user_pool(user_pool_t * p)
+void clear_user_pool(user_pool_t * p)
 {
     c_assert(p);
 
@@ -157,6 +170,15 @@ void free_user_pool(user_pool_t * p)
 
     for(i = 0; i < s; ++i)
 	free_user(get_user_at(p, i));
+
+    vector_clear(p->users, 0);
+}
+
+void free_user_pool(user_pool_t * p)
+{
+    c_assert(p);
+
+    clear_user_pool(p);
 
     free_vector(p->users, 0);
 

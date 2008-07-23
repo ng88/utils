@@ -36,9 +36,17 @@
 #include <fcntl.h>
 #include <termios.h>
 
-#define _XOPEN_SOURCE_
-#define __USE_XOPEN
-#define __USE_XOPEN2K
+#ifndef __USE_XOPEN
+# define __USE_XOPEN
+#endif
+
+#ifndef _XOPEN_SOURCE_
+# define _XOPEN_SOURCE_
+#endif
+
+#ifndef __USE_XOPEN2K
+# define __USE_XOPEN2K
+#endif
 #include <stdlib.h>
 
 #include "client.h"

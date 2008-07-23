@@ -1,8 +1,8 @@
 
-ifdef DISABLE_DEBUG_PRINT
-    DDPFLAGS=-DDISABLE_DEBUG_PRINT=1
-else
+ifdef DEBUGPRINT
     DDPFLAGS=
+else
+    DDPFLAGS=-DDISABLE_DEBUG_PRINT=1
 endif
 
 # disable the plugin system

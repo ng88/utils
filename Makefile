@@ -61,7 +61,7 @@ installbtun:
 install: installbtun installnobtun
 
 package:
-	./make_slack_package_btun.sh DISABLE_DEBUG_PRINT=1
+	./make_slack_package_btun.sh
 	./make_slack_package_utils.sh ENABLE_READLINE=1
 clean:
 	$(MAKE) -C cpufreq clean

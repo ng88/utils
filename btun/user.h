@@ -48,6 +48,7 @@ typedef struct
 
 user_pool_t * create_user_pool();
 void read_users_from_file(user_pool_t * p, FILE * f);
+void reload_users_from_file(user_pool_t * p, char * f);
 user_t * get_user_from_name(user_pool_t * p, char * login);
 #define get_user_at(p, i) \
         ((user_t *)vector_get_element_at((p)->users, (i)))
@@ -57,6 +58,7 @@ user_t * get_user_from_name(user_pool_t * p, char * login);
          (vector_add_element((p)->users, (u)))
 void print_user_pool(user_pool_t * p, FILE * f);
 void free_user_pool(user_pool_t * p);
+void clear_user_pool(user_pool_t * p);
 
 
 user_t * create_user(char * login, char * pass);

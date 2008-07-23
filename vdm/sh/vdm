@@ -5,7 +5,7 @@
 #
 #
 
-SERVER="http://api.babeuk.net/vdm/"
+SERVER="http://api.babeuk.net/vdm/plaintext.php"
 
 
 function show_help()

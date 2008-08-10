@@ -18,7 +18,9 @@
 
 require_once('xml.php');
 
-define('SERVER_URL', 'http://api.viedemerde.fr/1.0/');
+// Demande de clef gratuite : http://www.viedemerde.fr/api/developpeurs
+define('SERVER_KEY', 'VOTRE_CLEF_DEVELOPPEUR_ICI');
+define('SERVER_URL', 'http://api.viedemerde.fr/1.1/');
 define('SERVER_ACTION_VIEW', 'view/');
 
 class VDMServer
@@ -57,7 +59,7 @@ class VDMServer
 
     $page = (($page == NULL) ? '' : '/' . $page);
 
-    $parser->parseFromURL(SERVER_URL . SERVER_ACTION_VIEW . $type . $page);
+    $parser->parseFromURL(SERVER_URL . SERVER_ACTION_VIEW . $type . $page . '?key=' . SERVER_KEY);
 
     return $parser->getResult();
   }

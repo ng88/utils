@@ -20,7 +20,7 @@ require_once('xml.php');
 
 // Demande de clef gratuite : http://www.viedemerde.fr/api/developpeurs
 define('SERVER_KEY', 'VOTRE_CLEF_DEVELOPPEUR_ICI');
-define('SERVER_URL', 'http://api.viedemerde.fr/1.1/');
+define('SERVER_URL', 'http://api.viedemerde.fr/1.2/');
 define('SERVER_ACTION_VIEW', 'view/');
 
 class VDMServer

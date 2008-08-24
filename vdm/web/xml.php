@@ -52,6 +52,7 @@ class VDmXml
         {
           case 'VDM':
             $this->vdm = new VDM();
+            $this->vdm->setID($attributes['ID']);
             break;
           case 'AUTEUR':
           case 'CATEGORIE':

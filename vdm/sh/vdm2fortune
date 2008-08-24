@@ -37,6 +37,7 @@ fi
 echo "Construction de l'index..."
 cd $DEST
 strfile vdm
+chmod a+r vdm vdm.dat
 
 echo "Entrez 'fortune vdm' pour tester."
 

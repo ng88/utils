@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#
+# Author : Nicolas GUILLAUME <ng@ngsoft-fr.com>
+#
+#  Télécharge la liste de toutes les VDM au format fortune.
+#  Créé les fichiers vdm et vdm.dat pour fortune dans $DEST
+#  si on a les droits, dans le dossier courant sinon.
+#
+#  Les VDM sont téléchargées en UTF8 ou 8859-15 selon la locale.
+#
+#
+
+SERVER="http://api.babeuk.net/vdm/fortune.php"
+
+DEST=/usr/share/games/fortunes
+
+TMP=/tmp/vdm.$RANDOM.$$
+
+if ( echo $LANG | grep -i utf ) > /dev/null 2>&1
+then
+  CS=UTF-8
+else
+  CS=ISO-8859-15
+fi
+
+
+echo Telechargement en cours...
+curl -L "${SERVER}?t=$RANDOM"  2>/dev/null | iconv -f UTF-8 -t $CS > $TMP
+
+if ! cp -f $TMP $DEST/vdm 2>/dev/null
+then
+    DEST=.
+    cp -f $TMP $DEST/vdm || exit 3
+fi
+
+echo "Construction de l'index..."
+cd $DEST
+strfile vdm
+
+echo "Entrez 'fortune vdm' pour tester."
+
+rm -f $TMP
+

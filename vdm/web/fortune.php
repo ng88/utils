@@ -41,17 +41,16 @@ do
         if($nlast == -1)
             $nlast = $vdm->getID();
 
-        echo ($vdm->getID() == $last_id).'-'.($vdm->getID()).'-'.($last_id)."\n";
         if($vdm->getID() == $last_id)
         {
             $done = true;
             break;
         }
-        //fwrite($ftmp, $vdm->toPlainText(false).$sep);
+        fwrite($ftmp, $vdm->toPlainText(false).$sep);
     }
     $page++;
 }
-while($page < 5 && !$done && $list->count() > 0);
+while($page < 500 && !$done && $list->count() > 0);
 
 fwrite($ftmp, file_get_contents('cache/cache-last-txt'));
 
@@ -66,8 +65,6 @@ fclose($fid);
 flock($fp, LOCK_UN);
 fclose($fp);
 
-
-echo file_get_contents('cache/cache-last-txt');
-
+header('Location: cache/cache-last-txt');
 
 ?>

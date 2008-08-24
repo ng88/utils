@@ -26,7 +26,7 @@ fi
 
 
 echo Telechargement en cours...
-curl -L "${SERVER}?t=$RANDOM"  2>/dev/null | iconv -f UTF-8 -t $CS > $TMP
+curl -L "${SERVER}?t=$RANDOM" | iconv -f UTF-8 -t $CS > $TMP
 
 if ! cp -f $TMP $DEST/vdm 2>/dev/null
 then

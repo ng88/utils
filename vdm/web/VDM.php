@@ -59,12 +59,16 @@ class VDM
   function setCommCount($v) { $this->commentaires = $v; }
   function getCommCount() { return $this->commentaires; }
 
-  function toPlainText()
+  function toPlainText($infos = true)
   {
-      return $this->getTexte() . "\n" .
-           '=== Le ' . $this->getHMDate() . ' par ' . $this->getAuteur() . "\n" .
-           '=== Je valide (' . $this->getJeValide() . ') / Bien mérité (' . $this->getBienMerite() .
-           ') / Commentaires (' . $this->getCommCount() . ')';
+      $ret =  $this->getTexte() . "\n" .
+           '=== Le ' . $this->getHMDate() . ' par ' . $this->getAuteur() . "\n";
+
+      if($infos)
+           $ret .= '=== Je valide (' . $this->getJeValide() . ') / Bien mérité (' . $this->getBienMerite() .
+                    ') / Commentaires (' . $this->getCommCount() . ')';
+
+      return $ret;
   }
 
   
@@ -107,6 +111,7 @@ class VDMList
 
     return implode("\n\n", $ret);
   }
+
 
 }
 

@@ -26,7 +26,7 @@
 
 /**
 
-      L'idée est d'avoir d'implémenter un multpilexeur TCP
+      L'idée est d'implémenter un multpilexeur TCP
 
       C'est à dire un genre de nc capable de transmettre plusieurs
       connexions à travers l'entrée et la sortie standard
@@ -34,14 +34,14 @@
 
       Exemple d'utilisation désirée :
 
-        client http / ssh
+          client http
 
               /\
               ||
               \/
 
 
-      tcp_multiplexer -l 80 -l 22 # ecoute sur les ports 22/80
+      tcp_multiplexer 80 # ecoute sur le port 80
                 
               /\
              /||\
@@ -53,13 +53,13 @@
              \||/
               \/
 
-      tcp_multiplexer localhost # connecte les ports 22/80 sur localhost
+      tcp_multiplexer localhost 80 # connecte le port 80 sur localhost
 
               /\
               ||
               \/
 
-         httpd / sshd
+             httpd
 
 
       Cela permettra de faire des tunnels TCP avec btun (entre autre)
@@ -68,24 +68,38 @@
 
 */
 
+/** Packet type */
 enum
 {
+    /** New connection/channel */
     RT_CONNECT = 0,
+
+    /** Close connection/channel */
     RT_CLOSE = 1,
+
+    /** Send/recv data */
     RT_DATA = 2,
 };
 
 
+/** Magic number */
 #define RT_MAGIC ((char)0xAA)
 
-//enum { RT_BUFF = 768, RT_SAFE_SIZE = 512 };
 enum { RT_BUFF = 600 };
 
+/** Packet header */
 typedef struct
 {
+    /** Magic number to ensure minimal consistency */
     char magic;
+
+    /** Packet type (new connection, ...) */
     char type;
+
+    /** Channel ID */
     uint16_t id;
+
+    /** Data len (if any) */
     uint16_t len;
 } header_t;
 

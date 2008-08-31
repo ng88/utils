@@ -47,7 +47,7 @@ void usage(int ev)
           "   -h                 print this help and quit\n"
           "   -v                 print version and quit\n"
 	  "   -t                 use a pseudo terminal for command execution\n"
-	  "   -f <file>          read passhrase from 'file' (if 'file' is -, stdout is used)\n"
+	  "   -f <file>          read passhrase from 'file' (if 'file' is -, stdin is used)\n"
 	  "                      the file must only contains the md5 hash of the user passphrase\n"
 	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
 #ifdef USE_DL

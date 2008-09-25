@@ -1,4 +1,10 @@
 
+ifdef IPV6
+    IPF=-DIPV=6 -DIPV6=1
+else
+    IPF=-DIPV=4 -DIPV4=1
+endif
+
 
 ifdef DEBUGPRINT
     DDPFLAGS=
@@ -13,7 +19,7 @@ else
 endif
 
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused -O3 $(ASSERTFLAGS) $(DDPFLAGS)
+CFLAGS=-W -Wall -Wno-unused -O3 $(ASSERTFLAGS) $(DDPFLAGS) $(IPF)
 LDFLAGS=
 
 all:

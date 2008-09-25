@@ -26,6 +26,12 @@ else
     STRIP=strip
 endif
 
+ifdef IPV6
+    IPF=-DIPV=6 -DIPV6=1
+else
+    IPF=-DIPV=4 -DIPV4=1
+endif
+
 ifdef NOASSERT
     ASSERTFLAGS=-DDISABLE_ASSERT=1
 else
@@ -41,7 +47,7 @@ else
 endif
 
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused -O3 $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DUDL) $(PLUGFLAGS)
+CFLAGS=-W -Wall -Wno-unused -O3 $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DUDL) $(PLUGFLAGS) $(IPF)
 LDFLAGS=
 
 SRC=common.c vector.c md5.c misc.c

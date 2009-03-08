@@ -62,12 +62,23 @@ public class BTunClient
 	socket = null;
     }
 
-    public void connectToChannel(String channel) throws Exception
+    public BTunClient(BTunClient o)
+    {
+	this.login = o.login;
+	this.passwd = o.passwd;
+	this.port = o.port;
+	this.host = o.host;
+	socket = null;
+	chan = null;
+    }
+
+
+    public void connectToChannel(String channel) throws IOException
     {
 	connectToChannel(channel, (byte)0);
     }
 
-    public void connectToChannel(String channel, byte options) throws Exception
+    public void connectToChannel(String channel, byte options) throws IOException
     {
 	chan = channel;
 	if(channel.length() > BTunProtocol.USER_MAX_CHANNEL_SIZE - 1)
@@ -90,12 +101,12 @@ public class BTunClient
 
 	byte agreement = (byte)inFromServer.read();
 	if(agreement != BTunProtocol.CA_GRANTED)
-	    throw new Exception(BTunProtocol.caErrorToString(agreement));
+	    throw new IOException(BTunProtocol.caErrorToString(agreement));
     }
 
 
 
-    protected void connect() throws Exception
+    protected void connect() throws IOException
     {
 	socket = new Socket(getHost(), getPort());
 
@@ -119,7 +130,7 @@ public class BTunClient
 
 	byte agreement = (byte)inFromServer.read();
 	if(agreement != BTunProtocol.CA_GRANTED)
-	    throw new Exception(BTunProtocol.caErrorToString(agreement));
+	    throw new IOException(BTunProtocol.caErrorToString(agreement));
 
     }
 
@@ -141,7 +152,7 @@ public class BTunClient
      */
     public BTunClient createNewClient()
     {
-	return new BTunClient(getLogin(), getPasswd(), getHost(), getPort());
+	return new BTunClient(this);
     }
 
 

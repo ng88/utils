@@ -13,8 +13,8 @@ public class BTunProtocol
     public static final int DEFAULT_PORT = 12358;
 
     public static final int USER_MAX_PASS_SIZE = 64;
-    public static final int USER_MAX_LOGIN_SIZE = 8;
-    public static final int USER_MAX_CHANNEL_SIZE = 16;
+    public static final int USER_MAX_LOGIN_SIZE = 16;
+    public static final int USER_MAX_CHANNEL_SIZE = 64;
     public static final int CHALLENGE_SIZE = 16;
 
     /** master/slave channel */

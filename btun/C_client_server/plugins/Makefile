@@ -10,7 +10,7 @@ all: $(LIBPREFIX)xoror.$(LIBEXT) $(LIBPREFIX)compress.$(LIBEXT) $(LIBPREFIX)tee.
 
 
 $(LIBPREFIX)xoror.$(LIBEXT): xoror.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LIBPREFIX)xoror.$(LIBEXT) xoror.c ../../xoror/xoror.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LIBPREFIX)xoror.$(LIBEXT) xoror.c ../../../xoror/xoror.c
 
 $(LIBPREFIX)example.$(LIBEXT): example.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LIBPREFIX)example.$(LIBEXT) example.c

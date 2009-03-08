@@ -31,7 +31,7 @@ sudoku-solver:
 	$(MAKE) -C $@
 
 btun:
-	$(MAKE) -C $@
+	$(MAKE) -C $@/C_client_server
 
 tcpmux: btun
 	$(MAKE) -C tcp_multiplexer
@@ -51,12 +51,12 @@ installbtun:
 	install -m 755 -d $(prefix)/usr/bin/
 	install -m 755 -d $(prefix)/etc/btund/
 	install -m 755 -d $(prefix)/usr/lib/btun/plugins/
-	install -m 644 btun/plugins/libbtpcompress.so btun/plugins/libbtptee.so btun/plugins/libbtpxoror.so $(prefix)/usr/lib/btun/plugins/
-	install -sm 755 btun/btun $(prefix)/usr/bin/
+	install -m 644 btun/C_client_server/plugins/libbtpcompress.so btun/C_client_server/plugins/libbtptee.so btun/C_client_server/plugins/libbtpxoror.so $(prefix)/usr/lib/btun/plugins/
+	install -sm 755 btun/C_client_server/btun $(prefix)/usr/bin/
 	install -sm 755 tcp_multiplexer/tcpmux $(prefix)/usr/bin/
-	install -sm 755 btun/btund $(prefix)/usr/sbin/
-	install -m 755 btun/scripts/btund_add_user.sh btun/scripts/create_passfile.sh $(prefix)/usr/sbin/
-	install -m 644 btun/config/users.sample $(prefix)/etc/btund/
+	install -sm 755 btun/C_client_server/btund $(prefix)/usr/sbin/
+	install -m 755 btun/C_client_server/scripts/btund_add_user.sh btun/C_client_server/scripts/create_passfile.sh $(prefix)/usr/sbin/
+	install -m 644 btun/C_client_server/config/users.sample $(prefix)/etc/btund/
 
 install: installbtun installnobtun
 
@@ -72,7 +72,7 @@ clean:
 	$(MAKE) -C scanp clean
 	$(MAKE) -C win2unix clean
 	$(MAKE) -C xoror clean
-	$(MAKE) -C btun clean
+	$(MAKE) -C btun/C_client_server clean
 	$(MAKE) -C sudoku-solver clean
 	$(MAKE) -C tcp_multiplexer clean
 

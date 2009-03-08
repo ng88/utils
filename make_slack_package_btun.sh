@@ -57,7 +57,7 @@ make tcpmux $* || exit 1
 make installbtun $* prefix=slack || exit 1
 
 install -m 755 -d slack/etc/rc.d/
-install -m 644 btun/config/rc.btund slack/etc/rc.d/
+install -m 644 btun/C_client_server/config/rc.btund slack/etc/rc.d/
 rm -f slack/etc/btund/users
 
 rev=$(common/get_svn_rev.sh)

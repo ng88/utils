@@ -24,7 +24,7 @@
 
 #include <string.h>
 #include "common.h"
-#include "../../xoror/xoror.h"
+#include "../../../xoror/xoror.h"
 
 
 typedef struct

@@ -79,6 +79,7 @@ public class VncViewer extends java.applet.Applet
 
   // Variables read from parameter values.
   String socketFactory;
+  String rfbVersion;
   String host;
   int port;
   String passwordParam;
@@ -737,6 +738,9 @@ public class VncViewer extends java.applet.Applet
 
     // SocketFactory.
     socketFactory = readParameter("SocketFactory", false);
+    rfbVersion = readParameter("RFBVersion", false);
+    if(rfbVersion != null)
+	rfbVersion = "RFB " + rfbVersion + "\n";
   }
 
   //

@@ -30,6 +30,7 @@ import java.awt.event.*;
 import java.net.Socket;
 import java.util.zip.*;
 import crypto.DesCipher;
+import btun.*;
 
 class RfbProto {
 
@@ -275,9 +276,12 @@ class RfbProto {
 
   void readVersionMsg() throws Exception {
 
-    byte[] b = new byte[12];
+    byte[] b;
 
-    readFully(b);
+    if(viewer.rfbVersion == null)
+	readFully(b = new byte[12]);
+    else
+	b = viewer.rfbVersion.getBytes(BTunProtocol.CHARSET);
 
     if ((b[0] != 'R') || (b[1] != 'F') || (b[2] != 'B') || (b[3] != ' ')
 	|| (b[4] < '0') || (b[4] > '9') || (b[5] < '0') || (b[5] > '9')

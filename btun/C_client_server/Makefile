@@ -43,7 +43,7 @@ ifdef REV
     REVCMD=true
 else
     REVFLAGS=-D__SVN_HEAD__=\"`cat last_svn_rev~`\"
-    REVCMD=../common/get_svn_rev.sh
+    REVCMD=../../common/get_svn_rev.sh
 endif
 
 CC=gcc

@@ -23,7 +23,7 @@ CFLAGS=-W -Wall -Wno-unused -O3 $(ASSERTFLAGS) $(DDPFLAGS) $(IPF)
 LDFLAGS=
 
 all:
-	$(CC) $(CFLAGS) -I../btun/ tcp_connection.c tcp_multiplexer.c ../btun/{common,md5,vector}.o -o tcpmux
+	$(CC) $(CFLAGS) -I../btun/C_client_server/ tcp_connection.c tcp_multiplexer.c ../btun/C_client_server/{common,md5,vector}.o -o tcpmux
 	strip tcpmux
 
 clean:

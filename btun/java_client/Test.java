@@ -2,6 +2,7 @@
 
 import btun.*;
 import shell.*;
+import viewer.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -16,22 +17,12 @@ public class Test
     {
 	try
 	{
-	   
-	    BTunClient b = new BTunClient("test", "test2", "localhost");
-
-	    b.connectToChannel("MaChannel");
-
-	    JFrame j = new JFrame("Shell");
-	    ShellPanel p = new ShellPanel(b);
+	    JFrame j = new JFrame("MainWindow");
+	    Viewer p = new Viewer();
 	    
 	    j.getContentPane().add(p);
 	    j.pack();
 	    j.setVisible(true);
-
-	    System.out.println(b);
-
-
-	    //b.disconnect();
 
 	}
 	catch(Exception ex)

@@ -31,6 +31,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import crypto.DesCipher;
+import javax.swing.*;
+import javax.swing.event.*;
 
 public class VncViewer extends java.applet.Applet
   implements java.lang.Runnable, WindowListener {
@@ -42,7 +44,7 @@ public class VncViewer extends java.applet.Applet
   // main() is called when run as a java program from the command line.
   // It simply runs the applet inside a newly-created frame.
   //
-
+    
   public static void main(String[] argv) {
     VncViewer v = new VncViewer();
     v.mainArgs = argv;
@@ -53,6 +55,23 @@ public class VncViewer extends java.applet.Applet
     v.start();
   }
 
+    public void setParameters(String login, String passwd, String host, int port, String machine)
+    {
+	String[] argv =
+	    {
+		"HOST", "",
+		"PORT", "",
+		"PASSWORD", passwd,
+		"SocketFactory",  "vnc.BTunSocketFactory",
+		"BTLOGIN", login,
+		"BTHOST", host,
+		"BTPORT", "" + port,
+		"BTMACHINE",  machine,
+	    };
+	mainArgs = argv;
+	inAnApplet = false;
+    }
+    
   String[] mainArgs;
 
   RfbProto rfb;
@@ -91,8 +110,6 @@ public class VncViewer extends java.applet.Applet
   int debugStatsExcludeUpdates;
   int debugStatsMeasureUpdates;
 
-  // Reference to this applet for inter-applet communication.
-  public static java.applet.Applet refApplet;
 
   //
   // init()
@@ -100,9 +117,7 @@ public class VncViewer extends java.applet.Applet
 
   public void init() {
 
-    readParameters();
-
-    refApplet = this;
+      readParameters();
 
     if (inSeparateFrame) {
       vncFrame = new Frame("TightVNC");
@@ -685,7 +700,7 @@ public class VncViewer extends java.applet.Applet
   // param_name/param_value pairs where the names and values correspond to
   // those expected in the html applet tag source.
   //
-
+    
   void readParameters() {
     host = readParameter("HOST", !inAnApplet);
     if (host == null) {
@@ -805,6 +820,7 @@ public class VncViewer extends java.applet.Applet
     }
     return result;
   }
+    
 
   //
   // moveFocusToDesktop() - move keyboard focus either to VncCanvas.
@@ -864,7 +880,7 @@ public class VncViewer extends java.applet.Applet
     if (inAnApplet) {
       showMessage("Disconnected");
     } else {
-      System.exit(0);
+      
     }
   }
 
@@ -881,7 +897,7 @@ public class VncViewer extends java.applet.Applet
       // can not present the error to the user.
       Thread.currentThread().stop();
     } else {
-      System.exit(1);
+      
     }
   }
 
@@ -903,7 +919,7 @@ public class VncViewer extends java.applet.Applet
     if (inAnApplet) {
       showMessage(str);
     } else {
-      System.exit(1);
+      
     }
   }
 
@@ -990,10 +1006,6 @@ public class VncViewer extends java.applet.Applet
       disconnect();
 
     vncContainer.hide();
-
-    if (!inAnApplet) {
-      System.exit(0);
-    }
   }
 
   //

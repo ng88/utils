@@ -8,7 +8,7 @@
 
 if [ "$5" = "" ]
 then	
-    echo "usage: $0 username passfile btunserver vnc_host vnc_port" >&2
+    echo "usage: $0 username passfile btunserver vnc_host vnc_port machine" >&2
     exit 1
 fi
 
@@ -17,6 +17,7 @@ passfile="$2"
 server="$3"
 vhost="$4"
 vport="$5"
+machine="$6"
 
 lastid=100
 line=''
@@ -32,7 +33,7 @@ do
           ;;
    'GetNewChannelName')
       (( lastid++ ))
-      echo "${username}_VNC_${lastid}_$RANDOM$RANDOM"
+      echo "${username}_${machine}_VNC${lastid}_$RANDOM$RANDOM"
 	;;
    'ConnectToVNC')
       btun "${username}@${server}" -f $passfile $arg0 nc $vhost $vport & 

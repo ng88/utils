@@ -6,7 +6,7 @@ CP = cp
 JC = javac
 JCFLAGS = -target 1.1 -source 1.2
 JAR = jar
-ARCHIVE = VncViewer.jar
+ARCHIVE = BTunViewer.jar
 MANIFEST = MANIFEST.MF
 INSTALL_DIR = /usr/local/vnc/classes
 

@@ -24,8 +24,17 @@
 
 package shell;
 
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
-public class Cconsole
+import java.io.*;
+import javax.swing.text.*;
+import java.util.*;
+
+
+public class Console
     extends JTextArea
 {
     
@@ -43,22 +52,41 @@ public class Cconsole
     
     public Console()
     {
+	this("");
+    }
+
+    public Console(String prompt)
+    {
         setForeground(Color.lightGray);
         setBackground(Color.black);
 	setCaretColor(Color.lightGray);
         setFont(FIXED_FONT);
 	setLineWrap(true);
-        
-    }
 
-    public Console(String prompt)
-    {
-        this();
+	//((DefaultCaret)getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
         getPeriphDocument().setPrompt(prompt);
     }
-    
-    
-    
+
+    /**  Thread safe
+     */
+    public synchronized void printString(String str, boolean blockInputEvent)
+    {
+	if(blockInputEvent)
+	    getPeriphDocument().blockInputEvent(true);
+
+        append(str);
+        getPeriphDocument().setLockedUntilSelection();
+	setCaretPosition(getDocument().getLength());
+
+	if(blockInputEvent)
+	    getPeriphDocument().blockInputEvent(false);
+    }
+ 
+    public void printString(String str)
+    {
+        printString(str, true);
+    } 
 
 
     public PeriphInDocument getPeriphDocument()
@@ -80,6 +108,8 @@ public class Cconsole
         private int lastPrompt;
         
         protected String prompt;
+
+	 protected volatile boolean block;
         
         /** Systeme simpliste d'"action" listener*/
         private InputListener il; 
@@ -98,6 +128,7 @@ public class Cconsole
         
         public PeriphInDocument()
         {
+	    block = false;
 	    resetInput();
         }
 
@@ -137,7 +168,7 @@ public class Cconsole
                     
                 if(str.charAt(str.length() - 1) == '\n')
                 {
-                    if(il != null)
+                    if(il != null && !block)
                         il.newInput(newText);
                         
                     str += prompt;
@@ -148,6 +179,11 @@ public class Cconsole
                 
                 super.insertString(offs, str, a);
         }
+
+	 public synchronized void blockInputEvent(boolean b)
+	 {
+	     block = b;
+	 }
         
         public void remove(int offs, int len)
             throws BadLocationException

@@ -48,10 +48,18 @@ public class ShellPanel extends JPanel
 
        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         
+
+	Dimension d;
+        setMinimumSize(d = new Dimension(640, 280));
+        //console.setMaximumSize(d);
+        setPreferredSize(d);
+
 	JScrollPane sp =  new JScrollPane(
 		    console = new Console(),
                     JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                     JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+
 
         add(sp);
 
@@ -59,28 +67,26 @@ public class ShellPanel extends JPanel
 	btclient = bt;
 
 	final DataOutputStream btout = new DataOutputStream(bt.getChannelOutputStream());
-	final BufferedReader btin
-	    = new BufferedReader(new InputStreamReader(bt.getChannelInputStream()));
-	//final DataInputStream btin = new DataInputStream(bt.getChannelInputStream());
+	//final BufferedReader btin
+	//  = new BufferedReader(new InputStreamReader(bt.getChannelInputStream()));
+	final DataInputStream btin = new DataInputStream(bt.getChannelInputStream());
 
-	ActionListener al = new ActionListener()
-	    {
-		public void actionPerformed(ActionEvent e)
-		{
-		    try
-		    {
-			/*String str = input.getText() + "\n";
-			btout.writeChars(str);
-			console.append(str);
-			input.setText("");*/
-		    }
-		    catch(Exception ex)
-		    {
-			ex.printStackTrace();
-		    }
-		}
-	    };
 
+        console.getPeriphDocument().addInputListener(new InputListener()
+                    {
+                        public void newInput(String str)
+                        {
+			    try
+			    {
+				btout.writeChars(str);
+			    }
+			    catch(Exception ex)
+			    {
+				ex.printStackTrace();
+			    }			    
+                        }
+                    }
+                     );
 
 	Thread inth = new Thread()
 	    {
@@ -89,11 +95,18 @@ public class ShellPanel extends JPanel
 		{
 		    try
 		    {
+			StringBuffer bf = new StringBuffer();
 			while(true)
 			{
-			    console.append(btin.readLine());
-			    //while(btin.ready())
-				//console.append(""+(char)btin.read());
+			    
+			    while(btin.available() > 0)
+			    {
+				bf.append((char)btin.readByte());
+			    }
+
+			    console.printString(bf.toString());
+			    bf.setLength(0);
+			    bf.append((char)btin.readByte());
 			}
 		    }
 		    catch(Exception ex)

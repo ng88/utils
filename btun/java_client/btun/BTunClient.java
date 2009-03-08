@@ -1,3 +1,26 @@
+/******************************************************************************
+ *   btun/btund is a powerful backward tunnel creator                         *
+ *                                                                            *
+ *   An user guide is available on:                                           *
+ *    http://svn.ngsoft-fr.com/trac/utils/wiki/BtunUserGuideEnglish           *
+ *                                                                            *
+ ******************************************************************************/
+ 
+/***************************************************************************
+ *   This file is part of the 'utils' projects                             *
+ *                                                                         *
+ *   'utils' projects                                                      *
+ *                                                                         *
+ *   Copyright (C) 2006, 2008 by GUILLAUME Nicolas                         *
+ *   ng@ngsoft-fr.com                                                      *
+ *                                                                         *
+ *   http://svn.ngsoft-fr.com/trac/utils/                                  *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; version 2 of the License only.          *
+ *   See the COPYING file.                                                 *
+ ***************************************************************************/
 
 package btun;
 
@@ -131,12 +154,26 @@ public class BTunClient
 
     public OutputStream getChannelOutputStream()
     {
-	return chan == null || socket == null ? null : return socket.getOutputStream();
+	try
+	{
+	    return chan == null || socket == null ? null : socket.getOutputStream();
+	}
+	catch(Exception ex)
+	{
+	    return null;
+	}
     }
 
     public InputStream getChannelInputStream()
     {
-	return chan == null || socket == null ? null : return socket.getinputStream();
+	try
+	{
+	    return chan == null || socket == null ? null : socket.getInputStream();
+	}
+	catch(Exception ex)
+	{
+	    return null;
+	}
     }
 
     public Socket getSocket()

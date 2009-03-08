@@ -1,6 +1,12 @@
 
 
 import btun.*;
+import shell.*;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 
 public class Test
@@ -15,10 +21,17 @@ public class Test
 
 	    b.connectToChannel("MaChannel");
 
+	    JFrame j = new JFrame("Shell");
+	    ShellPanel p = new ShellPanel(b);
+	    
+	    j.getContentPane().add(p);
+	    j.pack();
+	    j.setVisible(true);
+
 	    System.out.println(b);
 
 
-	    b.disconnect();
+	    //b.disconnect();
 
 	}
 	catch(Exception ex)

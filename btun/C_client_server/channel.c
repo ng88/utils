@@ -217,6 +217,9 @@ unsigned char channel_add_user(channel_t * c, channel_entry_t * e, option_t opt)
 	    if( (opt & OPT_AUTOCLOSE) )
 		return CA_CANT_CHPERM;
 
+	    if( (c->opts & OPT_CONTROL) && cc == 2 )
+		return CA_TOO_MUCH_USER;
+
 	    if( !(c->opts & OPT_UNRESTRICTED) && channel_get_user_at(c, 0)->user != e->user )
 		return CA_DENIED;
 	}

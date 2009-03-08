@@ -44,23 +44,24 @@ void usage(int ev)
     fputs("usage: " CLIENT_NAME " [options] user@host channel [command arg1 ... argn]\n"
           "  Connect to a btund server on specified host.\n\n"
 	  "  Accepted options:\n"
-          "   -h                 print this help and quit\n"
-          "   -v                 print version and quit\n"
-	  "   -t                 use a pseudo terminal for command execution\n"
-	  "   -f <file>          read passhrase from 'file' (if 'file' is -, stdin is used)\n"
+          "   -h                 prints this help and quit\n"
+          "   -v                 prints version and quit\n"
+	  "   -t                 uses a pseudo terminal for command execution\n"
+	  "   -f <file>          reads passhrase from 'file' (if 'file' is -, stdin is used)\n"
 	  "                      the file must only contains the md5 hash of the user passphrase\n"
-	  "   -p <port>          use 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
+	  "   -p <port>          uses 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
 #ifdef USE_DL
-	  "   -s <name>          try to load the plugin named 'name'. Any number of plugin can be\n"
+	  "   -s <name>          tries to load the plugin named 'name'. Any number of plugin can be\n"
           "                      loaded, the data stream is processed by each plugin, in load order\n"
           "                      (usual plugins includes compress, xoror, http, tee, ...)\n"
 	  "   -o <opt>           pass the option 'opt' to last plugin (loaded with -s)\n"
 #endif
-	  "   -m                 request to be the master of the channel\n"
-	  "   -u                 create an unrestricted channel\n"
-	  "   -r                 create a restricted channel (default)\n"
-	  "   -a                 create an autoclose channel\n\n"
-	  "  Note: -m, -u and -a will ONLY work if you are the first to join the specified channel.\n"
+	  "   -m                 requests to be the master of the channel\n"
+	  "   -u                 creates an unrestricted channel\n"
+	  "   -r                 creates a restricted channel (default)\n"
+	  "   -a                 creates an autoclose channel\n"
+	  "   -c                 creates a channel used for control (implies -m)\n\n"
+	  "  Note: -c, -m, -u and -a will ONLY work if you are the first to join the specified channel.\n"
 	  "\n"
 	  , stderr);
     exit(ev);
@@ -153,7 +154,7 @@ int main(int argc, char ** argv)
     vector_t * plugins_args = create_vector(1);
     char * plugins_name = NULL;
 
-    while( (optch = getopt(argc, argv, "o:s:ahvmurtf:p:")) != EOF )
+    while( (optch = getopt(argc, argv, "o:s:ahvmcurtf:p:")) != EOF )
     {
 	switch(optch)
 	{
@@ -196,6 +197,9 @@ int main(int argc, char ** argv)
 	    break;
 	case 'a':
 	    opts |= OPT_AUTOCLOSE;
+	    break;
+	case 'c':
+	    opts |= OPT_CONTROL;
 	    break;
 	case 'm':
 	    opts |= OPT_MASTER;

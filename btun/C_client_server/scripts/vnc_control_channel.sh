@@ -19,6 +19,8 @@ vhost="$4"
 vport="$5"
 machine="$6"
 
+lshell="bash"
+
 lastid=100
 line=''
 
@@ -26,23 +28,41 @@ while read cmd arg0 arg1
 do
 
   case "$cmd" in
-   '?'|'help'|'h')
-       echo ' > GetNewChannelName: return an available channel name'
+   '?'|'help'|'h'|'Help')
+       echo 'Ok'
+       echo ' > GetNewChannelName [base]: return an available channel name, base is optional'
        echo ' > ConnectToVNC channel: connect local VNC to channel'
-       echo ' > help'
+       echo ' > ConnectToShell channel: connect a local shell to channel'
+       echo ' > Help: show this help'
           ;;
    'GetNewChannelName')
       (( lastid++ ))
-      echo "${username}_${machine}_VNC${lastid}_$RANDOM$RANDOM"
+      base="$arg0"
+      [ "$base" = "" ] && base="MSC"
+      echo "${username}_${machine}_$base${lastid}_$RANDOM$RANDOM"
 	;;
    'ConnectToVNC')
-      btun "${username}@${server}" -f $passfile $arg0 nc $vhost $vport & 
-      echo "Ok"
+      if [ "$arg0" = "" ]
+      then
+	echo "Error: missing channel name argument"
+      else
+	btun "${username}@${server}" -f $passfile $arg0 nc $vhost $vport & 
+	echo "Ok"
+      fi
+	;;
+   'ConnectToShell')
+      if [ "$arg0" = "" ]
+      then
+	echo "Error: missing channel name argument"
+      else
+	btun "${username}@${server}" -f $passfile $arg0 -t $lshell & 
+	echo "Ok"
+      fi
 	;;
    '')
 	  ;;
    *)
-      echo 'command `'$cmd"'"' not understood' ;;
+      echo 'Error: command `'$cmd"'"' not understood' ;;
 
   esac
 

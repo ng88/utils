@@ -1,2 +1,3 @@
 Manifest-Version: 1.0
 Main-Class: viewer.ViewerApplet
+Class-Path: viewer btun crypto shell vnc

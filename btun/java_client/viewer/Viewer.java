@@ -17,6 +17,8 @@ public class Viewer extends JTabbedPane
 
     protected ConfigViewer cfg;
 
+    public ConfigViewer getConfigViewer() { return cfg; }
+
     public Viewer()
     {
 	addTab("Configuration", cfg = new ConfigViewer()); 

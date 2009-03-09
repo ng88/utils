@@ -45,7 +45,7 @@ public class Viewer extends JTabbedPane
 							   );
 			    bt.connectToChannel(cfg.getLogin() + "_" + cfg.getMachine() + "_Shell");
 			    ShellPanel shell = new ShellPanel(bt);
-			    addTab("Shell on " + cfg.getMachine(), shell);
+			    addTab("Shell on " + cfg.getMachine(), shell, true);
 			}
 			else
 			{
@@ -58,10 +58,9 @@ public class Viewer extends JTabbedPane
 					    cfg.getMachine()
 					    );
 			    v.init();
-			    addTab("VNC on " + cfg.getMachine(), v);
+			    addTab("VNC on " + cfg.getMachine(), v, true);
 			    v.start();
 			}
-			setSelectedIndex(getTabCount() - 1);
 		    }
 		    catch(Exception ex)
 		    {
@@ -75,6 +74,18 @@ public class Viewer extends JTabbedPane
 		}
 	    });
 
+    }
+
+    protected void addTab(String txt, Component c, boolean closeable)
+    {
+	int last = getTabCount();
+
+	addTab(txt, c);
+
+	if(closeable)
+	    setTabComponentAt(last, new ButtonTabComponent(this));
+
+	setSelectedIndex(last);
     }
 
 }

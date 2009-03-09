@@ -45,7 +45,7 @@ public class ConfigViewer
     public String getLogin() { return txtLogin.getText(); }
 
     public void setPasswd(String s) { txtPass.setText(s); }
-    public String getPasswd() { return txtPass.getText(); }
+    public String getPasswd() { return new String(txtPass.getPassword()); }
 
     public void setServer(String s) { txtServer.setText(s); }
     public String getServer() { return txtServer.getText(); }

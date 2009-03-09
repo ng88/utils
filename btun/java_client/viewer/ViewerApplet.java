@@ -16,14 +16,19 @@ public class ViewerApplet extends JApplet
 {
     public ViewerApplet()
     {
+
+    }
+    
+    public void init()
+    {
 	try
         {
 	    String str;
 
 	    if( (str = getParameter("DisableSM")) != null )
-		if(str.equals("1")
-		   System.setSecurityManager(null);
-
+		if(str.equals("1"))
+		    System.setSecurityManager(null);
+	    
 	    Viewer p = new Viewer();
 
 	    if( (str = getParameter("BTunServer")) != null )

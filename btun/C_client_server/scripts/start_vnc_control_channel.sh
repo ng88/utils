@@ -19,5 +19,5 @@ vhost="$4"
 vport="$5"
 machine="$6"
 
-exec btun "${username}@${server}" -c -f $passfile "${username}_${machine}_VNCCtrlChan" ./vnc_control_channel.sh "$username" "$passfile" "$server" "$vhost" "$vport" "$machine"
+exec btun -c -f $passfile "${username}@${server}" "${username}_${machine}_VNCCtrlChan" ./vnc_control_channel.sh "$username" "$passfile" "$server" "$vhost" "$vport" "$machine"
 

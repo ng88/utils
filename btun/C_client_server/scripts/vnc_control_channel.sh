@@ -46,7 +46,7 @@ do
       then
 	echo "Error: missing channel name argument"
       else
-	btun "${username}@${server}" -f $passfile $arg0 nc $vhost $vport & 
+	btun -f $passfile "${username}@${server}" $arg0 nc $vhost $vport & 
 	echo "Ok"
       fi
 	;;
@@ -55,7 +55,7 @@ do
       then
 	echo "Error: missing channel name argument"
       else
-	btun "${username}@${server}" -f $passfile $arg0 -t $lshell & 
+	btun -f $passfile  -t $lshell "${username}@${server}" $arg0 & 
 	echo "Ok"
       fi
 	;;

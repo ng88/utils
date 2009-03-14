@@ -26,7 +26,7 @@
 #define VERSION_H
 
 #define CLIENT_NAME      "btun"
-#define CLIENT_VERSION   "0.7.9"
+#define CLIENT_VERSION   "0.8.0"
 #define CLIENT_REVISION  __SVN_HEAD__
 #define CLIENT_DATE      __DATE__
 

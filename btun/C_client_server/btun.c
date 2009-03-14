@@ -46,6 +46,7 @@ void usage(int ev)
 	  "  Accepted options:\n"
           "   -h                 prints this help and quit\n"
           "   -v                 prints version and quit\n"
+	  "   -d                 executes server as a system daemon\n"
 #ifdef VTTY
 	  "   -t                 uses a pseudo terminal for command execution\n"
 #endif
@@ -139,6 +140,7 @@ int main(int argc, char ** argv)
 
     int optch;
 
+    bool exe_daemon = false;
     mode_t mode = M_NORMAL;
     port_t port = SERVER_DEFAULT_PORT;
     FILE * fpass = NULL;
@@ -156,10 +158,13 @@ int main(int argc, char ** argv)
     vector_t * plugins_args = create_vector(1);
     char * plugins_name = NULL;
 
-    while( (optch = getopt(argc, argv, "o:s:ahvmcurtf:p:")) != EOF )
+    while( (optch = getopt(argc, argv, "o:s:ahvmcurtf:p:d")) != EOF )
     {
 	switch(optch)
 	{
+	case 'd':
+	    exe_daemon = true;
+	    break;
 	case 'f':
 	    if(!strcmp(optarg, "-"))
 		fpass = stdin;
@@ -319,6 +324,16 @@ int main(int argc, char ** argv)
 
     if(plugins)
 	fprintf(stderr, "WARNING: the plugin feature and the provided plugins are experimental!\n");
+
+    if(exe_daemon)
+    {
+	dbg_printf("daemonisation...\n");
+	if(daemon(0, 1) != 0)
+	{
+	    perror("daemon");
+	    return EXIT_FAILURE;
+	}
+    }
 
     int ret = connect_to_server(host, port, login, pass, channel,
 			     opts, mode, cmd_args, plugins);

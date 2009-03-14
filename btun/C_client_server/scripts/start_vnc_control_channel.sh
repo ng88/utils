@@ -6,7 +6,7 @@
 # Start the VNC control channel
 #
 
-if [ "$5" = "" ]
+if [ "$6" = "" ]
 then	
     echo "usage: $0 username passfile btunserver vnc_host vnc_port machine" >&2
     exit 1

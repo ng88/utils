@@ -74,7 +74,7 @@ int main(int argc, char ** argv)
 		puts("Error: missing channel name argument");
 	    else
 	    {
-		snprintf(sys, SYSBUFFSIZE, "btun -f %s %s@%s %s nc %s %s", passfile, username, server, arg0, vhost, vport);
+		snprintf(sys, SYSBUFFSIZE, "btun -d -f %s %s@%s %s nc %s %s", passfile, username, server, arg0, vhost, vport);
 		system(sys);
 		puts("Ok");
 	    }

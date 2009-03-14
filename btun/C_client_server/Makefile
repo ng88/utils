@@ -18,6 +18,13 @@ else
     LDDL=-rdynamic -ldl
 endif
 
+ifdef DISABLE_VTTY
+    VTTY=
+else
+    VTTY=-DVTTY=1
+endif
+
+
 ifdef DEBUG
     DEBUGFLAGS=-g -ggdb -dH -D_DEBUG_=1 -DDEBUG=1
     STRIP=@echo
@@ -47,7 +54,7 @@ else
 endif
 
 CC=gcc
-CFLAGS=-W -Wall -Wno-unused -O3 $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DUDL) $(PLUGFLAGS) $(IPF)
+CFLAGS=-W -Wall -Wno-unused -O3 $(REVFLAGS) $(DEBUGFLAGS) $(ASSERTFLAGS) $(DDPFLAGS) $(DUDL) $(PLUGFLAGS) $(IPF) $(VTTY)
 LDFLAGS=
 
 SRC=common.c vector.c md5.c misc.c
@@ -85,7 +92,7 @@ $(EXE2): svnrev $(OBJS2)
 	@[ -z $(DUDL) ] || echo Making plugins...
 	@[ -z $(DUDL) ] || $(MAKE) -C plugins
 
-.PHONY: clean mrproper svnrev
+.PHONY: clean mrproper svnrev win
 
 svnrev:
 	@$(REVCMD) > last_svn_rev~
@@ -101,3 +108,6 @@ mrproper: clean
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)
 
+win:
+	@echo Building Windows version...
+	@$(MAKE) NOASSERT=1 DISABLE_PLUGINS=1 DONT_USE_DL=1 WIN=1 DISABLE_VTTY=1 btun btund

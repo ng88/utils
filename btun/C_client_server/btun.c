@@ -46,7 +46,9 @@ void usage(int ev)
 	  "  Accepted options:\n"
           "   -h                 prints this help and quit\n"
           "   -v                 prints version and quit\n"
+#ifdef VTTY
 	  "   -t                 uses a pseudo terminal for command execution\n"
+#endif
 	  "   -f <file>          reads passhrase from 'file' (if 'file' is -, stdin is used)\n"
 	  "                      the file must only contains the md5 hash of the user passphrase\n"
 	  "   -p <port>          uses 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"

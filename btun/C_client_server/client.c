@@ -29,10 +29,9 @@
 #include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <netdb.h>
 #include <errno.h>
 #include <unistd.h>
-
+#include <netdb.h>
 #include <fcntl.h>
 #include <termios.h>
 
@@ -52,6 +51,7 @@
 #include "client.h"
 #include "assert.h"
 #include "misc.h"
+#include "version.h"
 
 #define RECV_BUFF_SIZE 640
 
@@ -376,11 +376,12 @@ void run_cmd(int sockfd, char ** args)
 
 }
 
+
 void run_cmd_pty(int sockfd, char ** args)
 {
-
     c_assert(args && args[0]);
 
+#ifdef VTTY
     int fdm, fds;
 
     if( (fdm = posix_openpt(O_RDWR)) < 0 )
@@ -459,8 +460,11 @@ void run_cmd_pty(int sockfd, char ** args)
     }
     else
 	perror("fork");
-
+#else
+    fputs(CLIENT_NAME ": pseudo terminal mode not supported\n", stderr);
+#endif
 }
+
 
 char * read_passphrase(char * buff, size_t size)
 {

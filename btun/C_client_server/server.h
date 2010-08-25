@@ -42,7 +42,7 @@ typedef enum
 } log_event_t;
 
 
-int start_server(user_pool_t * existing_users, port_t port, FILE * logfile);
+int start_server(user_pool_t * existing_users, port_t port, FILE * logfile, option_t options);
 
 /** remove e & return the next entry to delete */
 channel_entry_t * remove_user(channel_entry_t * e);

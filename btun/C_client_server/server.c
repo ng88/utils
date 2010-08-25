@@ -48,7 +48,7 @@ static vector_t * users; /* connected users */
 static stats_t stats;
 static FILE * logfile;
 
-int start_server(user_pool_t * eu, port_t port, FILE * flog)
+int start_server(user_pool_t * eu, port_t port, FILE * flog, option_t options)
 {
     server_run = 1;
 
@@ -72,6 +72,9 @@ int start_server(user_pool_t * eu, port_t port, FILE * flog)
     size_t i;
 
     int yes = 1;
+
+    if(options & OPT_NOAUTH)
+	add_channel_to_pool(channels, create_channel("::global"));
 
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
@@ -154,6 +157,13 @@ int start_server(user_pool_t * eu, port_t port, FILE * flog)
 		vector_add_element(users, ne);
 		
 		log_write(LE_CONNECTION, ne);
+
+		if(options & OPT_NOAUTH)
+		{
+		    ne->channel = channel_at(channels, 0);
+		    if(channel_add_user(ne->channel, ne, options) == CA_GRANTED)
+			ne->step = S_AFFECTED;
+		}
 
 		dbg_printf("incoming connection from %s on socket %d\n",
 			   inet_ntoa(rmaddr.sin_addr), fd);
@@ -280,6 +290,7 @@ channel_entry_t * remove_user(channel_entry_t * e)
 
 }
 
+
 bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 {
 
@@ -401,7 +412,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 
 	rep = CA_GRANTED;
 
-        e->channel = channel_from_name(channels, str);
+	e->channel = channel_from_name(channels, str);
 
 	if(!e->channel) /* channel does not exist, try to create it*/
 	{
@@ -436,6 +447,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 	    log_write(LE_USER_LOGIN, e);
 	}
 
+
 	return (rep == CA_GRANTED);
 
     case S_AFFECTED:
@@ -445,7 +457,7 @@ bool process_incoming_data(char * buf, int n, channel_entry_t * e, fd_set * fs)
 
 	channel_t * c = e->channel;
 
-	if(!c || !e->user) /* protocol violation */
+	if(!c /*|| (!e->user)*/) /* protocol violation */
 	    return false;
 
 	dbg_printf("socket `%d' want to dispatch some data...\n", e->fd);

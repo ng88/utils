@@ -27,6 +27,7 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include "assert.h"
 #include "bool.h"
@@ -42,6 +43,7 @@
 void usage(int ev)
 {
     fputs("usage: " CLIENT_NAME " [options] user@host channel [command arg1 ... argn]\n"
+	  "       " CLIENT_NAME " -n host [command arg1 ... argn]\n"
           "  Connect to a btund server on specified host.\n\n"
 	  "  Accepted options:\n"
           "   -h                 prints this help and quit\n"
@@ -63,7 +65,8 @@ void usage(int ev)
 	  "   -u                 creates an unrestricted channel\n"
 	  "   -r                 creates a restricted channel (default)\n"
 	  "   -a                 creates an autoclose channel\n"
-	  "   -c                 creates a channel used for control (implies -m)\n\n"
+	  "   -c                 creates a channel used for control (implies -m, 2 users max.)\n"
+	  "   -n                 bypass authentification\n\n"
 	  "  Note: -c, -m, -u and -a will ONLY work if you are the first to join the specified channel.\n"
 	  "\n"
 	  , stderr);
@@ -146,6 +149,7 @@ int main(int argc, char ** argv)
     FILE * fpass = NULL;
     option_t opts = 0;
     bool show_version = false;
+    int arg_shift = 0;
 
     char * channel;
     char * host;
@@ -158,7 +162,7 @@ int main(int argc, char ** argv)
     vector_t * plugins_args = create_vector(1);
     char * plugins_name = NULL;
 
-    while( (optch = getopt(argc, argv, "o:s:ahvmcurtf:p:d")) != EOF )
+    while( (optch = getopt(argc, argv, "o:s:anhvmcurtf:p:d")) != EOF )
     {
 	switch(optch)
 	{
@@ -208,6 +212,9 @@ int main(int argc, char ** argv)
 	case 'c':
 	    opts |= OPT_CONTROL;
 	    break;
+	case 'n':
+	    opts |= OPT_NOAUTH;
+	    break;
 	case 'm':
 	    opts |= OPT_MASTER;
 	    break;
@@ -239,38 +246,53 @@ int main(int argc, char ** argv)
 	print_version(plugins);
 
     /*         LOGIN AND HOST       */
-    if(argc - optind < 2)
+    if(opts & OPT_NOAUTH)
     {
-	fputs(CLIENT_NAME ": argument missing.\n", stderr);
-	usage(EXIT_FAILURE);
-    }
+	if(argc - optind < 1)
+	{
+	    fputs(CLIENT_NAME ": argument missing.\n", stderr);
+	    usage(EXIT_FAILURE);
+	}
 
-    host = strchr(argv[optind], '@');
-    if(!host)
+	host = argv[optind];
+	
+	/*            CHANNEL          */
+	channel = "::global";
+	arg_shift = 1;
+    }
+    else
     {
-	fprintf(stderr, CLIENT_NAME ": invalid parameter `%s', login@host expected.\n", 
-		argv[optind]);
-	return EXIT_FAILURE;
+	if(argc - optind < 2)
+	{
+	    fputs(CLIENT_NAME ": argument missing.\n", stderr);
+	    usage(EXIT_FAILURE);
+	}
+
+	host = strchr(argv[optind], '@');
+	if(!host)
+	{
+	    fprintf(stderr, CLIENT_NAME ": invalid parameter `%s', login@host expected.\n", 
+		    argv[optind]);
+	    return EXIT_FAILURE;
+	}
+	
+	size_t pos = host - argv[optind];
+	host++;
+	strncpy(login, argv[optind], min_u((size_t)USER_MAX_LOGIN_SIZE, pos));
+	login[pos] = '\0';
+
+	/*            CHANNEL          */
+	channel = argv[optind + 1];
     }
-
-    size_t pos = host - argv[optind];
-    host++;
-    strncpy(login, argv[optind], min_u((size_t)USER_MAX_LOGIN_SIZE, pos));
-    login[pos] = '\0';
-
-
-    /*            CHANNEL          */
-    channel = argv[optind + 1];
-
 
 
     /*       MODE, COMMAND AND ITS ARGS      */
-    if(argc - optind > 2)
+    if(argc - optind > 2 - arg_shift)
     {
 	if(mode == M_NORMAL)
 	    mode = M_EXEC_CMD;
 
-	cmd_args = argv + optind + 2;
+	cmd_args = argv + optind + 2 - arg_shift;
 
     }
     else
@@ -284,31 +306,34 @@ int main(int argc, char ** argv)
 
 
     /*         PASSPHRASE       */
-    if(fpass)
+    if(!(opts & OPT_NOAUTH))
     {
-	if(!fgets(pass, MD5_SIZE * 2 + 1, fpass))
+	if(fpass)
 	{
-	    fputs(CLIENT_NAME ": unable to read passphrase from pass file/stdin!\n", stderr);
-	    return EXIT_FAILURE;
+	    if(!fgets(pass, MD5_SIZE * 2 + 1, fpass))
+	    {
+		fputs(CLIENT_NAME ": unable to read passphrase from pass file/stdin!\n", stderr);
+		return EXIT_FAILURE;
+	    }
+	    fclose(fpass);
 	}
-	fclose(fpass);
-    }
-    else
-    {
-	if(!read_passphrase(pass, USER_MAX_PASS_SIZE))
+	else
 	{
-	    fputs(CLIENT_NAME ": unable to read passphrase!\n", stderr);
-	    return EXIT_FAILURE;
+	    if(!read_passphrase(pass, USER_MAX_PASS_SIZE))
+	    {
+		fputs(CLIENT_NAME ": unable to read passphrase!\n", stderr);
+		return EXIT_FAILURE;
+	    }
+	    
+	    MD5_CTX_ppp m;
+	    MD5Init_ppp(&m);
+	    MD5Update_ppp( &m, pass, strlen(pass) );
+	    MD5Final_ppp(&m);
+	    
+	    MD5ToSring(&m, pass);
+	    
+	    memset(&m, '*', sizeof(m));
 	}
-
-	MD5_CTX_ppp m;
-	MD5Init_ppp(&m);
-	MD5Update_ppp( &m, pass, strlen(pass) );
-	MD5Final_ppp(&m);
-	
-	MD5ToSring(&m, pass);
-
-	memset(&m, '*', sizeof(m));
     }
 
     flush_std();
@@ -324,6 +349,9 @@ int main(int argc, char ** argv)
 
     if(plugins)
 	fprintf(stderr, "WARNING: the plugin feature and the provided plugins are experimental!\n");
+
+    if(geteuid() == 0)
+	fprintf(stderr, "WARNING: your are running btun under root, this is NOT recommended.\n");
 
     if(exe_daemon)
     {

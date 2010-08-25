@@ -48,6 +48,8 @@ enum
     OPT_AUTOCLOSE = 4,
     /** a channel used for control */
     OPT_CONTROL = 8 | OPT_MASTER,
+    /** connect without authentification */
+    OPT_NOAUTH = (16 | OPT_CONTROL) & ~OPT_MASTER ,
 };
 
 typedef unsigned char option_t;

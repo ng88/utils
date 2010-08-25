@@ -64,7 +64,7 @@ channel_t * channel_from_name(channel_pool_t * p, char * name)
     return NULL;
 
 }
-
+ 
 bool add_channel_to_pool(channel_pool_t * p, channel_t * c)
 {
     c_assert(p && c);

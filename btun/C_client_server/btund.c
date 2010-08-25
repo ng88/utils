@@ -52,6 +52,7 @@ void usage(int ev)
           "   -v                 prints version and quit\n"
 	  "   -d                 executes server as a system daemon\n"
 	  "   -l <file>          logs information into file\n"
+	  "   -n                 disable authentification\n\n"
 	  "   -u <file>          specifies the user configuration file\n"
 	  "                      (default is " DEFAULT_USER_FILE  ")\n"
 	  "   -p <port>          uses 'port' instead of the default port (" MXSTR(SERVER_DEFAULT_PORT) ")\n"
@@ -96,12 +97,13 @@ int main(int argc, char ** argv)
 
     bool exe_daemon = false;
     port_t port = SERVER_DEFAULT_PORT;
+    option_t options = 0;
 
     FILE * fusers = NULL;
     FILE * flog = NULL;
     conf_file = NULL;
 
-    while( (optch = getopt(argc, argv, "l:hvdp:u:")) != EOF )
+    while( (optch = getopt(argc, argv, "l:hnvdp:u:")) != EOF )
     {
 	switch(optch)
 	{
@@ -131,6 +133,9 @@ int main(int argc, char ** argv)
 	case 'd':
 	    exe_daemon = true;
 	    break;
+	case 'n':
+	    options |= OPT_NOAUTH;
+	    break;
 	case 'v':
 	    print_version();
 	    break;
@@ -143,22 +148,26 @@ int main(int argc, char ** argv)
 	}
     }
 
-    if(!fusers)
+    users = create_user_pool();
+
+    if(!(options & OPT_NOAUTH))
     {
-	fusers = fopen(DEFAULT_USER_FILE, "r");
 	if(!fusers)
 	{
-	    fputs(SERVER_NAME ": unable to open default user file`" DEFAULT_USER_FILE "'\n",
-		stderr);
-	    return EXIT_FAILURE;
+	    fusers = fopen(DEFAULT_USER_FILE, "r");
+	    if(!fusers)
+	    {
+		fputs(SERVER_NAME ": unable to open default user file`" DEFAULT_USER_FILE "'\n",
+		      stderr);
+		return EXIT_FAILURE;
+	    }
+	    else
+		conf_file = strdup(DEFAULT_USER_FILE);
 	}
-	else
-	    conf_file = strdup(DEFAULT_USER_FILE);
-    }
 
-    users = create_user_pool();
-    read_users_from_file(users, fusers);
-    fclose(fusers);
+	read_users_from_file(users, fusers);
+	fclose(fusers);
+    }
 
     struct sigaction nv, old;
     memset(&nv, 0, sizeof(nv));
@@ -185,7 +194,7 @@ int main(int argc, char ** argv)
 	}
     }
 
-    int r = start_server(users, port, flog);
+    int r = start_server(users, port, flog, options);
 
     free_user_pool(users);
 

@@ -97,112 +97,116 @@ int connect_to_server(char * server, port_t port,
 
     dbg_printf("connected.\n");
 
-    /*     SEND LOGIN    */
-    int n = min_u(strlen(login) + 1, (size_t)USER_MAX_LOGIN_SIZE);
-    if(sendall(sockfd, login, &n) == -1)
+    if(options & OPT_NOAUTH)
+	dbg_printf("skipping authentification step.\n");
+    else
     {
-	perror("login");
-	close(sockfd);
-	return EXIT_FAILURE;
+	/*     SEND LOGIN    */
+	int n = min_u(strlen(login) + 1, (size_t)USER_MAX_LOGIN_SIZE);
+	if(sendall(sockfd, login, &n) == -1)
+	{
+	    perror("login");
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
+
+
+	/*    RECEIVE CHALLENGE   */
+	char ch[  MMAX(CHALLENGE_SIZE, USER_MAX_CHANNEL_SIZE + 1)  ];
+	n = CHALLENGE_SIZE;
+	if(recvall(sockfd, ch, &n) == -1)
+	{
+	    perror("rchallenge");
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
+
+	dbg_printf("challenge received, answering...\n");
+
+	/*    ANSWER CHALLENGE   */
+	MD5_CTX_ppp m;
+	challenge_answer(ch, pass, &m);
+	memset(pass, '*', strlen(pass));
+	n = MD5_SIZE;
+	if(sendall(sockfd, m.digest, &n) == -1)
+	{
+	    perror("achallenge");
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
+
+	/*  RECEIVE AGREEMENT  */
+	n = 1;
+	if(recvall(sockfd, ch, &n) == -1)
+	{
+	    perror("challenge agreement");
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
+
+	if(ch[0] != UA_GRANTED)
+	{
+	    fputs("login failed\n", stderr);
+	    dbg_printf("login failed, error %d\n", ch[0]);
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
+
+	dbg_printf("logged in, requesting channel `%s'...\n", channel);
+
+
+	/*     SEND CHANNEL NAME    */
+	n = min_u(strlen(channel) + 1, (size_t)USER_MAX_CHANNEL_SIZE - 1);
+	strncpy(ch, channel, n);
+	ch[n++] = (char)options;
+	if(sendall(sockfd, ch, &n) == -1)
+	{
+	    perror("channel");
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
+
+
+	/*  RECEIVE AGREEMENT  */
+	n = 1;
+	if(recvall(sockfd, ch, &n) == -1)
+	{
+	    perror("channel agreement");
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
+
+	switch(ch[0])
+	{
+	case CA_GRANTED:
+	    dbg_printf("connected to channel.\n");
+	    break;
+	case CA_DENIED:
+	    fprintf(stderr, "can't join channel `%s': permission denied\n", channel);
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	case CA_CANT_BE_MASTER:
+	    fprintf(stderr, "channel `%s' already exists, can't be the master.\n", channel);
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	case CA_CANT_CHPERM:
+	    fprintf(stderr, "channel `%s' already exists, can't change permissions/options.\n", channel);
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	case CA_TOO_MUCH_CHANNEL:
+	    fprintf(stderr, "can't create channel `%s', too much channels!\n", channel);
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	case CA_TOO_MUCH_USER:
+	    fprintf(stderr, "can't join channel `%s', too much users!\n", channel);
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	default:
+	    fprintf(stderr, "can't join channel `%s', error %d\n", channel, ch[0]);
+	    close(sockfd);
+	    return EXIT_FAILURE;
+	}
     }
-
-
-    /*    RECEIVE CHALLENGE   */
-    char ch[  MMAX(CHALLENGE_SIZE, USER_MAX_CHANNEL_SIZE + 1)  ];
-    n = CHALLENGE_SIZE;
-    if(recvall(sockfd, ch, &n) == -1)
-    {
-	perror("rchallenge");
-	close(sockfd);
-	return EXIT_FAILURE;
-    }
-
-    dbg_printf("challenge received, answering...\n");
-
-    /*    ANSWER CHALLENGE   */
-    MD5_CTX_ppp m;
-    challenge_answer(ch, pass, &m);
-    memset(pass, '*', strlen(pass));
-    n = MD5_SIZE;
-    if(sendall(sockfd, m.digest, &n) == -1)
-    {
-	perror("achallenge");
-	close(sockfd);
-	return EXIT_FAILURE;
-    }
-
-    /*  RECEIVE AGREEMENT  */
-    n = 1;
-    if(recvall(sockfd, ch, &n) == -1)
-    {
-	perror("challenge agreement");
-	close(sockfd);
-	return EXIT_FAILURE;
-    }
-
-    if(ch[0] != UA_GRANTED)
-    {
-	fputs("login failed\n", stderr);
-	dbg_printf("login failed, error %d\n", ch[0]);
-        close(sockfd);
-	return EXIT_FAILURE;
-    }
-
-    dbg_printf("logged in, requesting channel `%s'...\n", channel);
-
-
-    /*     SEND CHANNEL NAME    */
-    n = min_u(strlen(channel) + 1, (size_t)USER_MAX_CHANNEL_SIZE - 1);
-    strncpy(ch, channel, n);
-    ch[n++] = (char)options;
-    if(sendall(sockfd, ch, &n) == -1)
-    {
-	perror("channel");
-	close(sockfd);
-	return EXIT_FAILURE;
-    }
-
-
-    /*  RECEIVE AGREEMENT  */
-    n = 1;
-    if(recvall(sockfd, ch, &n) == -1)
-    {
-	perror("channel agreement");
-	close(sockfd);
-	return EXIT_FAILURE;
-    }
-
-    switch(ch[0])
-    {
-    case CA_GRANTED:
-	dbg_printf("connected to channel.\n");
-	break;
-    case CA_DENIED:
-	fprintf(stderr, "can't join channel `%s': permission denied\n", channel);
-        close(sockfd);
-	return EXIT_FAILURE;
-    case CA_CANT_BE_MASTER:
-	fprintf(stderr, "channel `%s' already exists, can't be the master.\n", channel);
-        close(sockfd);
-	return EXIT_FAILURE;
-    case CA_CANT_CHPERM:
-	fprintf(stderr, "channel `%s' already exists, can't change permissions/options.\n", channel);
-        close(sockfd);
-	return EXIT_FAILURE;
-    case CA_TOO_MUCH_CHANNEL:
-	fprintf(stderr, "can't create channel `%s', too much channels!\n", channel);
-        close(sockfd);
-	return EXIT_FAILURE;
-    case CA_TOO_MUCH_USER:
-	fprintf(stderr, "can't join channel `%s', too much users!\n", channel);
-        close(sockfd);
-	return EXIT_FAILURE;
-    default:
-	fprintf(stderr, "can't join channel `%s', error %d\n", channel, ch[0]);
-        close(sockfd);
-	return EXIT_FAILURE;
-    }
-
 
     run = true;
     ch_pid = 0;
@@ -210,12 +214,15 @@ int connect_to_server(char * server, port_t port,
     switch(mode)
     {
     case M_NORMAL:
+	dbg_printf("starting in normal mode...\n");
 	run_normal(sockfd, 0, 1);
 	break;
     case M_EXEC_CMD:
+	dbg_printf("starting in external command mode, running `%s'...\n", cmd_args[0]);
 	run_cmd(sockfd, cmd_args);
 	break;
     case M_EXEC_CMD_PTY:
+	dbg_printf("starting in external command & terminal mode, running `%s'...\n", cmd_args[0]);
 	run_cmd_pty(sockfd, cmd_args);
 	break;
     }
@@ -268,7 +275,7 @@ void run_normal(int sockfd, int in, int out)
 
 		    if(plugins)
 			n = (int)plugin_system_encode(plugins, buf,
-						       (size_t)n, &plugbuf);
+						      (size_t)n, &plugbuf);
 
 		    if(n == -1 || sendall(sockfd, plugbuf, &n) == -1)
 			run = false;
@@ -287,7 +294,7 @@ void run_normal(int sockfd, int in, int out)
 
 		    if(plugins)
 			n = (int)plugin_system_decode(plugins, buf,
-						       (size_t)n, &plugbuf);
+						      (size_t)n, &plugbuf);
 
 		    if(n == -1 || writeall(out, plugbuf, n) == -1)
 			run = false;
@@ -302,34 +309,34 @@ void run_normal(int sockfd, int in, int out)
 }
 
 /* old version, without run_normal()
-void run_cmd2(int sockfd, char ** args)
-{
+   void run_cmd2(int sockfd, char ** args)
+   {
 
-    c_assert(args && args[0]);
+   c_assert(args && args[0]);
 
-    ch_pid = fork();
+   ch_pid = fork();
 
-    if(ch_pid == 0)
-    {
-	close(0);
-	close(1);
-	close(2);
-	dup(sockfd);
-	dup(sockfd);
-	dup(sockfd);
-	close(sockfd);
-	execvp(args[0], args);
-	perror("exec");
-	_exit(1);
-    }
-    else if(ch_pid > 0)
-    {
-	wait(NULL);
-    }
-    else
-	perror("fork");
+   if(ch_pid == 0)
+   {
+   close(0);
+   close(1);
+   close(2);
+   dup(sockfd);
+   dup(sockfd);
+   dup(sockfd);
+   close(sockfd);
+   execvp(args[0], args);
+   perror("exec");
+   _exit(1);
+   }
+   else if(ch_pid > 0)
+   {
+   wait(NULL);
+   }
+   else
+   perror("fork");
 
-}*/
+   }*/
 
 
 void run_cmd(int sockfd, char ** args)

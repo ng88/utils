@@ -6,7 +6,7 @@ LDFLAGS=-shared -fPIC
 LIBEXT=so
 LIBPREFIX=libbtp
 
-all: $(LIBPREFIX)xoror.$(LIBEXT) $(LIBPREFIX)compress.$(LIBEXT) $(LIBPREFIX)tee.$(LIBEXT)
+all: $(LIBPREFIX)xoror.$(LIBEXT) $(LIBPREFIX)compress.$(LIBEXT) $(LIBPREFIX)tee.$(LIBEXT) $(LIBPREFIX)http.$(LIBEXT)
 
 
 $(LIBPREFIX)xoror.$(LIBEXT): xoror.c

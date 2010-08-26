@@ -27,15 +27,18 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <time.h>
+#include <stdlib.h>
 
 #define  CLEN_SIZE 16
+#define  CACHE_PREVENT_SIZE 16
 
 /* This plugin simulates an HTTP communication.
  */
 
 
 static char client_request[] = 
-             "GET /index.html HTTP/1.0\r\n"
+             "POST %s%d HTTP/1.0\r\n"
              "Host: %s\r\n"
              "Connection: Keep-Alive\r\n"
              "User-Agent: %s\r\n"
@@ -52,8 +55,9 @@ static char server_answer[] =
 
 typedef enum
 {
-    ST_WAIT_HEADER,
-    ST_WAIT_DATA,
+    ST_WAIT_CONTENT_LEN,
+    ST_WAIT_HEADER_END,
+    ST_WAIT_PAYLOAD_END,
 } state_t;
 
 typedef struct
@@ -62,6 +66,7 @@ typedef struct
     char * header;
     char * agent;
     char * host;
+    char * url;
     char mode_client;
 
     state_t state;
@@ -71,6 +76,7 @@ typedef struct
 
 int bt_plugin_init(plugin_info_t * p)
 {
+    srand(time(0));
 
     p->name = "http";
     p->desc = "sham HTTP";
@@ -83,8 +89,10 @@ int bt_plugin_init(plugin_info_t * p)
 
     hd->host = "www.anyhost.com";
     hd->agent = "BTun HTTP plugin";
+    hd->url = "/index.html?cp=";
+
     hd->mode_client = 1;
-    hd->state = ST_WAIT_HEADER;
+    hd->state = ST_WAIT_CONTENT_LEN;
     hd->remain = 0;
 
     if(p->argc > 0 && !strcmp(p->argv[0], "server"))
@@ -94,9 +102,10 @@ int bt_plugin_init(plugin_info_t * p)
     {
 	if(p->argc > 1) hd->host = p->argv[1];
 	if(p->argc > 2) hd->agent = p->argv[2];
+	if(p->argc > 3) hd->url = p->argv[3];
 
 	hd->size = sizeof(client_request) + 2
-	    + strlen(hd->host) + strlen(hd->agent) + CLEN_SIZE;
+	    + strlen(hd->host) + strlen(hd->agent) + strlen(hd->url) + CLEN_SIZE + CACHE_PREVENT_SIZE;
     }
     else
     {
@@ -132,18 +141,18 @@ size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 
     hd_t * hd = (hd_t*)p->data;
 
-    ensure_buffer_size(p, s + hd->size);
+    ensure_buffer_size(p, s + hd->size + 2);
     if(!p->buffer)
 	return BT_ERROR;
 
     if(hd->mode_client)
-	snprintf(p->buffer, hd->size, client_request, hd->host, hd->agent, s);
+	snprintf(p->buffer, hd->size + 1, client_request, hd->url, rand(), hd->host, hd->agent, s);
     else
-	snprintf(p->buffer, hd->size, server_answer, hd->host, s);
+	snprintf(p->buffer, hd->size + 1, server_answer, hd->agent, s);
 
     size_t strsize = strlen(p->buffer);
 
-     strncpy(p->buffer + strsize, in, s);
+    memcpy(p->buffer + strsize, in, s);
 
     *out = p->buffer;
 
@@ -151,47 +160,78 @@ size_t bt_plugin_encode(plugin_info_t * p, char * in, size_t s, char ** out)
 }
 
 
-/** buggy, need packet defragmentation, by using a 'Content_Length:' field for example */
+/** buggy, need packet defragmentation, by using a 'Content_Length:' field for example 
+attentions, les proxy peuvent modifier les entetes, on ne doit pas présumer l'ordre, ni la casse
+init:
+ attends Content-Length:  %u
+ attends \r\n\r\n
+ on compte la bonne quantité de données, ce qui permets de gérer la fragmentation ainsi que du HTTP over HTTP sans pb
+goto init
+gerer tout ca dans un automate comme c'est deja le cas
+
+
+    ST_WAIT_CONTENT_LEN,
+    ST_WAIT_HEADER_END,
+    ST_WAIT_PAYLOAD_END,
+
+*/
 size_t bt_plugin_decode(plugin_info_t * p, char * in, size_t s, char ** out)
 {
     /* Here we have to remove the HTTP header
-       in order to get older data back.
+       in order to get our data back.
     */
 
-   hd_t * hd = (hd_t*)p->data;
+    char * current_buff = in;
+    size_t current_buff_size = s;
+    char * out_buff = in;
+    size_t out_buff_size = 0;
+    hd_t * hd = (hd_t*)p->data;
 
-    ensure_buffer_size(p, s + hd->size);
+   /*  ensure_buffer_size(p, s);
     if(!p->buffer)
 	return BT_ERROR;
+   */
+   
+   if(hd->state == ST_WAIT_CONTENT_LEN)
+   {
+       char * r = strstr(current_buff, "\r\nContent-Length: ");
+       if(r)
+       {
+	   unsigned int cl = 0;
+	   if(sscanf(r + 2, "Content-Length: %u\r\n", &cl))
+	   {
+	       hd->remain = cl;
+	       hd->state = ST_WAIT_HEADER_END;
+	   }
 
-    if(hd->state == ST_WAIT_HEADER)
-    {
+       }
+   }
 
+   if(hd->state == ST_WAIT_HEADER_END)
+   {
+       char * r = strstr(current_buff, "\r\n\r\n");
+       if(r)
+       {
+	   current_buff = r + 4;
+	   current_buff_size = current_buff_size - (r - current_buff) - 4;
+	   hd->state = ST_WAIT_HEADER_END;
+       }
+   }
 
-	/* we look for the first \r\n\r\n sequence */
+   if(hd->state == ST_WAIT_PAYLOAD_END)
+   {
+       if(current_buff_size > hd->remain)
+	   return BT_ERROR; /* many packet in one not supported for the moment */
+       else
+       {
+	   hd->remain -= current_buff_size;
+	   out_buff = current_buff;
+	   out_buff_size = current_buff_size;
+       }
+   }
 
-	size_t i;
-	for(i = 0; i < s - 3; ++i)
-	{
-	    if(in[i]     == '\r' && 
-	       in[i + 1] == '\n' &&
-	       in[i + 2] == '\r' &&
-	       in[i + 3] == '\n')
-	    {
-		*out = in + i + 4;
-		return s - i - 4;
-	    }
-	}
-
-	/* data corrupted or not from our plugin */
-	return BT_ERROR;
-    }
-
-    if(hd->state == ST_WAIT_DATA)
-    {
-    }
-
-
+   *out = out_buff;
+   return out_buff_size;
 }
 
 

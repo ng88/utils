@@ -136,6 +136,12 @@ void print_channel_pool(channel_pool_t * p, FILE * f)
 	if( (c->opts & OPT_AUTOCLOSE) )
 	    fputs(" - autoclose", f);
 
+	if( (c->opts & OPT_CONTROL) )
+	    fputs(" - control", f);
+
+	if( (c->opts & OPT_NOAUTH) )
+	    fputs(" - noauth", f);
+
 	if( (c->opts & OPT_UNRESTRICTED) )
 	    fputs(" - unrestricted:\n", f);
 	else

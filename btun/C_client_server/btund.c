@@ -150,7 +150,9 @@ int main(int argc, char ** argv)
 
     users = create_user_pool();
 
-    if(!(options & OPT_NOAUTH))
+    if(options & OPT_NOAUTH)
+	dbg_printf("starting server in no authentification mode...\n");
+    else
     {
 	if(!fusers)
 	{

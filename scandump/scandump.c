@@ -5,31 +5,21 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdint.h>
 #include "assert.h"
+#include "sigs.h"
+
+extern int fseeko64(FILE *stream, int64_t offset, int whence);
 
 /** @author Nicolas GUILLAUME
  */
 
-typedef signed long long int file_pos_t;
+typedef int64_t file_pos_t;
 typedef union
 {
     uint64_t u64;
     uint32_t u32[2];
 } u62w_t;
-
-typedef struct
-{
-    /** Signature content */
-    char * sig;
-    /** Signature len */
-    size_t len;
-    /** Signature offset */
-    size_t offset;
-    /** File extension */
-    char * ext;
-    /** Size to extract */
-    size_t sz;
-} signature_t;
 
 
 /**
@@ -48,25 +38,6 @@ void search_signatures(FILE * dump, vector_t * matches, const signature_t * sig)
  */
 void extract_files(FILE * dump, vector_t * matches, const char * destfolder, int destcountstart, const signature_t * sig);
 
-enum
-{
-  KiB = 1024,
-  MiB = 1024 * KiB,
-  GiB = 1024 * MiB,
-};
-
-/** Signature count */
-enum { SIGS_COUNT = 4 };
-/** Signature list */
-static const signature_t SIGS[SIGS_COUNT] =
-{
-  /* signature, taille de la signature, offset par rapport au début du fichier, extension du fichier, taille à extraire*/
-  {"\xFF\xD8\xFF\xE0", 4, 0, "jpg", 8 * MiB},
-  {"\xFF\xD8\xFF\xE1", 4, 0, "jpg", 8 * MiB},
-  {"ftypqt", 6, 4, "mov", 64 * MiB},
-  {"ftypM4V", 7, 4, "m4v", 64 * MiB},
-};
-
 
 int main(int argc, char * argv[])
 {
@@ -79,7 +50,6 @@ int main(int argc, char * argv[])
         return 1;
     }
 
-    int i;
     int matchcount = 0;
     vector_t * matches = create_vector(32);
 
@@ -88,15 +58,15 @@ int main(int argc, char * argv[])
     c_assert(f);
 
     // for each signature
-    for(i = 0; i < SIGS_COUNT; i++)
+    const signature_t * s = SIGS;
+    while(!sig_is_null(s))
     {
-        const signature_t * sig = &SIGS[i];
-
-        printf("Looking for %s (%d)...\n", sig->ext, i);
+        printf("Looking for %s...\n", s->ext);
         vector_clear(matches);
-        search_signatures(f, matches, sig);
-	extract_files(f, matches, argv[2], matchcount, sig);	
+        search_signatures(f, matches, s);
+	extract_files(f, matches, argv[2], matchcount, s);	
 	matchcount += vector_size(matches);
+	s++;
     }
     
     free_vector(matches, 1);

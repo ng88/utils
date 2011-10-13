@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "tsf.h"
 
@@ -29,10 +33,30 @@ void extract_archive(const char * archive, const char * dir)
 
 void create_archive(const char * archive, char * files[], int file_count)
 {
+    tsf_file_header_t header;
+
+    int fd = open(archive, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if(fd < 0)
+    {
+	fprintf(stderr, "cannot open %s!\n", archive);
+	return;
+    }
+
+    tsf_begin_entries(fd, &header);
+
     int i;
-    printf("create %s %d\n", archive, file_count);
     for(i = 0; i < file_count; i++)
-	printf(" => %s\n", files[i]);
+    {
+	if(tsf_append_tree_entries(fd, &header, files[i], 0) < 0)
+	{
+	    perror("appending dir tree");
+	    break;
+	}
+    }
+
+    tsf_end_entries(fd, &header);
+
+    close(fd);
 }
 
 int main(int argc, char * argv[])

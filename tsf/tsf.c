@@ -93,11 +93,11 @@ int tsf_append_file_entry(int fddest, tsf_file_header_t * h, const char * file, 
     if(level == 0)
     {
 	format = TSF_EF_RAW;
-        sum = crc32(0L, Z_NULL, 0);
+        sum = adler32(0L, Z_NULL, 0);
 	do
 	{
 	    r = read(fdsrc, buffer, BSIZE);
-	    sum = crc32(sum, (const Bytef *)buffer, r);
+	    sum = adler32(sum, (const Bytef *)buffer, r);
 	    totUncompressed += r;
 	    if(write(fddest, buffer, r) != r)
 	    {

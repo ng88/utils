@@ -46,7 +46,7 @@ typedef struct
     uint32_t extract_size; // size of the extracted file in bytes (same as entry_size if uncompressed)
     uint32_t format; // see tsf_entry_format_t
     uint32_t arg; // depends of selected format
-    uint32_t checksum; // CRC 32 of data (raw) or adler 32 (gz) 
+    uint32_t checksum; //  adler32
     uint16_t name_size;
     const char * name; // strlen(name) == name_size
 } tsf_entry_header_t;

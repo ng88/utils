@@ -9,7 +9,7 @@
 #include <fcntl.h>
 
 #include <arpa/inet.h>
-
+#include <zlib.h>
 
 #include "tsf.h"
 #include "assert.h"
@@ -40,6 +40,7 @@ void tsf_init_file_header(tsf_file_header_t * dest)
     c_assert(dest);
     dest->magic = &TSF_MAGIC[0];
     dest->version = TSF_VERSION;
+    dest->compat_version = TSF_VERSION;
     dest->entry_count = 0;
     dest->extract_size = 0;
     dest->archive_size = TSF_FILE_HEADER_SIZE;
@@ -60,15 +61,16 @@ void tsf_end_entries(int fddest, tsf_file_header_t * h)
 
     write(fddest, h->magic, TSF_MAGIC_SIZE);
     write16(fddest, h->version);
+    write16(fddest, h->compat_version);
     write32(fddest, h->entry_count);
     write32(fddest, h->extract_size);
     write32(fddest, h->archive_size);
-    printf("%d %d\n",h->extract_size,h->archive_size);  
+    printf("origsz=%d archivesz=%d\n",h->extract_size,h->archive_size);  
 }
 
-int tsf_append_file_entry(int fddest, tsf_file_header_t * h, const char * file, const struct stat * st)
+int tsf_append_file_entry(int fddest, tsf_file_header_t * h, const char * file, int level)
 {
-    c_assert(h && file && st);
+    c_assert(h && file);
 
     int fdsrc = open(file, O_RDONLY);
     if(fdsrc < 0)
@@ -78,37 +80,100 @@ int tsf_append_file_entry(int fddest, tsf_file_header_t * h, const char * file, 
     char buffer[BSIZE];
 
     int n = strlen(file);
+    uLong sum = 0;
 
-    write32(fddest, st->st_size);
-    write32(fddest, st->st_size);
-    write32(fddest, TSF_EF_RAW);
-    write32(fddest, 0);
-    write32(fddest, 0);
-    write16(fddest, n);
-    write(fddest, file, n);
+    // skip header
+    lseek(fddest, TSF_ENTRY_HEADER_SIZE + n, SEEK_CUR);
 
-    h->entry_count++;
-    h->extract_size += st->st_size;
-    h->archive_size += TSF_ENTRY_HEADER_SIZE + n + st->st_size;
-
-    ssize_t tot = 0;
+    ssize_t totUncompressed = 0;
+    ssize_t totCompressed = 0;
     ssize_t r;
-    do
+    uint32_t format;
+
+    if(level == 0)
     {
-	r = read(fdsrc, buffer, BSIZE);
-	tot += r;
-	if(write(fddest, buffer, r) != r)
+	format = TSF_EF_RAW;
+        sum = crc32(0L, Z_NULL, 0);
+	do
 	{
-	    close(fdsrc);
-	    return -1;
+	    r = read(fdsrc, buffer, BSIZE);
+	    sum = crc32(sum, (const Bytef *)buffer, r);
+	    totUncompressed += r;
+	    if(write(fddest, buffer, r) != r)
+	    {
+		close(fdsrc);
+		return -1;
+	    }
 	}
+	while(r > 0);
+	totCompressed = totUncompressed;
     }
-    while(r > 0);
+    else
+    {
+	enum { ZBSIZE = (size_t)(((float)BSIZE) * 1.01 + 12.00) + 1 };
+	char buffer_out[ZBSIZE];
+	z_stream cs;
+	format = TSF_EF_GZ;
+	cs.zalloc = Z_NULL;
+	cs.zfree = Z_NULL;
+	cs.opaque = Z_NULL;
+	if(deflateInit(&cs, level) != Z_OK)
+	    return -1;
+
+	do
+	{
+	    r = read(fdsrc, buffer, BSIZE);
+
+	    if(r > 0)
+	    {
+		cs.next_in = (Bytef *)&buffer[0];
+		cs.avail_in = r;
+		cs.next_out = (Bytef *)&buffer_out[0];
+		cs.avail_out = ZBSIZE;
+
+		int status = deflate(&cs, Z_SYNC_FLUSH);
+		int out_sz = ZBSIZE - cs.avail_out;
+
+		if(status != Z_OK && status != Z_STREAM_END)
+		    return -1;
+		
+		if(write(fddest, buffer_out, out_sz) != out_sz)
+		{
+		    close(fdsrc);
+		    return -1;
+		}
+	    }
+	}
+	while(r > 0);
+	deflateEnd(&cs);
+	sum = cs.adler;
+	totCompressed = cs.total_out;
+	totUncompressed = cs.total_in;
+    }
 
     close(fdsrc);
 
-    return tot == st->st_size ? 0 : -1;
+    // go back to header
+    lseek(fddest, -(totUncompressed + TSF_ENTRY_HEADER_SIZE + n), SEEK_CUR);
+
+    write32(fddest, totCompressed);
+    write32(fddest, totUncompressed);
+    write32(fddest, format);
+    write32(fddest, 0);
+    write32(fddest, sum);
+    write16(fddest, n);
+    write(fddest, file, n);
+
+    // go to data end
+    lseek(fddest, totUncompressed, SEEK_CUR);
+
+    h->entry_count++;
+    h->extract_size += totUncompressed;
+    h->archive_size += TSF_ENTRY_HEADER_SIZE + n + totCompressed;
+
+    return 0;
 }
+
 
 int tsf_append_folder_entry(int fddest, tsf_file_header_t * h, const char * folder)
 {
@@ -120,7 +185,7 @@ int tsf_append_folder_entry(int fddest, tsf_file_header_t * h, const char * fold
     write32(fddest, 0);
     write32(fddest, TSF_EF_RAW);
     write32(fddest, 1);
-    write32(fddest, 0);
+    write32(fddest, 0); // no CRC for folders
     write16(fddest, n);
     write(fddest, folder, n);
 
@@ -140,7 +205,7 @@ static int on_file_found(const char *fpath, const struct stat *sb, int tflag, st
     switch(tflag)
     {
     case FTW_F:
-	r = tsf_append_file_entry(off_fd, off_h, fpath, sb);
+	r = tsf_append_file_entry(off_fd, off_h, fpath, 9);
 	break;
     case FTW_D:
 	r = tsf_append_folder_entry(off_fd, off_h, fpath);

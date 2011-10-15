@@ -32,7 +32,7 @@ enum
 
 static const char TSF_MAGIC[TSF_MAGIC_SIZE] = {'T', 'S', 'F', '!'};
 
-static const uint16_t TSF_FILE_HEADER_SIZE = TSF_MAGIC_SIZE+2+4+4+4;
+static const uint16_t TSF_FILE_HEADER_SIZE = TSF_MAGIC_SIZE+2+2+4+4+4;
 static const uint16_t TSF_ENTRY_HEADER_SIZE = 4+4+4+4+4+2;
 
 

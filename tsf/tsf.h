@@ -1,13 +1,26 @@
+/***************************************************************************
+ * Tar Stream Format                                                       *
+ * Tar-like archiving that can be easily streamed over HTTP                *
+ ***************************************************************************/
+ 
+/***************************************************************************
+ *   This file is part of the 'utils' projects                             *
+ *                                                                         *
+ *   'utils' projects                                                      *
+ *                                                                         *
+ *   Copyright (C) 2006, 2008 by GUILLAUME Nicolas                         *
+ *   ng@ngsoft-fr.com                                                      *
+ *                                                                         *
+ *   http://svn.ngsoft-fr.com/trac/utils/                                  *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; version 2 of the License only.          *
+ *   See the COPYING file.                                                 *
+ ***************************************************************************/                                                                
+
 #ifndef TSF_H
 #define TSF_H
-
-/**
- * Tar Stream Format
- * Tar-like archiving that can be easily streamed ofdsver HTTP
- *
- * Author: Nicolas GUILLAUME
- *
- */
 
 #include <stdint.h>
 
@@ -59,28 +72,16 @@ typedef struct
     int verbose_level; // verbosity level
 } tsf_options_t;
 
-
-enum
-{
-    TSF_ST_BSIZE = 65536,
-    TSF_ST_ZBSIZE = (size_t)(((float)TSF_ST_BSIZE) * 1.01 + 12.00) + 1
-};
-typedef struct
-{
-    char * name;
-    int fd;
-    tsf_file_header_t  h;
-    tsf_options_t options;
-    
-    char buffer_in[TSF_ST_BSIZE];
-    char buffer_out[TSF_ST_ZBSIZE];
-} tsf_archive_t;
-
 typedef enum
 {
     TSF_READ,
     TSF_WRITE,
 } tsf_mode_t;
+
+// opaque internal structure
+struct _tsf_archive_s;
+typedef struct _tsf_archive_s tsf_archive_t;
+
 
 ///////// READ WRITE FUNCTIONS ///////////
 

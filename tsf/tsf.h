@@ -23,6 +23,7 @@ static const uint16_t TSF_FILE_HEADER_SIZE = TSF_MAGIC_SIZE+2+4+4+4;
 static const uint16_t TSF_ENTRY_HEADER_SIZE = 4+4+4+4+4+2;
 
 
+
 typedef struct
 {
     const char * magic; // == TSF_MAGIC
@@ -51,20 +52,81 @@ typedef struct
     const char * name; // strlen(name) == name_size
 } tsf_entry_header_t;
 
-struct stat;
+typedef struct
+{
+    int cpr_level;  // compression level
+    int tree_flags; // flags for nftw
+    int verbose_level; // verbosity level
+} tsf_options_t;
 
-void tsf_init_file_header(tsf_file_header_t * dest);
 
-void tsf_begin_entries(int fddest, tsf_file_header_t * h);
+enum
+{
+    TSF_ST_BSIZE = 65536,
+    TSF_ST_ZBSIZE = (size_t)(((float)TSF_ST_BSIZE) * 1.01 + 12.00) + 1
+};
+typedef struct
+{
+    char * name;
+    int fd;
+    tsf_file_header_t  h;
+    tsf_options_t options;
+    
+    char buffer_in[TSF_ST_BSIZE];
+    char buffer_out[TSF_ST_ZBSIZE];
+} tsf_archive_t;
+
+typedef enum
+{
+    TSF_READ,
+    TSF_WRITE,
+} tsf_mode_t;
+
+///////// READ WRITE FUNCTIONS ///////////
+
 /**
- * level: compress level, 0 = uncompressed
+ * Open archive for reading or writting
+ * name & options are copied (can be stack variables)
+ */
+tsf_archive_t * tsf_open_archive(const char * name, tsf_mode_t mode, tsf_options_t * options);
+
+/**
+ * Close archive
+ */
+void tsf_close_archive(tsf_archive_t * a);
+
+
+///////// WRITE ONLY FUNCTIONS ///////////
+
+/**
+ * Begin write
+ */
+void tsf_begin_entries(tsf_archive_t * a);
+
+/**
+ * End write
+ */
+void tsf_end_entries(tsf_archive_t * a);
+
+
+/**
+ * Add a file to a
  * return -1 on error
  */
-int tsf_append_file_entry(int fddest, tsf_file_header_t * h, const char * file, int level);
-// return -1 on error
-int tsf_append_folder_entry(int fddest, tsf_file_header_t * h, const char * folder);
-// return -1 on error, not reetrant
-int tsf_append_tree_entries(int fddest, tsf_file_header_t * h, const char * dir, int flags);
-void tsf_end_entries(int fddest, tsf_file_header_t * h);
+int tsf_append_file_entry(tsf_archive_t * a, const char * file);
+
+/** Add a folder to the archive
+ * return -1 on error
+ */
+int tsf_append_folder_entry(tsf_archive_t * a, const char * folder);
+
+
+/** Add a full tree to a (including all files and folder recursively)
+ * return -1 on error, not reetrant
+ */
+int tsf_append_tree_entries(tsf_archive_t * a, const char * dir);
+
+
+///////// READ ONLY FUNCTIONS ///////////
 
 #endif

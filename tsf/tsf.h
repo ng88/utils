@@ -70,6 +70,7 @@ typedef struct
     int cpr_level;  // compression level
     int tree_flags; // flags for nftw
     int verbose_level; // verbosity level
+    int skip_svn;
 } tsf_options_t;
 
 typedef enum

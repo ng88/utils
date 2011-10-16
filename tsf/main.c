@@ -93,6 +93,7 @@ void arg2options(const char * arg, tsf_options_t * opt)
     opt->cpr_level = 5;
     opt->tree_flags = 0;
     opt->verbose_level = 0;
+    opt->skip_svn = 0;
     for(i = 0; i < n; i++)
     {
 	switch(arg[i])
@@ -104,9 +105,10 @@ void arg2options(const char * arg, tsf_options_t * opt)
 	    opt->cpr_level = arg[i] - '0';
 	    break;
 	case 'v':
-	case 'V':
 	    opt->verbose_level++;
 	    break;
+	case 's':
+	    opt->skip_svn = 1;
 	}
     }
 }

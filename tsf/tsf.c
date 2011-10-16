@@ -19,7 +19,8 @@
  *   See the COPYING file.                                                 *
  ***************************************************************************/                                                                
 
-#define _XOPEN_SOURCE 500
+#define _GNU_SOURCE
+
 #include <ftw.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -311,10 +312,21 @@ static int on_file_found(const char *fpath, const struct stat *sb, int tflag, st
 	r = tsf_append_file_entry(off_a, fpath);
 	break;
     case FTW_D:
+	if(off_a->options.skip_svn && strcmp(".svn", fpath + ftwbuf->base) == 0)
+	{
+	    if(off_a->options.verbose_level > 0)
+		printf("Skipping %s\n", fpath);
+
+	    return FTW_SKIP_SUBTREE;
+	}
+
 	r = tsf_append_folder_entry(off_a, fpath);
 	break;
     }
-    return r;
+    if(r < 0)
+	return FTW_STOP;
+    else
+	return FTW_CONTINUE;
 }
 
 int tsf_append_tree_entries(tsf_archive_t * a, const char * dir)
@@ -323,7 +335,7 @@ int tsf_append_tree_entries(tsf_archive_t * a, const char * dir)
 
     off_a = a;
 
-    if (nftw(dir, &on_file_found, 20, a->options.tree_flags) == -1)
+    if (nftw(dir, &on_file_found, 20, a->options.tree_flags | FTW_ACTIONRETVAL) == FTW_STOP)
 	return -1;
 
     return 0;
